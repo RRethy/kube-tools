@@ -52,6 +52,9 @@ celery validate deployment.yaml service.yaml configmap.yaml --rule-file validati
 # Validate with multiple rule files
 celery validate deployment.yaml --rule-file base-rules.yaml --rule-file prod-rules.yaml
 
+# Validate with glob pattern (must be quoted)
+celery validate deployment.yaml --rule-file "rules/*.yaml"
+
 # Validate all YAML files in a directory
 celery validate *.yaml --rule-file validation-rules.yaml
 
@@ -95,7 +98,7 @@ func init() {
 	rootCmd.AddCommand(validateCmd)
 
 	validateCmd.Flags().StringVarP(&celExpression, "expression", "e", "", "CEL expression to validate resources")
-	validateCmd.Flags().StringSliceVarP(&ruleFiles, "rule-file", "r", []string{}, "YAML files containing validation rules (can be specified multiple times)")
+	validateCmd.Flags().StringSliceVarP(&ruleFiles, "rule-file", "r", []string{}, "YAML files containing validation rules (supports globs when quoted, can be specified multiple times)")
 	validateCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
 	validateCmd.Flags().IntVar(&maxWorkers, "max-workers", defaultWorkers, "Maximum number of parallel workers for multi-file validation")
 

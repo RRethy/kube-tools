@@ -3,6 +3,7 @@ package validate
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 
 	apiv1 "github.com/RRethy/utils/celery/api/v1"
 	"github.com/RRethy/utils/celery/pkg/validator"
@@ -33,12 +34,25 @@ func (v *Validater) Validate(
 		ruless = append(ruless, createInlineValidationRule(celExpression, targetGroup, targetVersion, targetKind, targetName, targetNamespace, targetLabelSelector, targetAnnotationSelector))
 	}
 
-	for _, ruleFile := range ruleFiles {
-		loadedRules, err := yaml.ParseYAMLFileToValidationRules(ruleFile)
+	for _, ruleFilePattern := range ruleFiles {
+		// Expand glob pattern if present (when quoted on command line)
+		matches, err := filepath.Glob(ruleFilePattern)
 		if err != nil {
-			return fmt.Errorf("loading validation rules from %s: %w", ruleFile, err)
+			return fmt.Errorf("expanding glob pattern %s: %w", ruleFilePattern, err)
 		}
-		ruless = append(ruless, loadedRules...)
+		
+		// If no matches, treat as literal filename
+		if len(matches) == 0 {
+			matches = []string{ruleFilePattern}
+		}
+		
+		for _, ruleFile := range matches {
+			loadedRules, err := yaml.ParseYAMLFileToValidationRules(ruleFile)
+			if err != nil {
+				return fmt.Errorf("loading validation rules from %s: %w", ruleFile, err)
+			}
+			ruless = append(ruless, loadedRules...)
+		}
 	}
 
 	if len(ruless) == 0 {
@@ -90,11 +104,11 @@ func displayResults(results []validator.ValidationResult, verbose bool) error {
 	for _, result := range results {
 		if !result.Valid {
 			hasFailures = true
-			msg := fmt.Sprintf("❌ [%s] %s: %v", result.RuleName, result.InputFile, result.Err)
+			msg := fmt.Sprintf("❌ [%s from %s] %s: %v", result.RuleName, result.RuleFile, result.InputFile, result.Err)
 			failureMessages = append(failureMessages, msg)
 			fmt.Println(msg)
 		} else if verbose {
-			fmt.Printf("✅ [%s] %s: PASSED\n", result.RuleName, result.InputFile)
+			fmt.Printf("✅ [%s from %s] %s: PASSED\n", result.RuleName, result.RuleFile, result.InputFile)
 		}
 	}
 
