@@ -7,6 +7,7 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
+// CreateDescribeTool creates an MCP tool for describing Kubernetes resources
 func (t *Tools) CreateDescribeTool() mcp.Tool {
 	return mcp.NewTool("describe",
 		mcp.WithDescription("Describe Kubernetes resources to get detailed information including events"),
@@ -18,6 +19,7 @@ func (t *Tools) CreateDescribeTool() mcp.Tool {
 	)
 }
 
+// HandleDescribe processes describe requests for detailed resource information
 func (t *Tools) HandleDescribe(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	args, ok := req.Params.Arguments.(map[string]any)
 	if !ok {

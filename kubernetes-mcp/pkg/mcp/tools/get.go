@@ -7,6 +7,7 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
+// CreateGetTool creates an MCP tool for getting Kubernetes resources
 func (t *Tools) CreateGetTool() mcp.Tool {
 	return mcp.NewTool("get",
 		mcp.WithDescription("Get Kubernetes resources from the current context/namespace using kubectl"),
@@ -21,6 +22,7 @@ func (t *Tools) CreateGetTool() mcp.Tool {
 	)
 }
 
+// HandleGet processes get requests for Kubernetes resources
 func (t *Tools) HandleGet(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	args, ok := req.Params.Arguments.(map[string]any)
 	if !ok {

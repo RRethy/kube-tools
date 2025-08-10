@@ -1,3 +1,4 @@
+// Package cmd implements CLI commands for the kubernetes-mcp server
 package cmd
 
 import (
@@ -17,6 +18,7 @@ information including resources, logs, and events.`,
 	SilenceErrors: true,
 }
 
+// Execute runs the root command and handles errors
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)

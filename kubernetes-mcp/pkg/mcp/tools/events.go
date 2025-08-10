@@ -7,6 +7,7 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
+// CreateEventsTool creates an MCP tool for retrieving cluster events
 func (t *Tools) CreateEventsTool() mcp.Tool {
 	return mcp.NewTool("events",
 		mcp.WithDescription("Get events from Kubernetes with filtering options"),
@@ -18,6 +19,7 @@ func (t *Tools) CreateEventsTool() mcp.Tool {
 	)
 }
 
+// HandleEvents processes requests to retrieve Kubernetes events
 func (t *Tools) HandleEvents(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	args, ok := req.Params.Arguments.(map[string]any)
 	if !ok {

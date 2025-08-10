@@ -1,13 +1,11 @@
 package serve
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"testing"
 
 	mcpserver "github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/mcp/server"
-	"k8s.io/cli-runtime/pkg/genericiooptions"
 )
 
 func TestServer_Serve(t *testing.T) {
@@ -33,13 +31,8 @@ func TestServer_Serve(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fakeServer := mcpserver.NewFakeMCPServer(tt.serveError)
-
+			
 			s := &Server{
-				IOStreams: genericiooptions.IOStreams{
-					In:     &bytes.Buffer{},
-					Out:    &bytes.Buffer{},
-					ErrOut: &bytes.Buffer{},
-				},
 				MCPServer: fakeServer,
 			}
 

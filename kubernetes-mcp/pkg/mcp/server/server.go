@@ -1,3 +1,4 @@
+// Package server provides the MCP server implementation for Kubernetes operations
 package server
 
 import (
@@ -5,6 +6,7 @@ import (
 	"github.com/mark3labs/mcp-go/server"
 )
 
+// MCPServer defines the interface for serving MCP requests
 type MCPServer interface {
 	Serve(opts ...ServerOption) error
 }
@@ -15,17 +17,20 @@ type mcpServer struct {
 }
 
 type serverOptions struct {
-	excludeReadonlyTools bool
+	includeReadonlyTools bool
 }
 
+// ServerOption configures server behavior
 type ServerOption func(*serverOptions)
 
-func WithExcludeReadonlyTools(exclude bool) ServerOption {
+// WithIncludeReadonlyTools configures whether to include readonly Kubernetes tools
+func WithIncludeReadonlyTools(include bool) ServerOption {
 	return func(o *serverOptions) {
-		o.excludeReadonlyTools = exclude
+		o.includeReadonlyTools = include
 	}
 }
 
+// NewMCPServer creates a new MCP server instance
 func NewMCPServer(name string, version string) MCPServer {
 	return &mcpServer{
 		name:    name,
@@ -33,8 +38,11 @@ func NewMCPServer(name string, version string) MCPServer {
 	}
 }
 
+// Serve starts the MCP server with optional configuration
 func (m *mcpServer) Serve(opts ...ServerOption) error {
-	options := &serverOptions{}
+	options := &serverOptions{
+		includeReadonlyTools: true,
+	}
 	for _, opt := range opts {
 		opt(options)
 	}
@@ -46,7 +54,7 @@ func (m *mcpServer) Serve(opts ...ServerOption) error {
 		server.WithPromptCapabilities(false),
 	)
 
-	if !options.excludeReadonlyTools {
+	if options.includeReadonlyTools {
 		t := tools.New()
 		s.AddTools(
 			server.ServerTool{Tool: t.CreateGetTool(), Handler: t.HandleGet},
@@ -70,4 +78,3 @@ func (m *mcpServer) Serve(opts ...ServerOption) error {
 
 	return server.ServeStdio(s)
 }
-

@@ -7,6 +7,7 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
+// CreateLogsTool creates an MCP tool for retrieving pod logs
 func (t *Tools) CreateLogsTool() mcp.Tool {
 	return mcp.NewTool("logs",
 		mcp.WithDescription("Get logs from a pod container"),
@@ -22,6 +23,7 @@ func (t *Tools) CreateLogsTool() mcp.Tool {
 	)
 }
 
+// HandleLogs processes requests to retrieve pod container logs
 func (t *Tools) HandleLogs(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	args, ok := req.Params.Arguments.(map[string]any)
 	if !ok {

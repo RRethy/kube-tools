@@ -7,6 +7,7 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
+// CreateAuthCanITool creates an MCP tool for checking RBAC permissions
 func (t *Tools) CreateAuthCanITool() mcp.Tool {
 	return mcp.NewTool("auth-can-i",
 		mcp.WithDescription("Check whether an action is allowed"),
@@ -20,6 +21,7 @@ func (t *Tools) CreateAuthCanITool() mcp.Tool {
 	)
 }
 
+// HandleAuthCanI processes authorization check requests
 func (t *Tools) HandleAuthCanI(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	args, ok := req.Params.Arguments.(map[string]any)
 	if !ok {

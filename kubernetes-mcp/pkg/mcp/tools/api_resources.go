@@ -7,6 +7,7 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
+// CreateAPIResourcesTool creates an MCP tool for listing API resources
 func (t *Tools) CreateAPIResourcesTool() mcp.Tool {
 	return mcp.NewTool("api-resources",
 		mcp.WithDescription("Get supported API resources on the server"),
@@ -18,6 +19,7 @@ func (t *Tools) CreateAPIResourcesTool() mcp.Tool {
 	)
 }
 
+// HandleAPIResources processes requests to list available API resources
 func (t *Tools) HandleAPIResources(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	args, ok := req.Params.Arguments.(map[string]any)
 	if !ok {

@@ -1,3 +1,4 @@
+// Package tools implements kubectl command wrappers for MCP tool handlers
 package tools
 
 import (
@@ -11,8 +12,10 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
+// Tools provides kubectl command execution for MCP tool handlers
 type Tools struct{}
 
+// New creates a new Tools instance
 func New() *Tools {
 	return &Tools{}
 }
