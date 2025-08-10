@@ -146,11 +146,7 @@ celery validate -f rules.yaml deployment.yaml
 
 When writing CEL expressions, you have access to:
 - `object` - The Kubernetes resource being validated
-- `oldObject` - Previous version (for updates)
-- `request` - Admission request details
-- `params` - Rule parameters
-- `namespaceObject` - Namespace object (for namespaced resources)
-- `authorizer` - For authorization checks
+- `allObjects` - List of all resources in the current validation batch (for cross-resource validation)
 
 ## Requirements
 

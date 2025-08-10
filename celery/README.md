@@ -66,7 +66,6 @@ apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: production-standards
-  namespace: default
 spec:
   rules:
     - name: minimum-replicas
