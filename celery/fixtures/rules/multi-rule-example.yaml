@@ -1,6 +1,6 @@
 # Multiple ValidationRules in a single file
 ---
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: frontend-rules
@@ -24,7 +24,7 @@ spec:
         kind: Deployment
         labelSelector: "tier=frontend"
 ---
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: backend-rules
@@ -51,7 +51,7 @@ spec:
         kind: Deployment
         labelSelector: "tier=backend"
 ---
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: database-rules

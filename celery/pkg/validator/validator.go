@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 
 	apiv1 "github.com/RRethy/k8s-tools/celery/api/v1"
@@ -48,12 +49,21 @@ func (v *Validator) Validate(ctx context.Context, inputFiles []string, ruless []
 		for _, rule := range rules.Spec.Rules {
 			ast, issues := env.Compile(rule.Expression)
 			if issues != nil && issues.Err() != nil {
-				parseErrs = append(parseErrs, fmt.Errorf("compiling rule %s in file %s: %w", rule.Name, rules.Filename, issues.Err()))
+				errMsg := issues.Err().Error()
+				if idx := strings.Index(errMsg, "ERROR:"); idx != -1 {
+					errMsg = strings.TrimSpace(errMsg[idx+6:])
+					if nlIdx := strings.Index(errMsg, "\n"); nlIdx != -1 {
+						errMsg = strings.TrimSpace(errMsg[:nlIdx])
+					}
+				}
+				parseErrs = append(parseErrs, fmt.Errorf("invalid expression in rule '%s' (%s): %s", rule.Name, rules.Filename, errMsg))
+				continue
 			}
 
 			prg, err := env.Program(ast)
 			if err != nil {
-				parseErrs = append(parseErrs, fmt.Errorf("creating converting parsed rule %s in file %s to CEL program: %w", rule.Name, rules.Filename, err))
+				parseErrs = append(parseErrs, fmt.Errorf("failed to compile rule '%s' (%s): %w", rule.Name, rules.Filename, err))
+				continue
 			}
 
 			parsedRules = append(parsedRules, Rule{

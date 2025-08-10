@@ -104,8 +104,8 @@ func init() {
 
 	validateCmd.Flags().StringVar(&targetGroup, "target-group", "", "Target resources by API group (e.g., apps, batch)")
 	validateCmd.Flags().StringVar(&targetVersion, "target-version", "", "Target resources by API version (e.g., v1, v1beta1)")
-	validateCmd.Flags().StringVar(&targetKind, "target-kind", "", "Target resources by kind (supports regex)")
-	validateCmd.Flags().StringVar(&targetName, "target-name", "", "Target resources by name (supports regex)")
+	validateCmd.Flags().StringVar(&targetKind, "target-kind", "", "Target resources by kind")
+	validateCmd.Flags().StringVar(&targetName, "target-name", "", "Target resources by name")
 	validateCmd.Flags().StringVar(&targetNamespace, "target-namespace", "", "Target resources in specific namespace")
 	validateCmd.Flags().StringVar(&targetLabelSelector, "target-labels", "", "Target resources by label selector (e.g., 'app=nginx,tier=frontend')")
 	validateCmd.Flags().StringVar(&targetAnnotationSelector, "target-annotations", "", "Target resources by annotation selector")

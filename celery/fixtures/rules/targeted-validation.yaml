@@ -1,4 +1,4 @@
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: deployment-standards
@@ -17,7 +17,7 @@ spec:
         kind: Deployment
         namespace: production
 ---
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: service-standards
@@ -30,7 +30,7 @@ spec:
       target:
         kind: Service
 ---
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: statefulset-standards
@@ -45,7 +45,7 @@ spec:
       target:
         kind: "StatefulSet"
 ---
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: specific-resource-standards

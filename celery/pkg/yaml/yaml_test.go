@@ -95,7 +95,7 @@ func TestParseYAMLToValidationRules(t *testing.T) {
 		{
 			name: "single validation rules",
 			input: `
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: test-rules
@@ -111,7 +111,7 @@ spec:
 		{
 			name: "multiple validation rules",
 			input: `
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: rules-1
@@ -120,7 +120,7 @@ spec:
     - name: rule-1
       expression: "true"
 ---
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: rules-2
@@ -140,7 +140,7 @@ kind: Service
 metadata:
   name: test-service
 ---
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: test-rules
@@ -282,7 +282,7 @@ func TestParseYAMLFileToValidationRules(t *testing.T) {
 	testFile := filepath.Join(tmpDir, "rules.yaml")
 	
 	content := `
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: test-rules

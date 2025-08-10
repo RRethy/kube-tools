@@ -95,7 +95,7 @@ celery validate resources/cross-reference-resources.yaml --rule-file rules/cross
 
 ### Basic Structure
 ```yaml
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: my-rules
@@ -140,10 +140,10 @@ allObjects.exists(r, r.kind == 'Service' && r.metadata.name == object.metadata.n
 
 Selectors can be combined to precisely target resources:
 
-- `kind`: Resource type (supports regex)
-- `namespace`: Specific namespace (supports regex)  
+- `kind`: Resource type
+- `namespace`: Specific namespace
 - `group`: API group (e.g., "apps")
 - `version`: API version (e.g., "v1")
-- `name`: Resource name (supports regex)
+- `name`: Resource name
 - `labelSelector`: Kubernetes label selector syntax
 - `annotationSelector`: Annotation selector syntax

@@ -64,7 +64,7 @@ func (v *Validater) Validate(
 	val := &validator.Validator{}
 	results, err := val.Validate(ctx, files, ruless)
 	if err != nil {
-		return fmt.Errorf("validating input: %w", err)
+		return fmt.Errorf("validation failed: %w", err)
 	}
 
 	return v.displayResults(results, verbose)

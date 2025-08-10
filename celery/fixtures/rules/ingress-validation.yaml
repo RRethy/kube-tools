@@ -1,4 +1,4 @@
-apiVersion: celery.rrethy.io/v1alpha1
+apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
 metadata:
   name: ingress-policies
