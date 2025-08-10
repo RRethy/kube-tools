@@ -1,0 +1,39 @@
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: statefulset-policies
+spec:
+  rules:
+    - name: has-service-name
+      expression: |
+        has(object.spec.serviceName) && 
+        object.spec.serviceName != ''
+      message: "StatefulSet must have a serviceName"
+      target:
+        kind: StatefulSet
+    
+    - name: has-volume-claim-templates
+      expression: |
+        has(object.spec.volumeClaimTemplates) && 
+        size(object.spec.volumeClaimTemplates) > 0
+      message: "StatefulSet should have volumeClaimTemplates for persistent storage"
+      target:
+        kind: StatefulSet
+    
+    - name: ordered-deployment
+      expression: |
+        !has(object.spec.updateStrategy) ||
+        !has(object.spec.updateStrategy.type) ||
+        object.spec.updateStrategy.type == 'RollingUpdate'
+      message: "StatefulSet should use RollingUpdate strategy"
+      target:
+        kind: StatefulSet
+    
+    - name: pod-management-policy
+      expression: |
+        !has(object.spec.podManagementPolicy) ||
+        object.spec.podManagementPolicy == 'OrderedReady'
+      message: "StatefulSet should use OrderedReady pod management for databases"
+      target:
+        kind: StatefulSet
+        labelSelector: "tier=database"

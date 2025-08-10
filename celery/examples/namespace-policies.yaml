@@ -1,0 +1,41 @@
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: namespace-policies
+spec:
+  rules:
+    - name: production-high-availability
+      expression: |
+        object.kind != 'Deployment' ||
+        object.spec.replicas >= 3
+      message: "Production deployments must have at least 3 replicas"
+      target:
+        namespace: production
+        kind: Deployment
+    
+    - name: staging-resource-limits
+      expression: |
+        object.kind != 'Deployment' ||
+        object.spec.template.spec.containers.all(c,
+          has(c.resources.limits) &&
+          has(c.resources.limits.memory) &&
+          c.resources.limits.memory.matches('^[0-9]+(Mi|Gi)$')
+        )
+      message: "Staging deployments must have memory limits"
+      target:
+        namespace: staging
+        kind: Deployment
+    
+    - name: dev-namespace-labels
+      expression: |
+        has(object.metadata.labels.team) &&
+        has(object.metadata.labels.project)
+      message: "Development resources must have team and project labels"
+      target:
+        namespace: "dev-.*"  # Regex matching dev-team1, dev-team2, etc.
+    
+    - name: system-namespace-protection
+      expression: |
+        object.kind == 'Namespace' ||
+        !object.metadata.namespace.matches('^(kube-system|kube-public|kube-node-lease)$')
+      message: "Cannot deploy user workloads to system namespaces"

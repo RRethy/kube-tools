@@ -1,0 +1,72 @@
+# Multiple ValidationRules in a single file
+---
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: frontend-rules
+spec:
+  rules:
+    - name: frontend-replicas
+      expression: "object.spec.replicas >= 2"
+      message: "Frontend services need at least 2 replicas"
+      target:
+        kind: Deployment
+        labelSelector: "tier=frontend"
+    
+    - name: frontend-ingress-required
+      expression: |
+        allObjects.exists(i,
+          i.kind == 'Ingress' &&
+          i.metadata.namespace == object.metadata.namespace
+        )
+      message: "Frontend deployments should have an Ingress"
+      target:
+        kind: Deployment
+        labelSelector: "tier=frontend"
+---
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: backend-rules
+spec:
+  rules:
+    - name: backend-health-checks
+      expression: |
+        object.spec.template.spec.containers.all(c,
+          has(c.livenessProbe) && has(c.readinessProbe)
+        )
+      message: "Backend services must have health checks"
+      target:
+        kind: Deployment
+        labelSelector: "tier=backend"
+    
+    - name: backend-persistence
+      expression: |
+        has(object.spec.template.spec.volumes) &&
+        object.spec.template.spec.volumes.exists(v,
+          has(v.persistentVolumeClaim) || has(v.emptyDir)
+        )
+      message: "Backend services should have persistent storage"
+      target:
+        kind: Deployment
+        labelSelector: "tier=backend"
+---
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: database-rules
+spec:
+  rules:
+    - name: database-statefulset
+      expression: "false"  # This will always fail for Deployments
+      message: "Databases should use StatefulSet, not Deployment"
+      target:
+        kind: Deployment
+        labelSelector: "tier=database"
+    
+    - name: database-single-replica
+      expression: "object.spec.replicas == 1"
+      message: "Database StatefulSets should have exactly 1 replica (use external replication)"
+      target:
+        kind: StatefulSet
+        labelSelector: "tier=database"

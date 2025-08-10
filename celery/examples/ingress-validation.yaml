@@ -1,0 +1,35 @@
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: ingress-policies
+spec:
+  rules:
+    - name: requires-tls
+      expression: |
+        has(object.spec.tls) && 
+        size(object.spec.tls) > 0 &&
+        object.spec.tls.all(t, size(t.hosts) > 0)
+      message: "Ingress must have TLS configuration with hosts"
+      target:
+        kind: Ingress
+    
+    - name: valid-host-format
+      expression: |
+        object.spec.rules.all(r, 
+          has(r.host) && 
+          r.host.matches('^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$')
+        )
+      message: "Ingress hosts must be valid DNS names"
+      target:
+        kind: Ingress
+    
+    - name: path-prefix-required
+      expression: |
+        object.spec.rules.all(r,
+          r.http.paths.all(p,
+            has(p.path) && p.path.startsWith('/')
+          )
+        )
+      message: "All ingress paths must start with '/'"
+      target:
+        kind: Ingress

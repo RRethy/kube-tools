@@ -11,7 +11,6 @@ Use the provided Makefile for common development tasks:
 make build                 - Build all binaries
 make build-kubectl-x       - Build the kubectl-x binary
 make build-kubernetes-mcp  - Build the kubernetes-mcp binary
-make build-kustomizelite   - Build the kustomizelite binary
 make test                  - Run all tests
 make lint                  - Run golangci-lint
 make lint-fix              - Run golangci-lint with auto-fix
@@ -29,7 +28,6 @@ go work sync
 # Install from source
 go install github.com/RRethy/utils/kubectl-x@latest           # kubectl-x CLI
 go install github.com/RRethy/utils/kubernetes-mcp@latest       # kubernetes-mcp CLI
-go install github.com/RRethy/utils/kustomizelite@latest        # kustomizelite CLI
 ```
 
 ## Architecture
@@ -38,7 +36,6 @@ go install github.com/RRethy/utils/kustomizelite@latest        # kustomizelite C
 This is a Go workspace with three modules:
 - `kubectl-x/` - Kubernetes context and namespace switching CLI
 - `kubernetes-mcp/` - Readonly MCP (Model Context Protocol) server for Kubernetes
-- `kustomizelite/` - Lightweight Kustomize CLI tool
 
 The root contains `go.work` for workspace configuration.
 
@@ -46,7 +43,7 @@ The root contains `go.work` for workspace configuration.
 
 ### Go Workspace Configuration
 - Uses Go 1.24.4
-- Multi-module workspace with `kubectl-x/`, `kubernetes-mcp/`, and `kustomizelite/` modules
+- Multi-module workspace with `kubectl-x/`, and `kubernetes-mcp/` modules
 - Use `go work sync` to synchronize dependencies across workspace
 - All modules include golangci-lint as tool dependency
 
@@ -60,15 +57,9 @@ The root contains `go.work` for workspace configuration.
 │   ├── cmd/            # CLI commands
 │   ├── internal/       # Internal packages
 │   └── main.go
-├── kubernetes-mcp/     # MCP server for Kubernetes
-│   ├── cmd/            # CLI commands (root, serve)
-│   ├── pkg/mcp/        # MCP server implementation
-│   └── main.go
-└── kustomizelite/      # Lightweight Kustomize CLI
-    ├── CLAUDE.md       # Module-specific documentation
-    ├── api/v1/         # Data structures
-    ├── cmd/            # CLI commands
-    ├── pkg/            # Business logic packages
+`── kubernetes-mcp/     # MCP server for Kubernetes
+    ├── cmd/            # CLI commands (root, serve)
+    ├── pkg/mcp/        # MCP server implementation
     └── main.go
 ```
 

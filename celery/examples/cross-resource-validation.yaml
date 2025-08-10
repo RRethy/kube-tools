@@ -1,0 +1,77 @@
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: cross-resource-checks
+spec:
+  rules:
+    - name: service-has-matching-deployment
+      expression: |
+        object.kind != 'Service' ||
+        allObjects.exists(d, 
+          d.kind == 'Deployment' && 
+          d.metadata.name == object.metadata.name &&
+          d.metadata.namespace == object.metadata.namespace
+        )
+      message: "Service should have a corresponding Deployment with the same name"
+    
+    - name: deployment-selector-matches-service
+      expression: |
+        object.kind != 'Deployment' ||
+        !allObjects.exists(s,
+          s.kind == 'Service' &&
+          s.metadata.namespace == object.metadata.namespace &&
+          has(s.spec.selector) &&
+          s.spec.selector.all(key, value,
+            !has(object.spec.template.metadata.labels[key]) ||
+            object.spec.template.metadata.labels[key] == value
+          )
+        ) ||
+        allObjects.exists(s,
+          s.kind == 'Service' &&
+          s.metadata.namespace == object.metadata.namespace &&
+          has(s.spec.selector) &&
+          s.spec.selector.all(key, value,
+            has(object.spec.template.metadata.labels[key]) &&
+            object.spec.template.metadata.labels[key] == value
+          )
+        )
+      message: "Deployment labels must match Service selectors in the same namespace"
+    
+    - name: configmap-exists-for-volume
+      expression: |
+        object.kind != 'Deployment' ||
+        !has(object.spec.template.spec.volumes) ||
+        object.spec.template.spec.volumes.filter(v, has(v.configMap)).all(v,
+          allObjects.exists(cm,
+            cm.kind == 'ConfigMap' &&
+            cm.metadata.name == v.configMap.name &&
+            cm.metadata.namespace == object.metadata.namespace
+          )
+        )
+      message: "ConfigMaps referenced in volumes must exist"
+    
+    - name: secret-exists-for-volume
+      expression: |
+        object.kind != 'Deployment' ||
+        !has(object.spec.template.spec.volumes) ||
+        object.spec.template.spec.volumes.filter(v, has(v.secret)).all(v,
+          allObjects.exists(s,
+            s.kind == 'Secret' &&
+            s.metadata.name == v.secret.secretName &&
+            s.metadata.namespace == object.metadata.namespace
+          )
+        )
+      message: "Secrets referenced in volumes must exist"
+    
+    - name: pvc-exists-for-volume
+      expression: |
+        object.kind != 'Deployment' ||
+        !has(object.spec.template.spec.volumes) ||
+        object.spec.template.spec.volumes.filter(v, has(v.persistentVolumeClaim)).all(v,
+          allObjects.exists(pvc,
+            pvc.kind == 'PersistentVolumeClaim' &&
+            pvc.metadata.name == v.persistentVolumeClaim.claimName &&
+            pvc.metadata.namespace == object.metadata.namespace
+          )
+        )
+      message: "PersistentVolumeClaims referenced in volumes must exist"

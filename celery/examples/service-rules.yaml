@@ -1,0 +1,32 @@
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: service-policies
+spec:
+  rules:
+    - name: valid-service-ports
+      expression: |
+        object.spec.ports.all(p, 
+          p.port > 0 && p.port <= 65535 &&
+          p.targetPort > 0 && p.targetPort <= 65535
+        )
+      message: "Service ports must be between 1-65535"
+      target:
+        kind: Service
+    
+    - name: named-ports
+      expression: |
+        object.spec.ports.all(p, 
+          has(p.name) && p.name != ''
+        )
+      message: "All service ports must be named"
+      target:
+        kind: Service
+    
+    - name: has-selector
+      expression: |
+        object.spec.type == 'ExternalName' ||
+        (has(object.spec.selector) && size(object.spec.selector) > 0)
+      message: "Service must have a selector (unless ExternalName)"
+      target:
+        kind: Service

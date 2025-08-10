@@ -1,0 +1,52 @@
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: deployment-standards
+spec:
+  rules:
+    - name: minimum-replicas-production
+      expression: |
+        object.metadata.labels.environment != 'production' ||
+        object.spec.replicas >= 3
+      message: "Production deployments must have at least 3 replicas"
+      target:
+        kind: Deployment
+        labelSelector: "environment=production"
+    
+    - name: resource-limits-required
+      expression: |
+        object.spec.template.spec.containers.all(c, 
+          has(c.resources.limits) && 
+          has(c.resources.limits.memory) && 
+          has(c.resources.limits.cpu)
+        )
+      message: "All containers must have CPU and memory limits"
+      target:
+        kind: Deployment
+    
+    - name: no-latest-tags
+      expression: |
+        object.spec.template.spec.containers.all(c, 
+          !c.image.endsWith(':latest')
+        )
+      message: "Container images must not use 'latest' tag"
+      target:
+        kind: Deployment
+    
+    - name: liveness-probe-required
+      expression: |
+        object.spec.template.spec.containers.all(c, 
+          has(c.livenessProbe)
+        )
+      message: "All containers must have a liveness probe"
+      target:
+        kind: Deployment
+    
+    - name: readiness-probe-required
+      expression: |
+        object.spec.template.spec.containers.all(c, 
+          has(c.readinessProbe)
+        )
+      message: "All containers must have a readiness probe"
+      target:
+        kind: Deployment

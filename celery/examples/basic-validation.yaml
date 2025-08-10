@@ -1,0 +1,22 @@
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: basic-checks
+spec:
+  rules:
+    - name: has-required-labels
+      expression: |
+        has(object.metadata.labels) && 
+        has(object.metadata.labels.app) && 
+        has(object.metadata.labels.environment)
+      message: "Resources must have 'app' and 'environment' labels"
+    
+    - name: has-namespace
+      expression: "has(object.metadata.namespace) && object.metadata.namespace != ''"
+      message: "Resource must have a namespace"
+    
+    - name: has-owner-annotation
+      expression: |
+        has(object.metadata.annotations) && 
+        has(object.metadata.annotations['owner'])
+      message: "Resources must have an 'owner' annotation"

@@ -1,0 +1,56 @@
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: pod-security-standards
+spec:
+  rules:
+    - name: non-root-user
+      expression: |
+        object.kind != 'Deployment' ||
+        object.spec.template.spec.containers.all(c,
+          has(c.securityContext) &&
+          has(c.securityContext.runAsNonRoot) &&
+          c.securityContext.runAsNonRoot == true
+        )
+      message: "Containers must run as non-root user"
+      target:
+        kind: Deployment
+    
+    - name: read-only-root-filesystem
+      expression: |
+        object.kind != 'Deployment' ||
+        object.spec.template.spec.containers.all(c,
+          has(c.securityContext) &&
+          has(c.securityContext.readOnlyRootFilesystem) &&
+          c.securityContext.readOnlyRootFilesystem == true
+        )
+      message: "Containers should have read-only root filesystem"
+      target:
+        kind: Deployment
+        labelSelector: "security=strict"
+    
+    - name: no-privileged-containers
+      expression: |
+        object.kind != 'Deployment' ||
+        object.spec.template.spec.containers.all(c,
+          !has(c.securityContext) ||
+          !has(c.securityContext.privileged) ||
+          c.securityContext.privileged == false
+        )
+      message: "Containers must not run in privileged mode"
+      target:
+        kind: "(Deployment|DaemonSet|StatefulSet)"
+    
+    - name: drop-capabilities
+      expression: |
+        object.kind != 'Deployment' ||
+        object.spec.template.spec.containers.all(c,
+          has(c.securityContext) &&
+          has(c.securityContext.capabilities) &&
+          has(c.securityContext.capabilities.drop) &&
+          c.securityContext.capabilities.drop.exists(cap, cap == 'ALL')
+        )
+      message: "Containers should drop ALL capabilities"
+      target:
+        kind: Deployment
+        labelSelector: "security=strict"

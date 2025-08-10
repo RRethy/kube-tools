@@ -4,5 +4,4 @@ use (
 	./celery
 	./kubectl-x
 	./kubernetes-mcp
-	./kustomizelite
 )

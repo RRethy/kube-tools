@@ -1,0 +1,37 @@
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: api-version-policies
+spec:
+  rules:
+    - name: no-beta-apis-production
+      expression: |
+        object.metadata.namespace != 'production' ||
+        !object.apiVersion.contains('beta')
+      message: "Production resources cannot use beta API versions"
+      target:
+        namespace: production
+    
+    - name: preferred-apps-v1
+      expression: |
+        object.kind != 'Deployment' ||
+        object.apiVersion == 'apps/v1'
+      message: "Deployments should use apps/v1 API version"
+      target:
+        kind: Deployment
+    
+    - name: preferred-batch-v1
+      expression: |
+        object.kind != 'Job' ||
+        object.apiVersion == 'batch/v1'
+      message: "Jobs should use batch/v1 API version"
+      target:
+        kind: Job
+    
+    - name: preferred-networking-v1
+      expression: |
+        object.kind != 'Ingress' ||
+        object.apiVersion == 'networking.k8s.io/v1'
+      message: "Ingress should use networking.k8s.io/v1 API version"
+      target:
+        kind: Ingress
