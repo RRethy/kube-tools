@@ -17,7 +17,6 @@ func (v *Validater) Validate(
 	files []string,
 	celExpression string,
 	ruleFiles []string,
-	verbose bool,
 	maxWorkers int,
 	targetGroup string,
 	targetVersion string,
@@ -35,17 +34,15 @@ func (v *Validater) Validate(
 	}
 
 	for _, ruleFilePattern := range ruleFiles {
-		// Expand glob pattern if present (when quoted on command line)
 		matches, err := filepath.Glob(ruleFilePattern)
 		if err != nil {
 			return fmt.Errorf("expanding glob pattern %s: %w", ruleFilePattern, err)
 		}
-		
-		// If no matches, treat as literal filename
+
 		if len(matches) == 0 {
 			matches = []string{ruleFilePattern}
 		}
-		
+
 		for _, ruleFile := range matches {
 			loadedRules, err := yaml.ParseYAMLFileToValidationRules(ruleFile)
 			if err != nil {
@@ -65,7 +62,7 @@ func (v *Validater) Validate(
 		return fmt.Errorf("validating input: %w", err)
 	}
 
-	return displayResults(results, verbose)
+	return displayResults(results)
 }
 
 func createInlineValidationRule(expression string, targetGroup string, targetVersion string, targetKind string, targetName string, targetNamespace string, targetLabelSelector string, targetAnnotationSelector string) apiv1.ValidationRules {
@@ -97,25 +94,50 @@ func createInlineValidationRule(expression string, targetGroup string, targetVer
 	return rule
 }
 
-func displayResults(results []validator.ValidationResult, verbose bool) error {
-	var hasFailures bool
-	var failureMessages []string
+func displayResults(results []validator.ValidationResult) error {
+	type ruleFailure struct {
+		RuleName     string
+		ResourceKind string
+		ResourceName string
+		Err          error
+	}
+
+	groupedFailures := make(map[string]map[string][]ruleFailure)
+	hasFailures := false
 
 	for _, result := range results {
 		if !result.Valid {
 			hasFailures = true
-			msg := fmt.Sprintf("❌ [%s from %s] %s: %v", result.RuleName, result.RuleFile, result.InputFile, result.Err)
-			failureMessages = append(failureMessages, msg)
-			fmt.Println(msg)
-		} else if verbose {
-			fmt.Printf("✅ [%s from %s] %s: PASSED\n", result.RuleName, result.RuleFile, result.InputFile)
+			if groupedFailures[result.InputFile] == nil {
+				groupedFailures[result.InputFile] = make(map[string][]ruleFailure)
+			}
+			groupedFailures[result.InputFile][result.RuleFile] = append(
+				groupedFailures[result.InputFile][result.RuleFile],
+				ruleFailure{
+					RuleName:     result.RuleName,
+					ResourceKind: result.ResourceKind,
+					ResourceName: result.ResourceName,
+					Err:          result.Err,
+				},
+			)
 		}
 	}
 
 	if !hasFailures {
-		fmt.Println("✅ All validations passed")
 		return nil
 	}
 
-	return fmt.Errorf("validation failed: %d errors", len(failureMessages))
+	errorCount := 0
+	for inputFile, ruleFiles := range groupedFailures {
+		fmt.Printf("\n❌ %s:\n", inputFile)
+		for ruleFile, failures := range ruleFiles {
+			fmt.Printf("  From %s:\n", ruleFile)
+			for _, failure := range failures {
+				fmt.Printf("    - [%s] %s/%s: %v\n", failure.RuleName, failure.ResourceKind, failure.ResourceName, failure.Err)
+				errorCount++
+			}
+		}
+	}
+
+	return fmt.Errorf("\nvalidation failed: %d errors", errorCount)
 }

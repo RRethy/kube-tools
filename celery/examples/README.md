@@ -90,10 +90,6 @@ celery validate resources/*.yaml --rule-file rules/pod-security-policies.yaml --
 celery validate resources/cross-reference-resources.yaml --rule-file rules/cross-resource-validation.yaml
 ```
 
-### Verbose output
-```bash
-celery validate resources/invalid-deployments.yaml --rule-file rules/deployment-standards.yaml --verbose
-```
 
 ## Writing Custom Rules
 

@@ -12,11 +12,13 @@ import (
 )
 
 type ValidationResult struct {
-	InputFile string
-	RuleFile  string
-	RuleName  string
-	Valid     bool
-	Err       error
+	InputFile    string
+	RuleFile     string
+	RuleName     string
+	ResourceKind string
+	ResourceName string
+	Valid        bool
+	Err          error
 }
 
 type Rule struct {
@@ -103,11 +105,19 @@ func (v *Validator) ValidateFile(ctx context.Context, file string, rules []Rule)
 
 	var results []ValidationResult
 	for _, resource := range resources {
+		resourceKind := resource.GetKind()
+		resourceName := resource.GetName()
+		if resourceName == "" {
+			resourceName = "<unnamed>"
+		}
+
 		for _, rule := range rules {
 			validationResult := ValidationResult{
-				InputFile: file,
-				RuleFile:  rule.Filename,
-				RuleName:  rule.Name,
+				InputFile:    file,
+				RuleFile:     rule.Filename,
+				RuleName:     rule.Name,
+				ResourceKind: resourceKind,
+				ResourceName: resourceName,
 			}
 			out, _, err := rule.Program.ContextEval(ctx, map[string]any{
 				"object":     resource.Object,

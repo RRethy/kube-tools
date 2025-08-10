@@ -16,7 +16,7 @@ import (
 // It handles both single and multi-document YAML files.
 func ParseYAMLToUnstructured(data []byte) ([]*unstructured.Unstructured, error) {
 	var resources []*unstructured.Unstructured
-	
+
 	decoder := goyaml.NewDecoder(strings.NewReader(string(data)))
 	for {
 		var obj map[string]any
@@ -43,7 +43,7 @@ func ParseYAMLToUnstructured(data []byte) ([]*unstructured.Unstructured, error) 
 // It handles both single and multi-document YAML files containing ValidationRules resources.
 func ParseYAMLToValidationRules(data []byte, filename string) ([]apiv1.ValidationRules, error) {
 	var ruless []apiv1.ValidationRules
-	
+
 	decoder := goyaml.NewDecoder(strings.NewReader(string(data)))
 	for {
 		var rules apiv1.ValidationRules
@@ -54,8 +54,7 @@ func ParseYAMLToValidationRules(data []byte, filename string) ([]apiv1.Validatio
 			}
 			return nil, fmt.Errorf("decoding YAML: %w", err)
 		}
-		
-		// Only include if it's actually a ValidationRules resource
+
 		if rules.Kind == "ValidationRules" {
 			rules.Filename = filename
 			ruless = append(ruless, rules)
@@ -73,7 +72,7 @@ func ParseYAMLToValidationRules(data []byte, filename string) ([]apiv1.Validatio
 // into a slice of the specified type.
 func ParseYAMLBytes[T any](data []byte) ([]T, error) {
 	var items []T
-	
+
 	decoder := goyaml.NewDecoder(strings.NewReader(string(data)))
 	for {
 		var item T
@@ -86,7 +85,7 @@ func ParseYAMLBytes[T any](data []byte) ([]T, error) {
 		}
 		items = append(items, item)
 	}
-	
+
 	return items, nil
 }
 
@@ -96,7 +95,7 @@ func ParseYAMLFileToUnstructured(file string) ([]*unstructured.Unstructured, err
 	if err != nil {
 		return nil, fmt.Errorf("reading file: %w", err)
 	}
-	
+
 	return ParseYAMLToUnstructured(data)
 }
 
@@ -106,6 +105,7 @@ func ParseYAMLFileToValidationRules(file string) ([]apiv1.ValidationRules, error
 	if err != nil {
 		return nil, fmt.Errorf("reading file: %w", err)
 	}
-	
+
 	return ParseYAMLToValidationRules(data, file)
 }
+
