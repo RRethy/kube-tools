@@ -86,8 +86,6 @@ Available variables in expressions:
 - `object`: Current resource being validated
 - `allObjects`: List of all resources in the current validation batch (for cross-resource validation)
 
-Note: `oldObject`, `request`, `params`, `namespaceObject`, `authorizer` are reserved for future Kubernetes admission webhook compatibility
-
 ## Testing
 
 When adding new features:

@@ -164,11 +164,7 @@ target:
 The following variables are available in CEL expressions:
 
 - `object`: The current Kubernetes resource being validated
-- `oldObject`: Previous version of the object (for updates, currently null)
-- `request`: Admission request context (currently null)
-- `params`: Validation parameters (currently null)
-- `namespaceObject`: Namespace object (currently null)
-- `authorizer`: Authorization context (currently null)
+- `allObjects`: List of all resources in the current validation batch (for cross-resource validation)
 
 ## Common CEL Functions
 
@@ -192,6 +188,9 @@ The following variables are available in CEL expressions:
 
 # Check resource limits
 --expression "object.spec.template.spec.containers.all(c, has(c.resources.limits.memory))"
+
+# Cross-resource validation: Ensure Deployment has a corresponding Service
+--expression "object.kind != 'Deployment' || allObjects.exists(o, o.kind == 'Service' && o.metadata.name == object.metadata.name)"
 ```
 
 ## Development
