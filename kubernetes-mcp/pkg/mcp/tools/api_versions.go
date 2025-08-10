@@ -18,9 +18,13 @@ func (t *Tools) CreateAPIVersionsTool() mcp.Tool {
 
 // HandleAPIVersions processes requests to list API versions
 func (t *Tools) HandleAPIVersions(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	args, ok := req.Params.Arguments.(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("invalid arguments")
+	var args map[string]any
+	if req.Params.Arguments != nil {
+		var ok bool
+		args, ok = req.Params.Arguments.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("invalid arguments")
+		}
 	}
 
 	cmdArgs := []string{"api-versions"}

@@ -23,8 +23,14 @@ func (t *Tools) CreateAuthCanITool() mcp.Tool {
 
 // HandleAuthCanI processes authorization check requests
 func (t *Tools) HandleAuthCanI(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	args, ok := req.Params.Arguments.(map[string]any)
-	if !ok {
+	var args map[string]any
+	if req.Params.Arguments != nil {
+		var ok bool
+		args, ok = req.Params.Arguments.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("invalid arguments")
+		}
+	} else {
 		return nil, fmt.Errorf("invalid arguments")
 	}
 
