@@ -2,22 +2,32 @@
 package tools
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"os/exec"
 	"slices"
 	"strings"
 
+	"github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/kubectl"
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
 // Tools provides kubectl command execution for MCP tool handlers
-type Tools struct{}
+type Tools struct {
+	kubectl kubectl.Kubectl
+}
 
 // New creates a new Tools instance
 func New() *Tools {
-	return &Tools{}
+	return &Tools{
+		kubectl: kubectl.New(),
+	}
+}
+
+// NewWithKubectl creates a new Tools instance with a custom kubectl implementation
+func NewWithKubectl(k kubectl.Kubectl) *Tools {
+	return &Tools{
+		kubectl: k,
+	}
 }
 
 func (t *Tools) isBlockedResource(resourceType string) bool {
@@ -27,14 +37,7 @@ func (t *Tools) isBlockedResource(resourceType string) bool {
 }
 
 func (t *Tools) runKubectl(ctx context.Context, args ...string) (string, string, error) {
-	cmd := exec.CommandContext(ctx, "kubectl", args...)
-
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	err := cmd.Run()
-	return strings.TrimSpace(stdout.String()), strings.TrimSpace(stderr.String()), err
+	return t.kubectl.Execute(ctx, args...)
 }
 
 func (t *Tools) formatOutput(stdout, stderr string, err error) (*mcp.CallToolResult, error) {
