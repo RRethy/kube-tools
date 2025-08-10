@@ -107,19 +107,38 @@ func (v *Validator) ValidateFile(ctx context.Context, file string, rules []Rule)
 		allObjects = append(allObjects, resource.Object)
 	}
 
-	var results []ValidationResult
-	for _, resource := range resources {
-		resourceKind := resource.GetKind()
-		resourceName := resource.GetName()
-		if resourceName == "" {
-			resourceName = "<unnamed>"
-		}
+	type ruleEvaluation struct {
+		resource *unstructured.Unstructured
+		rule     Rule
+	}
 
+	var evaluations []ruleEvaluation
+	for _, resource := range resources {
 		for _, rule := range rules {
 			if !matchesTarget(resource, rule.Target) {
 				continue
 			}
-			
+			evaluations = append(evaluations, ruleEvaluation{
+				resource: resource,
+				rule:     rule,
+			})
+		}
+	}
+
+	results := make(chan ValidationResult, len(evaluations))
+	var wg sync.WaitGroup
+
+	for _, eval := range evaluations {
+		wg.Add(1)
+		go func(r *unstructured.Unstructured, rule Rule) {
+			defer wg.Done()
+
+			resourceKind := r.GetKind()
+			resourceName := r.GetName()
+			if resourceName == "" {
+				resourceName = "<unnamed>"
+			}
+
 			validationResult := ValidationResult{
 				InputFile:    file,
 				RuleFile:     rule.Filename,
@@ -127,8 +146,9 @@ func (v *Validator) ValidateFile(ctx context.Context, file string, rules []Rule)
 				ResourceKind: resourceKind,
 				ResourceName: resourceName,
 			}
+
 			out, _, err := rule.Program.ContextEval(ctx, map[string]any{
-				"object":     resource.Object,
+				"object":     r.Object,
 				"allObjects": allObjects,
 			})
 			if err != nil {
@@ -144,11 +164,22 @@ func (v *Validator) ValidateFile(ctx context.Context, file string, rules []Rule)
 				validationResult.Valid = false
 				validationResult.Err = fmt.Errorf("%s", rule.Message)
 			}
-			results = append(results, validationResult)
-		}
+
+			results <- validationResult
+		}(eval.resource, eval.rule)
 	}
 
-	return results
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	var collected []ValidationResult
+	for result := range results {
+		collected = append(collected, result)
+	}
+
+	return collected
 }
 
 func matchesTarget(resource *unstructured.Unstructured, target *apiv1.TargetSelector) bool {
