@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
-	"github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/mcp"
+	"github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/cli/serve"
 )
 
 var serveCmd = &cobra.Command{
@@ -27,8 +29,8 @@ Examples:
 	# Start in stdio mode (typical usage)
 	kubernetes-mcp serve`,
 	RunE: func(_ *cobra.Command, _ []string) error {
-		server := mcp.NewServer()
-		return server.Serve()
+		ctx := context.Background()
+		return serve.Serve(ctx)
 	},
 }
 
