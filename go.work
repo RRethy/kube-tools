@@ -1,6 +1,7 @@
 go 1.24.4
 
 use (
+	./celery
 	./kubectl-x
 	./kubernetes-mcp
 	./kustomizelite
