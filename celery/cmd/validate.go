@@ -13,6 +13,7 @@ const defaultWorkers = 128
 var (
 	celExpression string
 	ruleFiles     []string
+	verbose       bool
 	maxWorkers    int
 
 	targetGroup              string
@@ -80,6 +81,7 @@ celery validate resources.yaml -e "object.spec.replicas >= 3" --target-kind Depl
 			args,
 			celExpression,
 			ruleFiles,
+			verbose,
 			maxWorkers,
 			targetGroup,
 			targetVersion,
@@ -97,6 +99,7 @@ func init() {
 
 	validateCmd.Flags().StringVarP(&celExpression, "expression", "e", "", "CEL expression to validate resources")
 	validateCmd.Flags().StringSliceVarP(&ruleFiles, "rule-file", "r", []string{}, "YAML files containing validation rules (supports globs when quoted, can be specified multiple times)")
+	validateCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Show all validation results including passes")
 	validateCmd.Flags().IntVar(&maxWorkers, "max-workers", defaultWorkers, "Maximum number of parallel workers for multi-file validation")
 
 	validateCmd.Flags().StringVar(&targetGroup, "target-group", "", "Target resources by API group (e.g., apps, batch)")

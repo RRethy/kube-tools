@@ -4,19 +4,24 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"sort"
 
 	apiv1 "github.com/RRethy/utils/celery/api/v1"
 	"github.com/RRethy/utils/celery/pkg/validator"
 	"github.com/RRethy/utils/celery/pkg/yaml"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/cli-runtime/pkg/genericiooptions"
 )
 
-type Validater struct{}
+type Validater struct{
+	IOStreams genericiooptions.IOStreams
+}
 
 func (v *Validater) Validate(
 	files []string,
 	celExpression string,
 	ruleFiles []string,
+	verbose bool,
 	maxWorkers int,
 	targetGroup string,
 	targetVersion string,
@@ -62,7 +67,7 @@ func (v *Validater) Validate(
 		return fmt.Errorf("validating input: %w", err)
 	}
 
-	return displayResults(results)
+	return v.displayResults(results, verbose)
 }
 
 func createInlineValidationRule(expression string, targetGroup string, targetVersion string, targetKind string, targetName string, targetNamespace string, targetLabelSelector string, targetAnnotationSelector string) apiv1.ValidationRules {
@@ -94,50 +99,81 @@ func createInlineValidationRule(expression string, targetGroup string, targetVer
 	return rule
 }
 
-func displayResults(results []validator.ValidationResult) error {
-	type ruleFailure struct {
+func (v *Validater) displayResults(results []validator.ValidationResult, verbose bool) error {
+	type ruleResult struct {
 		RuleName     string
 		ResourceKind string
 		ResourceName string
+		Valid        bool
 		Err          error
 	}
 
-	groupedFailures := make(map[string]map[string][]ruleFailure)
+	groupedResults := make(map[string]map[string][]ruleResult)
 	hasFailures := false
+	totalValidations := len(results)
+	failureCount := 0
 
 	for _, result := range results {
 		if !result.Valid {
 			hasFailures = true
-			if groupedFailures[result.InputFile] == nil {
-				groupedFailures[result.InputFile] = make(map[string][]ruleFailure)
-			}
-			groupedFailures[result.InputFile][result.RuleFile] = append(
-				groupedFailures[result.InputFile][result.RuleFile],
-				ruleFailure{
-					RuleName:     result.RuleName,
-					ResourceKind: result.ResourceKind,
-					ResourceName: result.ResourceName,
-					Err:          result.Err,
-				},
-			)
+			failureCount++
 		}
+
+		if !verbose && result.Valid {
+			continue
+		}
+
+		if groupedResults[result.InputFile] == nil {
+			groupedResults[result.InputFile] = make(map[string][]ruleResult)
+		}
+		groupedResults[result.InputFile][result.RuleFile] = append(
+			groupedResults[result.InputFile][result.RuleFile],
+			ruleResult{
+				RuleName:     result.RuleName,
+				ResourceKind: result.ResourceKind,
+				ResourceName: result.ResourceName,
+				Valid:        result.Valid,
+				Err:          result.Err,
+			},
+		)
 	}
 
-	if !hasFailures {
+	if !hasFailures && !verbose {
 		return nil
 	}
 
-	errorCount := 0
-	for inputFile, ruleFiles := range groupedFailures {
-		fmt.Printf("\n❌ %s:\n", inputFile)
-		for ruleFile, failures := range ruleFiles {
-			fmt.Printf("  From %s:\n", ruleFile)
-			for _, failure := range failures {
-				fmt.Printf("    - [%s] %s/%s: %v\n", failure.RuleName, failure.ResourceKind, failure.ResourceName, failure.Err)
-				errorCount++
+	var inputFiles []string
+	for inputFile := range groupedResults {
+		inputFiles = append(inputFiles, inputFile)
+	}
+	sort.Strings(inputFiles)
+
+	for _, inputFile := range inputFiles {
+		ruleFiles := groupedResults[inputFile]
+		fmt.Fprintf(v.IOStreams.Out, "\n%s:\n", inputFile)
+
+		var ruleFileNames []string
+		for ruleFile := range ruleFiles {
+			ruleFileNames = append(ruleFileNames, ruleFile)
+		}
+		sort.Strings(ruleFileNames)
+
+		for _, ruleFile := range ruleFileNames {
+			results := ruleFiles[ruleFile]
+			fmt.Fprintf(v.IOStreams.Out, "  From %s:\n", ruleFile)
+			for _, result := range results {
+				if result.Valid {
+					fmt.Fprintf(v.IOStreams.Out, "    ✅ [%s] %s/%s\n", result.RuleName, result.ResourceKind, result.ResourceName)
+				} else {
+					fmt.Fprintf(v.IOStreams.Out, "    ❌ [%s] %s/%s: %v\n", result.RuleName, result.ResourceKind, result.ResourceName, result.Err)
+				}
 			}
 		}
 	}
 
-	return fmt.Errorf("\nvalidation failed: %d errors", errorCount)
+	if hasFailures {
+		failurePercentage := float64(failureCount) / float64(totalValidations) * 100
+		return fmt.Errorf("\nvalidation failed: %d/%d checks failed (%.1f%% failure rate)", failureCount, totalValidations, failurePercentage)
+	}
+	return nil
 }

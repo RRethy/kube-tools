@@ -1,12 +1,18 @@
 package validate
 
-import "context"
+import (
+	"context"
+	"os"
+
+	"k8s.io/cli-runtime/pkg/genericiooptions"
+)
 
 func Validate(
 	ctx context.Context,
 	files []string,
 	celExpression string,
 	ruleFiles []string,
+	verbose bool,
 	maxWorkers int,
 	targetGroup string,
 	targetVersion string,
@@ -16,11 +22,20 @@ func Validate(
 	targetLabelSelector string,
 	targetAnnotationSelector string,
 ) error {
-	v := &Validater{}
+	ioStreams := genericiooptions.IOStreams{
+		In:     os.Stdin,
+		Out:    os.Stdout,
+		ErrOut: os.Stderr,
+	}
+	
+	v := &Validater{
+		IOStreams: ioStreams,
+	}
 	return v.Validate(
 		files,
 		celExpression,
 		ruleFiles,
+		verbose,
 		maxWorkers,
 		targetGroup,
 		targetVersion,
