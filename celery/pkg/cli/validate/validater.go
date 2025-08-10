@@ -71,6 +71,20 @@ func (v *Validater) Validate(
 }
 
 func createInlineValidationRule(expression string, targetGroup string, targetVersion string, targetKind string, targetName string, targetNamespace string, targetLabelSelector string, targetAnnotationSelector string) apiv1.ValidationRules {
+	var target *apiv1.TargetSelector
+	if targetGroup != "" || targetVersion != "" || targetKind != "" || targetName != "" || 
+	   targetNamespace != "" || targetLabelSelector != "" || targetAnnotationSelector != "" {
+		target = &apiv1.TargetSelector{
+			Group:              targetGroup,
+			Version:            targetVersion,
+			Kind:               targetKind,
+			Name:               targetName,
+			Namespace:          targetNamespace,
+			LabelSelector:      targetLabelSelector,
+			AnnotationSelector: targetAnnotationSelector,
+		}
+	}
+	
 	rule := apiv1.ValidationRules{
 		Filename: "<inline>",
 		ObjectMeta: metav1.ObjectMeta{
@@ -82,15 +96,7 @@ func createInlineValidationRule(expression string, targetGroup string, targetVer
 					Name:       "inline",
 					Expression: expression,
 					Message:    "Validation failed",
-					Target: &apiv1.TargetSelector{
-						Group:              targetGroup,
-						Version:            targetVersion,
-						Kind:               targetKind,
-						Name:               targetName,
-						Namespace:          targetNamespace,
-						LabelSelector:      targetLabelSelector,
-						AnnotationSelector: targetAnnotationSelector,
-					},
+					Target:     target,
 				},
 			},
 		},

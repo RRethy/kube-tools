@@ -1,0 +1,62 @@
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: deployment-standards
+spec:
+  rules:
+    - name: deployment-min-replicas
+      expression: "object.spec.replicas >= 3"
+      message: "Deployments must have at least 3 replicas for high availability"
+      target:
+        kind: Deployment
+        
+    - name: production-min-replicas
+      expression: "object.spec.replicas >= 5"
+      message: "Production deployments must have at least 5 replicas"
+      target:
+        kind: Deployment
+        namespace: production
+---
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: service-standards
+spec:
+  rules:
+    - name: service-port-naming
+      expression: |
+        object.spec.ports.all(p, has(p.name) && p.name != "")
+      message: "All service ports must be named"
+      target:
+        kind: Service
+---
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: statefulset-standards
+spec:
+  rules:
+    - name: statefulset-resource-limits
+      expression: |
+        object.spec.template.spec.containers.all(c,
+          has(c.resources) && has(c.resources.limits) && has(c.resources.limits.memory)
+        )
+      message: "All StatefulSet containers must have memory limits"
+      target:
+        kind: "StatefulSet"
+---
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: specific-resource-standards
+spec:
+  rules:
+    - name: web-deployment-has-labels
+      expression: |
+        has(object.metadata.labels) && 
+        has(object.metadata.labels.app) &&
+        object.metadata.labels.app == "web"
+      message: "Web deployment must have app=web label"
+      target:
+        kind: "Deployment"
+        name: "web-deployment"

@@ -119,7 +119,7 @@ target:
   group: <optional API group>              # e.g., "apps", "batch"
   version: <optional version>               # e.g., "v1", "v1beta1"
   kind: <optional kind>                     # e.g., "Deployment", "Service"
-  name: <optional name/regex>               # e.g., "my-app" or "web-.*"
+  name: <optional name>                     # e.g., "my-app"
   namespace: <optional namespace>           # e.g., "production"
   labelSelector: <optional label selector>  # e.g., "app=nginx,tier=frontend"
   annotationSelector: <optional selector>   # e.g., "criticality=high"
@@ -143,14 +143,15 @@ target:
   kind: Deployment
   labelSelector: "environment=production,tier in (frontend,backend)"
 
-# Target by name pattern (regex)
+# Target by name
 target:
   kind: Service
-  name: "^web-.*"  # Matches web-app, web-service, etc.
+  name: "web-service"
 
-# Target multiple kinds with regex
+# Target specific resource
 target:
-  kind: "(Deployment|StatefulSet|DaemonSet)"
+  kind: Deployment
+  name: "web-app"
 
 # Target by namespace
 target:

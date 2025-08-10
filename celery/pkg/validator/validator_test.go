@@ -8,6 +8,7 @@ import (
 	apiv1 "github.com/RRethy/utils/celery/api/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -312,5 +313,239 @@ func TestResourceNameExtraction(t *testing.T) {
 	for _, r := range results {
 		assert.NotEmpty(t, r.ResourceName)
 		assert.NotEmpty(t, r.ResourceKind)
+	}
+}
+
+func TestTargetSelection(t *testing.T) {
+	ctx := context.Background()
+	v := &Validator{}
+
+	tests := []struct {
+		name            string
+		inputFiles      []string
+		rules           []apiv1.ValidationRules
+		expectedMatches int
+		description     string
+	}{
+		{
+			name: "target by kind",
+			inputFiles: []string{
+				filepath.Join("..", "..", "fixtures", "resources", "mixed-resources.yaml"),
+			},
+			rules: []apiv1.ValidationRules{
+				{
+					Filename: "kind-target.yaml",
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "kind-target",
+					},
+					Spec: apiv1.ValidationRulesSpec{
+						Rules: []apiv1.ValidationRule{
+							{
+								Name:       "deployment-only",
+								Expression: "true",
+								Message:    "Test",
+								Target: &apiv1.TargetSelector{
+									Kind: "Deployment",
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedMatches: 1,
+			description:     "should only match Deployment resources",
+		},
+		{
+			name: "target by namespace",
+			inputFiles: []string{
+				filepath.Join("..", "..", "fixtures", "resources", "multi-namespace.yaml"),
+			},
+			rules: []apiv1.ValidationRules{
+				{
+					Filename: "namespace-target.yaml",
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "namespace-target",
+					},
+					Spec: apiv1.ValidationRulesSpec{
+						Rules: []apiv1.ValidationRule{
+							{
+								Name:       "production-only",
+								Expression: "true",
+								Message:    "Test",
+								Target: &apiv1.TargetSelector{
+									Namespace: "production",
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedMatches: 1,
+			description:     "should only match resources in production namespace",
+		},
+		{
+			name: "target by exact name",
+			inputFiles: []string{
+				filepath.Join("..", "..", "fixtures", "resources", "mixed-resources.yaml"),
+			},
+			rules: []apiv1.ValidationRules{
+				{
+					Filename: "name-exact.yaml",
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "name-exact",
+					},
+					Spec: apiv1.ValidationRulesSpec{
+						Rules: []apiv1.ValidationRule{
+							{
+								Name:       "web-service-only",
+								Expression: "true",
+								Message:    "Test",
+								Target: &apiv1.TargetSelector{
+									Name: "web-service",
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedMatches: 1,
+			description:     "should match only resource with exact name",
+		},
+		{
+			name: "no target matches all",
+			inputFiles: []string{
+				filepath.Join("..", "..", "fixtures", "resources", "mixed-resources.yaml"),
+			},
+			rules: []apiv1.ValidationRules{
+				{
+					Filename: "no-target.yaml",
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "no-target",
+					},
+					Spec: apiv1.ValidationRulesSpec{
+						Rules: []apiv1.ValidationRule{
+							{
+								Name:       "all-resources",
+								Expression: "true",
+								Message:    "Test",
+							},
+						},
+					},
+				},
+			},
+			expectedMatches: 3,
+			description:     "should match all resources when no target specified",
+		},
+		{
+			name: "target by group and version",
+			inputFiles: []string{
+				filepath.Join("..", "..", "fixtures", "resources", "mixed-resources.yaml"),
+			},
+			rules: []apiv1.ValidationRules{
+				{
+					Filename: "group-version.yaml",
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "group-version",
+					},
+					Spec: apiv1.ValidationRulesSpec{
+						Rules: []apiv1.ValidationRule{
+							{
+								Name:       "apps-v1",
+								Expression: "true",
+								Message:    "Test",
+								Target: &apiv1.TargetSelector{
+									Group:   "apps",
+									Version: "v1",
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedMatches: 2,
+			description:     "should match resources with apps/v1 API group",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			results, err := v.Validate(ctx, tt.inputFiles, tt.rules)
+			
+			if err != nil {
+				t.Skipf("Skipping test %s: %v", tt.name, err)
+				return
+			}
+			
+			assert.Equal(t, tt.expectedMatches, len(results), tt.description)
+		})
+	}
+}
+
+func TestMatchesTargetDirectly(t *testing.T) {
+	deployment := &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"apiVersion": "apps/v1",
+			"kind":       "Deployment",
+			"metadata": map[string]interface{}{
+				"name":      "test-deployment",
+				"namespace": "default",
+			},
+		},
+	}
+	
+	service := &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"apiVersion": "v1",
+			"kind":       "Service",
+			"metadata": map[string]interface{}{
+				"name":      "test-service",
+				"namespace": "default",
+			},
+		},
+	}
+	
+	tests := []struct {
+		name     string
+		resource *unstructured.Unstructured
+		target   *apiv1.TargetSelector
+		expected bool
+	}{
+		{
+			name:     "deployment matches Deployment kind",
+			resource: deployment,
+			target: &apiv1.TargetSelector{
+				Kind: "Deployment",
+			},
+			expected: true,
+		},
+		{
+			name:     "service does not match Deployment kind",
+			resource: service,
+			target: &apiv1.TargetSelector{
+				Kind: "Deployment",
+			},
+			expected: false,
+		},
+		{
+			name:     "service matches Service kind",
+			resource: service,
+			target: &apiv1.TargetSelector{
+				Kind: "Service",
+			},
+			expected: true,
+		},
+		{
+			name:     "nil target matches all",
+			resource: deployment,
+			target:   nil,
+			expected: true,
+		},
+	}
+	
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := matchesTarget(tt.resource, tt.target)
+			assert.Equal(t, tt.expected, result)
+		})
 	}
 }

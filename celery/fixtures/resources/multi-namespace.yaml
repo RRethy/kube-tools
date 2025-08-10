@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: production-app
+  namespace: production
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: production-app
+  template:
+    metadata:
+      labels:
+        app: production-app
+    spec:
+      containers:
+      - name: app
+        image: myapp:v1.0.0
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: staging-app
+  namespace: staging
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: staging-app
+  template:
+    metadata:
+      labels:
+        app: staging-app
+    spec:
+      containers:
+      - name: app
+        image: myapp:v1.0.0-rc

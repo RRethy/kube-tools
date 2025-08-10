@@ -64,7 +64,7 @@ cd celery && golangci-lint run
 ### ValidationRules (KRM Resource)
 - Kubernetes Resource Model format
 - Contains validation rules with CEL expressions
-- Supports target selectors for selective validation
+- Supports target selectors for selective validation (implemented)
 
 ### Validator Package
 - Parses YAML resources into unstructured objects
@@ -74,8 +74,8 @@ cd celery && golangci-lint run
 ### Target Selectors
 - group: API group (e.g., "apps", "batch")
 - version: API version (e.g., "v1", "v1beta1")
-- kind: Resource kind (supports regex)
-- name: Resource name (supports regex)
+- kind: Resource kind
+- name: Resource name
 - namespace: Resource namespace
 - labelSelector: Label selector string
 - annotationSelector: Annotation selector string

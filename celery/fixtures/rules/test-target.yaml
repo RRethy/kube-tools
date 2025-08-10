@@ -1,0 +1,16 @@
+apiVersion: celery.rrethy.io/v1alpha1
+kind: ValidationRules
+metadata:
+  name: test-target
+spec:
+  rules:
+    - name: deployment-only
+      expression: "true"
+      message: "This should only apply to Deployments"
+      target:
+        kind: Deployment
+    - name: service-only
+      expression: "true"
+      message: "This should only apply to Services"
+      target:
+        kind: Service

@@ -9,6 +9,8 @@ import (
 	apiv1 "github.com/RRethy/utils/celery/api/v1"
 	"github.com/RRethy/utils/celery/pkg/yaml"
 	"github.com/google/cel-go/cel"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 )
 
 type ValidationResult struct {
@@ -26,6 +28,7 @@ type Rule struct {
 	Name     string
 	Message  string
 	Program  cel.Program
+	Target   *apiv1.TargetSelector
 }
 
 type Validator struct{}
@@ -58,6 +61,7 @@ func (v *Validator) Validate(ctx context.Context, inputFiles []string, ruless []
 				Name:     rule.Name,
 				Message:  rule.Message,
 				Program:  prg,
+				Target:   rule.Target,
 			})
 		}
 	}
@@ -112,6 +116,10 @@ func (v *Validator) ValidateFile(ctx context.Context, file string, rules []Rule)
 		}
 
 		for _, rule := range rules {
+			if !matchesTarget(resource, rule.Target) {
+				continue
+			}
+			
 			validationResult := ValidationResult{
 				InputFile:    file,
 				RuleFile:     rule.Filename,
@@ -141,4 +149,66 @@ func (v *Validator) ValidateFile(ctx context.Context, file string, rules []Rule)
 	}
 
 	return results
+}
+
+func matchesTarget(resource *unstructured.Unstructured, target *apiv1.TargetSelector) bool {
+	if target == nil {
+		return true
+	}
+
+	if target.Group != "" {
+		gv := resource.GroupVersionKind()
+		if gv.Group != target.Group {
+			return false
+		}
+	}
+
+	if target.Version != "" {
+		gv := resource.GroupVersionKind()
+		if gv.Version != target.Version {
+			return false
+		}
+	}
+
+	if target.Kind != "" {
+		if resource.GetKind() != target.Kind {
+			return false
+		}
+	}
+
+	if target.Name != "" {
+		if resource.GetName() != target.Name {
+			return false
+		}
+	}
+
+	if target.Namespace != "" {
+		if resource.GetNamespace() != target.Namespace {
+			return false
+		}
+	}
+
+	if target.LabelSelector != "" {
+		selector, err := labels.Parse(target.LabelSelector)
+		if err != nil {
+			return false
+		}
+		resourceLabels := labels.Set(resource.GetLabels())
+		if !selector.Matches(resourceLabels) {
+			return false
+		}
+	}
+
+	if target.AnnotationSelector != "" {
+		selector, err := labels.Parse(target.AnnotationSelector)
+		if err != nil {
+			return false
+		}
+		resourceAnnotations := labels.Set(resource.GetAnnotations())
+		if !selector.Matches(resourceAnnotations) {
+			return false
+		}
+	}
+
+	return true
 }
