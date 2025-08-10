@@ -25,7 +25,7 @@ celery/
 │   └── validator/
 │       ├── types.go      # Type definitions
 │       └── validator.go  # Core validation logic
-├── examples/         # Example validation policies and resources
+├── fixtures/         # Test fixtures and example validation policies
 ├── go.mod
 └── main.go
 ```

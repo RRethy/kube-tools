@@ -40,7 +40,7 @@ celery validate deployment.yaml --rule-file validation-policy.yaml
 
 ### Examples
 
-See the `examples/` directory for complete working examples including:
+See the `fixtures/` directory for complete working examples including:
 - Basic validation policies
 - Multi-document policies
 - Advanced selectors (labels, annotations, regex)

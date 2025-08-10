@@ -1,11 +1,11 @@
-# Celery Examples
+# Celery Test Fixtures
 
-This directory contains example ValidationRules and test resources for the Celery validator.
+This directory contains test fixtures including example ValidationRules and test resources for the Celery validator.
 
 ## Directory Structure
 
 ```
-examples/
+fixtures/
 ├── rules/                    # ValidationRules definitions
 │   ├── basic-validation.yaml
 │   ├── deployment-standards.yaml
