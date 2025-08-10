@@ -1,0 +1,75 @@
+# Missing replicas in production
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-insufficient-replicas
+  namespace: production
+  labels:
+    app: web
+    environment: production
+spec:
+  replicas: 1  # Should be >= 3 for production
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: app
+        image: myapp:latest  # Also uses latest tag
+---
+# Missing resource limits
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-no-limits
+  namespace: staging
+  labels:
+    app: backend
+    environment: staging
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: app
+        image: backend:v1.0.0
+        # Missing resources.limits
+---
+# Missing probes
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-no-probes
+  namespace: development
+  labels:
+    app: api
+    environment: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: api
+        image: api:v2.1.0
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+        # Missing livenessProbe and readinessProbe

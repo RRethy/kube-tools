@@ -18,5 +18,5 @@ spec:
     - name: has-owner-annotation
       expression: |
         has(object.metadata.annotations) && 
-        has(object.metadata.annotations['owner'])
+        'owner' in object.metadata.annotations
       message: "Resources must have an 'owner' annotation"

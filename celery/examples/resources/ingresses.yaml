@@ -1,0 +1,71 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  namespace: production
+  labels:
+    app: nginx
+    environment: production
+spec:
+  tls:
+  - hosts:
+    - app.example.com
+    secretName: tls-secret
+  rules:
+  - host: app.example.com
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-service
+            port:
+              number: 80
+      - path: /metrics
+        pathType: Exact
+        backend:
+          service:
+            name: nginx-service
+            port:
+              number: 9090
+---
+# Ingress without TLS
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: insecure-ingress
+  namespace: staging
+spec:
+  # Missing TLS configuration
+  rules:
+  - host: staging.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 8080
+---
+# Ingress with invalid host format
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: invalid-host-ingress
+  namespace: development
+spec:
+  rules:
+  - host: "invalid_host.com"  # Underscore not allowed in DNS
+    http:
+      paths:
+      - path: app  # Missing leading /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-service
+            port:
+              number: 80

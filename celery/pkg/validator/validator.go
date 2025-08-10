@@ -22,6 +22,7 @@ type ValidationResult struct {
 type Rule struct {
 	Filename string
 	Name     string
+	Message  string
 	Program  cel.Program
 }
 
@@ -30,6 +31,7 @@ type Validator struct{}
 func (v *Validator) Validate(ctx context.Context, inputFiles []string, ruless []apiv1.ValidationRules) ([]ValidationResult, error) {
 	env, err := cel.NewEnv(
 		cel.Variable("object", cel.DynType),
+		cel.Variable("allObjects", cel.ListType(cel.DynType)),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("creating CEL environment: %w", err)
@@ -41,17 +43,18 @@ func (v *Validator) Validate(ctx context.Context, inputFiles []string, ruless []
 		for _, rule := range rules.Spec.Rules {
 			ast, issues := env.Compile(rule.Expression)
 			if issues != nil && issues.Err() != nil {
-				parseErrs = append(parseErrs, fmt.Errorf("compiling rule %s in file %s: %w", rule.Name, rules.Name, issues.Err()))
+				parseErrs = append(parseErrs, fmt.Errorf("compiling rule %s in file %s: %w", rule.Name, rules.Filename, issues.Err()))
 			}
 
 			prg, err := env.Program(ast)
 			if err != nil {
-				parseErrs = append(parseErrs, fmt.Errorf("creating converting parsed rule %s in file %s to CEL program: %w", rule.Name, rules.Name, err))
+				parseErrs = append(parseErrs, fmt.Errorf("creating converting parsed rule %s in file %s to CEL program: %w", rule.Name, rules.Filename, err))
 			}
 
 			parsedRules = append(parsedRules, Rule{
-				Filename: rules.Name,
+				Filename: rules.Filename,
 				Name:     rule.Name,
+				Message:  rule.Message,
 				Program:  prg,
 			})
 		}
@@ -113,12 +116,15 @@ func (v *Validator) ValidateFile(ctx context.Context, file string, rules []Rule)
 			if err != nil {
 				validationResult.Valid = false
 				validationResult.Err = fmt.Errorf("evaluating rule: %w", err)
-			} else if out == nil || out.Type() != cel.BoolType || out.Value().(bool) {
+			} else if out == nil || out.Type() != cel.BoolType {
+				validationResult.Valid = false
+				validationResult.Err = errors.New("expression did not return a boolean")
+			} else if out.Value().(bool) {
 				validationResult.Valid = true
 				validationResult.Err = nil
 			} else {
-				validationResult.Valid = true
-				validationResult.Err = errors.New("evaluated to false")
+				validationResult.Valid = false
+				validationResult.Err = fmt.Errorf("%s", rule.Message)
 			}
 			results = append(results, validationResult)
 		}

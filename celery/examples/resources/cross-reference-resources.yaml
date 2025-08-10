@@ -1,0 +1,123 @@
+# Resources for testing cross-resource validation
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: default
+data:
+  config.yaml: |
+    key: value
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+  namespace: default
+type: Opaque
+data:
+  key: dmFsdWU=
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-storage
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-with-volumes
+  namespace: default
+  labels:
+    app: volumetest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: volumetest
+  template:
+    metadata:
+      labels:
+        app: volumetest
+    spec:
+      containers:
+      - name: app
+        image: nginx:1.21
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+        - name: secret
+          mountPath: /etc/secret
+        - name: storage
+          mountPath: /data
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+      - name: secret
+        secret:
+          secretName: app-secret
+      - name: storage
+        persistentVolumeClaim:
+          claimName: app-storage
+---
+# Deployment referencing non-existent resources
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-with-missing-volumes
+  namespace: default
+  labels:
+    app: missingtest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: missingtest
+  template:
+    metadata:
+      labels:
+        app: missingtest
+    spec:
+      containers:
+      - name: app
+        image: nginx:1.21
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+      volumes:
+      - name: config
+        configMap:
+          name: non-existent-config  # This ConfigMap doesn't exist
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-with-volumes
+  namespace: default
+spec:
+  selector:
+    app: volumetest
+  ports:
+  - name: http
+    port: 80
+---
+# Service without matching deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: orphan-service
+  namespace: default
+spec:
+  selector:
+    app: nonexistent
+  ports:
+  - name: http
+    port: 80

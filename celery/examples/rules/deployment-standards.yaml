@@ -16,6 +16,7 @@ spec:
     - name: resource-limits-required
       expression: |
         object.spec.template.spec.containers.all(c, 
+          has(c.resources) &&
           has(c.resources.limits) && 
           has(c.resources.limits.memory) && 
           has(c.resources.limits.cpu)

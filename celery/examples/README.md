@@ -2,7 +2,24 @@
 
 This directory contains example ValidationRules and test resources for the Celery validator.
 
-## ValidationRules Files
+## Directory Structure
+
+```
+examples/
+├── rules/                    # ValidationRules definitions
+│   ├── basic-validation.yaml
+│   ├── deployment-standards.yaml
+│   ├── service-rules.yaml
+│   └── ...
+├── resources/               # Test Kubernetes resources
+│   ├── valid-deployment.yaml
+│   ├── invalid-deployments.yaml
+│   ├── services.yaml
+│   └── ...
+└── README.md
+```
+
+## ValidationRules Files (`rules/`)
 
 ### Basic Validation
 - `basic-validation.yaml` - Simple checks for labels, namespaces, and annotations
@@ -20,52 +37,62 @@ This directory contains example ValidationRules and test resources for the Celer
 - `namespace-policies.yaml` - Namespace-based rule targeting
 - `api-version-validation.yaml` - Enforces preferred API versions
 - `multi-rule-example.yaml` - Multiple ValidationRules in one file
-
-### Test Resources
-- `test-deployment.yaml` - Valid deployment example
-- `test-resources.yaml` - Mix of valid and invalid resources for testing
 - `deployment-replicas.yaml` - Environment-based replica requirements
+
+## Test Resources (`resources/`)
+
+### Individual Resource Types
+- `valid-deployment.yaml` - Fully compliant deployment example
+- `invalid-deployments.yaml` - Deployments with various validation failures
+- `services.yaml` - Valid and invalid Service configurations
+- `configmaps-secrets.yaml` - ConfigMaps and Secrets for testing
+- `statefulsets.yaml` - StatefulSet examples
+- `ingresses.yaml` - Ingress resources with TLS and routing rules
+
+### Mixed Resources
+- `test-resources.yaml` - Mix of valid and invalid resources
+- `cross-reference-resources.yaml` - Resources with volume mounts and cross-references
 
 ## Usage Examples
 
 ### Validate a single file with inline expression
 ```bash
-celery validate test-deployment.yaml --expression "object.spec.replicas >= 3"
+celery validate resources/valid-deployment.yaml --expression "object.spec.replicas >= 3"
 ```
 
 ### Use a validation rules file
 ```bash
-celery validate test-resources.yaml --rule-file deployment-standards.yaml
+celery validate resources/invalid-deployments.yaml --rule-file rules/deployment-standards.yaml
 ```
 
 ### Validate multiple files with multiple rule files
 ```bash
-celery validate test-resources.yaml test-deployment.yaml \
-  --rule-file deployment-standards.yaml \
-  --rule-file service-rules.yaml
+celery validate resources/*.yaml \
+  --rule-file rules/deployment-standards.yaml \
+  --rule-file rules/service-rules.yaml
 ```
 
 ### Target specific resources
 ```bash
 # Only validate Deployments
-celery validate test-resources.yaml --rule-file deployment-standards.yaml --target-kind Deployment
+celery validate resources/*.yaml --rule-file rules/deployment-standards.yaml --target-kind Deployment
 
 # Only validate resources in production namespace
-celery validate test-resources.yaml --rule-file namespace-policies.yaml --target-namespace production
+celery validate resources/*.yaml --rule-file rules/namespace-policies.yaml --target-namespace production
 
 # Target by labels
-celery validate test-resources.yaml --rule-file pod-security-policies.yaml --target-labels "security=strict"
+celery validate resources/*.yaml --rule-file rules/pod-security-policies.yaml --target-labels "security=strict"
 ```
 
 ### Cross-resource validation
 ```bash
 # Requires passing all resources together for cross-referencing
-celery validate test-resources.yaml --rule-file cross-resource-validation.yaml
+celery validate resources/cross-reference-resources.yaml --rule-file rules/cross-resource-validation.yaml
 ```
 
 ### Verbose output
 ```bash
-celery validate test-resources.yaml --rule-file deployment-standards.yaml --verbose
+celery validate resources/invalid-deployments.yaml --rule-file rules/deployment-standards.yaml --verbose
 ```
 
 ## Writing Custom Rules

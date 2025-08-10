@@ -14,28 +14,12 @@ spec:
         )
       message: "Service should have a corresponding Deployment with the same name"
     
-    - name: deployment-selector-matches-service
+    - name: deployment-has-matching-labels
       expression: |
         object.kind != 'Deployment' ||
-        !allObjects.exists(s,
-          s.kind == 'Service' &&
-          s.metadata.namespace == object.metadata.namespace &&
-          has(s.spec.selector) &&
-          s.spec.selector.all(key, value,
-            !has(object.spec.template.metadata.labels[key]) ||
-            object.spec.template.metadata.labels[key] == value
-          )
-        ) ||
-        allObjects.exists(s,
-          s.kind == 'Service' &&
-          s.metadata.namespace == object.metadata.namespace &&
-          has(s.spec.selector) &&
-          s.spec.selector.all(key, value,
-            has(object.spec.template.metadata.labels[key]) &&
-            object.spec.template.metadata.labels[key] == value
-          )
-        )
-      message: "Deployment labels must match Service selectors in the same namespace"
+        has(object.spec.template.metadata.labels) &&
+        size(object.spec.template.metadata.labels) > 0
+      message: "Deployment must have labels for Service selection"
     
     - name: configmap-exists-for-volume
       expression: |
