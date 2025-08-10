@@ -6,9 +6,13 @@ A Kubernetes Resource Model (KRM) YAML validator using Common Expression Languag
 
 - Validate Kubernetes resources against CEL expressions
 - Support for both file input and stdin
-- Inline CEL expressions or KRM-based ValidationPolicy files
+- Inline CEL expressions or KRM-based ValidationRules files
 - Selective validation using resource selectors (kind, apiVersion, labels)
 - Verbose output mode for detailed validation results
+- Glob pattern support for rule files (e.g., `--rule-file "rules/*.yaml"`)
+- Cross-resource validation using `allObjects` variable
+- Deterministic output with sorted results
+- Failure percentage reporting
 
 ## Installation
 
@@ -35,7 +39,14 @@ cat deployment.yaml | celery validate --expression "object.spec.replicas >= 3"
 ### Using a rules file
 
 ```bash
-celery validate deployment.yaml --rule-file validation-policy.yaml
+# Single rule file
+celery validate deployment.yaml --rule-file validation-rules.yaml
+
+# Multiple rule files
+celery validate deployment.yaml --rule-file base-rules.yaml --rule-file prod-rules.yaml
+
+# Using glob patterns (must be quoted)
+celery validate deployment.yaml --rule-file "rules/*.yaml"
 ```
 
 ### Examples

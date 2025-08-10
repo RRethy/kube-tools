@@ -25,11 +25,13 @@ go build .
 go test ./...
 
 # Run specific package tests
-go test ./internal/cmd/ctx/
-go test ./internal/fzf/
-go test ./internal/history/
-go test ./internal/kubeconfig/
-go test ./internal/kubernetes/
+go test ./pkg/cli/ctx/
+go test ./pkg/cli/ns/
+go test ./pkg/cli/cur/
+go test ./pkg/fzf/
+go test ./pkg/history/
+go test ./pkg/kubeconfig/
+go test ./pkg/kubernetes/
 
 # Run tests with coverage
 go test -cover ./...
@@ -56,46 +58,46 @@ go mod download
 - `ns.go` - Namespace switching command definition  
 - `cur.go` - Current status display command definition
 
-### Internal Package Details
+### Package Details
 
-#### `internal/cmd/ctx/`
+#### `pkg/cli/ctx/`
 - `ctx.go` - Context command implementation
 - `ctxer.go` - Context switching business logic
 - `ctxer_test.go` - Comprehensive test suite
 - **Key interfaces**: `Ctxer` for context operations
 
-#### `internal/cmd/ns/`
+#### `pkg/cli/ns/`
 - `ns.go` - Namespace command implementation
 - `nser.go` - Namespace switching business logic
 - `nser_test.go` - Test suite with table-driven tests
 - **Key interfaces**: `Nser` for namespace operations
 
-#### `internal/cmd/cur/`
+#### `pkg/cli/cur/`
 - `cur.go` - Current status command implementation
 - `curer.go` - Current status display logic
 - `curer_test.go` - Status display tests
 - **Key interfaces**: `Curer` for status operations
 
-#### `internal/fzf/`
+#### `pkg/fzf/`
 - `fzf.go` - Fuzzy finder integration with external fzf binary
 - `fzf_test.go` - Tests including user cancellation scenarios
 - `testing/fzf.go` - Mock implementation for testing
 - **Key interfaces**: `Fzf` for interactive selection
 
-#### `internal/history/`
+#### `pkg/history/`
 - `history.go` - Command history persistence and retrieval
 - `history_test.go` - History management tests
 - `testing/history.go` - Mock history implementation
 - **Storage**: `~/.local/share/kubectl-x/history.yaml`
 - **Key interfaces**: `History` for history operations
 
-#### `internal/kubeconfig/`
+#### `pkg/kubeconfig/`
 - `kubeconfig.go` - Kubeconfig file manipulation
 - `kubeconfig_test.go` - Kubeconfig operation tests
 - `testing/kubeconfig.go` - Mock kubeconfig implementation
 - **Key interfaces**: `Kubeconfig` for kubeconfig operations
 
-#### `internal/kubernetes/`
+#### `pkg/kubernetes/`
 - `client.go` - Kubernetes API client wrapper
 - `kubernetes.go` - Generic resource operations
 - `testing/client.go` - Mock Kubernetes client
@@ -104,7 +106,7 @@ go mod download
 ## Development Patterns
 
 ### Interface Implementation Pattern
-Each internal package follows this pattern:
+Each package follows this pattern:
 1. Define primary interface (e.g., `Ctxer`, `Nser`)
 2. Implement concrete struct
 3. Create constructor function with dependency injection
@@ -122,8 +124,8 @@ Each internal package follows this pattern:
 - Use testify/assert for assertions
 
 ### Command Integration Pattern
-- Commands are thin wrappers around internal packages
-- Business logic in `internal/cmd/{command}/` packages
+- Commands are thin wrappers around package implementations
+- Business logic in `pkg/cli/{command}/` packages
 - Dependency injection through constructor functions
 - Consistent flag handling using Cobra
 
@@ -147,9 +149,6 @@ k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0 // Kubernetes utilities
 - `fzf` binary - Required for interactive selection
 - `kubectl` - Uses kubectl's configuration and patterns
 
-## Code Generation
-- `internal/cmd/generate/generate.go` - Placeholder for potential code generation
-- Currently unused but reserved for future enhancements
 
 ## Code Style Guidelines
 

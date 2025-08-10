@@ -11,6 +11,7 @@ Use the provided Makefile for common development tasks:
 make build                 - Build all binaries
 make build-kubectl-x       - Build the kubectl-x binary
 make build-kubernetes-mcp  - Build the kubernetes-mcp binary
+make build-celery          - Build the celery binary
 make test                  - Run all tests
 make lint                  - Run golangci-lint
 make lint-fix              - Run golangci-lint with auto-fix
@@ -28,6 +29,7 @@ go work sync
 # Install from source
 go install github.com/RRethy/utils/kubectl-x@latest           # kubectl-x CLI
 go install github.com/RRethy/utils/kubernetes-mcp@latest       # kubernetes-mcp CLI
+go install github.com/RRethy/utils/celery@latest               # celery CLI
 ```
 
 ## Architecture
@@ -36,6 +38,7 @@ go install github.com/RRethy/utils/kubernetes-mcp@latest       # kubernetes-mcp 
 This is a Go workspace with three modules:
 - `kubectl-x/` - Kubernetes context and namespace switching CLI
 - `kubernetes-mcp/` - Readonly MCP (Model Context Protocol) server for Kubernetes
+- `celery/` - CEL-based Kubernetes resource validator
 
 The root contains `go.work` for workspace configuration.
 
@@ -43,7 +46,7 @@ The root contains `go.work` for workspace configuration.
 
 ### Go Workspace Configuration
 - Uses Go 1.24.4
-- Multi-module workspace with `kubectl-x/`, and `kubernetes-mcp/` modules
+- Multi-module workspace with `kubectl-x/`, `kubernetes-mcp/`, and `celery/` modules
 - Use `go work sync` to synchronize dependencies across workspace
 - All modules include golangci-lint as tool dependency
 
@@ -54,12 +57,23 @@ The root contains `go.work` for workspace configuration.
 ├── Makefile            # Multi-module build targets
 ├── kubectl-x/          # Context/namespace switching CLI
 │   ├── CLAUDE.md       # Module-specific documentation
+│   ├── README.md       # User documentation
 │   ├── cmd/            # CLI commands
-│   ├── internal/       # Internal packages
+│   ├── pkg/            # Package implementations
 │   └── main.go
-`── kubernetes-mcp/     # MCP server for Kubernetes
-    ├── cmd/            # CLI commands (root, serve)
-    ├── pkg/mcp/        # MCP server implementation
+├── kubernetes-mcp/     # MCP server for Kubernetes
+│   ├── CLAUDE.md       # Module-specific documentation
+│   ├── README.md       # User documentation
+│   ├── cmd/            # CLI commands (root, serve)
+│   ├── pkg/mcp/        # MCP server implementation
+│   └── main.go
+└── celery/             # CEL validator for Kubernetes resources
+    ├── CLAUDE.md       # Module-specific documentation
+    ├── README.md       # User documentation
+    ├── cmd/            # CLI commands
+    ├── pkg/            # Core packages (validator, yaml, cli)
+    ├── api/            # API types (ValidationRules)
+    ├── fixtures/       # Test fixtures and examples
     └── main.go
 ```
 

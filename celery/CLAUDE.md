@@ -9,10 +9,13 @@ Celery is a Kubernetes Resource Model (KRM) YAML validator using Common Expressi
 ## Key Features
 
 - CEL expression validation for Kubernetes resources
-- Support for inline expressions and ValidationPolicy files
+- Support for inline expressions and ValidationRules files
 - Kustomize-style target selectors
 - Parallel validation of multiple files
-- Verbose output mode
+- Verbose output mode for showing passing validations
+- Glob pattern support for rule files
+- Cross-resource validation with `allObjects`
+- IOStreams support for testable I/O
 
 ## Architecture
 
@@ -22,10 +25,20 @@ celery/
 │   ├── root.go       # Root command setup
 │   └── validate.go   # Validate command implementation
 ├── pkg/
-│   └── validator/
-│       ├── types.go      # Type definitions
-│       └── validator.go  # Core validation logic
+│   ├── cli/
+│   │   └── validate/
+│   │       ├── validate.go    # CLI entry point with IOStreams
+│   │       └── validater.go   # Validation orchestration
+│   ├── validator/
+│   │   └── validator.go       # Core CEL validation logic
+│   └── yaml/
+│       └── yaml.go            # YAML parsing utilities
+├── api/
+│   └── v1/
+│       └── validation_policy.go  # ValidationRules types
 ├── fixtures/         # Test fixtures and example validation policies
+│   ├── rules/       # Example ValidationRules
+│   └── resources/   # Example Kubernetes resources
 ├── go.mod
 └── main.go
 ```
@@ -71,8 +84,9 @@ cd celery && golangci-lint run
 
 Available variables in expressions:
 - `object`: Current resource being validated
-- `objects`: List of all resources (for cross-reference)
-- `oldObject`, `request`, `params`, `namespaceObject`, `authorizer`: Reserved for future use
+- `allObjects`: List of all resources in the current validation batch (for cross-resource validation)
+
+Note: `oldObject`, `request`, `params`, `namespaceObject`, `authorizer` are reserved for future Kubernetes admission webhook compatibility
 
 ## Testing
 
@@ -85,10 +99,12 @@ When adding new features:
 ## Common Tasks
 
 ### Adding a New Validation Feature
-1. Update types.go if new fields are needed
-2. Implement logic in validator.go
-3. Add command flags in validate.go if needed
-4. Add examples demonstrating the feature
+1. Update api/v1/validation_policy.go if new fields are needed
+2. Implement logic in pkg/validator/validator.go
+3. Add command flags in cmd/validate.go if needed
+4. Update pkg/cli/validate/validater.go for CLI orchestration
+5. Add test fixtures in fixtures/ demonstrating the feature
+6. Add tests for the new functionality
 
 ### Updating Dependencies
 1. Update go.mod with new dependencies

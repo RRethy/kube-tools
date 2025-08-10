@@ -1,4 +1,4 @@
-module github.com/RRethy/kubectl-x/kubernetes-mcp
+module github.com/RRethy/utils/kubernetes-mcp
 
 go 1.24.4
 
