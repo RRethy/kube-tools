@@ -50,12 +50,21 @@ func (m *mcpServer) Serve(opts ...ServerOption) error {
 		t := tools.New()
 		s.AddTools(
 			server.ServerTool{Tool: t.CreateGetTool(), Handler: t.HandleGet},
+			server.ServerTool{Tool: t.CreateGetScalingOverridesTool(), Handler: t.HandleGetScalingOverrides},
 			server.ServerTool{Tool: t.CreateDescribeTool(), Handler: t.HandleDescribe},
 			server.ServerTool{Tool: t.CreateLogsTool(), Handler: t.HandleLogs},
 			server.ServerTool{Tool: t.CreateEventsTool(), Handler: t.HandleEvents},
+			server.ServerTool{Tool: t.CreateAPIResourcesTool(), Handler: t.HandleAPIResources},
+			server.ServerTool{Tool: t.CreateAuthCanITool(), Handler: t.HandleAuthCanI},
+			server.ServerTool{Tool: t.CreateTopTool(), Handler: t.HandleTop},
 			server.ServerTool{Tool: t.CreateExplainTool(), Handler: t.HandleExplain},
 			server.ServerTool{Tool: t.CreateVersionTool(), Handler: t.HandleVersion},
+			server.ServerTool{Tool: t.CreateConfigViewTool(), Handler: t.HandleConfigView},
+			server.ServerTool{Tool: t.CreateConfigGetContextsTool(), Handler: t.HandleConfigGetContexts},
 			server.ServerTool{Tool: t.CreateClusterInfoTool(), Handler: t.HandleClusterInfo},
+			server.ServerTool{Tool: t.CreateCurrentContextTool(), Handler: t.HandleCurrentContext},
+			server.ServerTool{Tool: t.CreateCurrentNamespaceTool(), Handler: t.HandleCurrentNamespace},
+			server.ServerTool{Tool: t.CreateUseContextTool(), Handler: t.HandleUseContext},
 		)
 	}
 
