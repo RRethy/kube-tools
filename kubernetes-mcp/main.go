@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/RRethy/utils/kubernetes-mcp/cmd"
+	"github.com/RRethy/k8s-tools/kubernetes-mcp/cmd"
 )
 
 func main() {

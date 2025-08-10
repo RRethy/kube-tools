@@ -1,4 +1,4 @@
-module github.com/RRethy/utils/celery
+module github.com/RRethy/k8s-tools/celery
 
 go 1.24.4
 

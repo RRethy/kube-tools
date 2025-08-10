@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/RRethy/utils/celery/pkg/validator"
+	"github.com/RRethy/k8s-tools/celery/pkg/validator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/cli-runtime/pkg/genericiooptions"

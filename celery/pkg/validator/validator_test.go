@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	apiv1 "github.com/RRethy/utils/celery/api/v1"
+	apiv1 "github.com/RRethy/k8s-tools/celery/api/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

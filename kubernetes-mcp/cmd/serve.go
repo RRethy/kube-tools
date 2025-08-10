@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/RRethy/utils/kubernetes-mcp/pkg/mcp"
+	"github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/mcp"
 )
 
 var serveCmd = &cobra.Command{
