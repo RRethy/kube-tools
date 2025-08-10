@@ -63,6 +63,7 @@ func (m *mcpServer) Serve(opts ...ServerOption) error {
 			server.ServerTool{Tool: t.CreateLogsTool(), Handler: t.HandleLogs},
 			server.ServerTool{Tool: t.CreateEventsTool(), Handler: t.HandleEvents},
 			server.ServerTool{Tool: t.CreateAPIResourcesTool(), Handler: t.HandleAPIResources},
+			server.ServerTool{Tool: t.CreateAPIVersionsTool(), Handler: t.HandleAPIVersions},
 			server.ServerTool{Tool: t.CreateAuthCanITool(), Handler: t.HandleAuthCanI},
 			server.ServerTool{Tool: t.CreateTopTool(), Handler: t.HandleTop},
 			server.ServerTool{Tool: t.CreateExplainTool(), Handler: t.HandleExplain},

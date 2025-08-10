@@ -11,7 +11,7 @@ import (
 func (t *Tools) CreateLogsTool() mcp.Tool {
 	return mcp.NewTool("logs",
 		mcp.WithDescription("Get logs from a pod container"),
-		mcp.WithString("pod_name", mcp.Required(), mcp.Description("The name of the pod")),
+		mcp.WithString("pod-name", mcp.Required(), mcp.Description("The name of the pod")),
 		mcp.WithString("namespace", mcp.Description("Namespace of the pod (default: current namespace)")),
 		mcp.WithString("context", mcp.Description("Kubernetes context to use (default: current context)")),
 		mcp.WithString("container", mcp.Description("Container name (if multiple containers in pod)")),
@@ -30,7 +30,7 @@ func (t *Tools) HandleLogs(ctx context.Context, req mcp.CallToolRequest) (*mcp.C
 		return nil, fmt.Errorf("invalid arguments")
 	}
 
-	podName, ok := args["pod_name"].(string)
+	podName, ok := args["pod-name"].(string)
 	if !ok {
 		return nil, fmt.Errorf("pod_name parameter required")
 	}

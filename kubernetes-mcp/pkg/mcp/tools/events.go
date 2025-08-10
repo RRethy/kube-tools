@@ -14,7 +14,7 @@ func (t *Tools) CreateEventsTool() mcp.Tool {
 		mcp.WithString("namespace", mcp.Description("Namespace to get events from (default: current namespace)")),
 		mcp.WithString("context", mcp.Description("Kubernetes context to use (default: current context)")),
 		mcp.WithString("for", mcp.Description("Filter events for a specific resource (e.g., pod/my-pod, deployment/my-deployment)")),
-		mcp.WithBoolean("all_namespaces", mcp.Description("Get events from all namespaces (equivalent to kubectl get events --all-namespaces or -A)")),
+		mcp.WithBoolean("all-namespaces", mcp.Description("Get events from all namespaces (equivalent to kubectl get events --all-namespaces or -A)")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -32,7 +32,7 @@ func (t *Tools) HandleEvents(ctx context.Context, req mcp.CallToolRequest) (*mcp
 		cmdArgs = append([]string{"--context", contextName}, cmdArgs...)
 	}
 
-	if allNamespaces, ok := args["all_namespaces"].(bool); ok && allNamespaces {
+	if allNamespaces, ok := args["all-namespaces"].(bool); ok && allNamespaces {
 		cmdArgs = append(cmdArgs, "--all-namespaces")
 	} else if namespace, ok := args["namespace"].(string); ok && namespace != "" {
 		cmdArgs = append(cmdArgs, "-n", namespace)

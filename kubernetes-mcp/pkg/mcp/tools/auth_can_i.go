@@ -13,10 +13,10 @@ func (t *Tools) CreateAuthCanITool() mcp.Tool {
 		mcp.WithDescription("Check whether an action is allowed"),
 		mcp.WithString("verb", mcp.Required(), mcp.Description("The verb to check (get, list, create, update, patch, delete, watch)")),
 		mcp.WithString("resource", mcp.Required(), mcp.Description("The resource to check (e.g., pods, services, deployments)")),
-		mcp.WithString("resource_name", mcp.Description("Specific resource name to check")),
+		mcp.WithString("resource-name", mcp.Description("Specific resource name to check")),
 		mcp.WithString("namespace", mcp.Description("Namespace to check in (default: current namespace)")),
 		mcp.WithString("context", mcp.Description("Kubernetes context to use (default: current context)")),
-		mcp.WithBoolean("all_namespaces", mcp.Description("Check for all namespaces")),
+		mcp.WithBoolean("all-namespaces", mcp.Description("Check for all namespaces")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -44,11 +44,11 @@ func (t *Tools) HandleAuthCanI(ctx context.Context, req mcp.CallToolRequest) (*m
 		cmdArgs = append([]string{"--context", contextName}, cmdArgs...)
 	}
 
-	if resourceName, ok := args["resource_name"].(string); ok && resourceName != "" {
+	if resourceName, ok := args["resource-name"].(string); ok && resourceName != "" {
 		cmdArgs = append(cmdArgs, resourceName)
 	}
 
-	if allNamespaces, ok := args["all_namespaces"].(bool); ok && allNamespaces {
+	if allNamespaces, ok := args["all-namespaces"].(bool); ok && allNamespaces {
 		cmdArgs = append(cmdArgs, "--all-namespaces")
 	} else if namespace, ok := args["namespace"].(string); ok && namespace != "" {
 		cmdArgs = append(cmdArgs, "-n", namespace)

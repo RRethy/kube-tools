@@ -10,10 +10,10 @@ import (
 func (t *Tools) CreateTopTool() mcp.Tool {
 	return mcp.NewTool("top",
 		mcp.WithDescription("Display Resource (CPU/Memory) usage"),
-		mcp.WithString("resource_type", mcp.Required(), mcp.Description("The type of resource to show metrics for (nodes, pods)")),
+		mcp.WithString("resource-type", mcp.Required(), mcp.Description("The type of resource to show metrics for (nodes, pods)")),
 		mcp.WithString("namespace", mcp.Description("Namespace for pods (default: current namespace)")),
 		mcp.WithString("context", mcp.Description("Kubernetes context to use (default: current context)")),
-		mcp.WithBoolean("all_namespaces", mcp.Description("Show metrics from all namespaces")),
+		mcp.WithBoolean("all-namespaces", mcp.Description("Show metrics from all namespaces")),
 		mcp.WithString("selector", mcp.Description("Label selector to filter results")),
 		mcp.WithBoolean("containers", mcp.Description("Show metrics for containers (pods only)")),
 		mcp.WithReadOnlyHintAnnotation(true),
@@ -26,7 +26,7 @@ func (t *Tools) HandleTop(ctx context.Context, req mcp.CallToolRequest) (*mcp.Ca
 		return nil, fmt.Errorf("invalid arguments")
 	}
 
-	resourceType, ok := args["resource_type"].(string)
+	resourceType, ok := args["resource-type"].(string)
 	if !ok {
 		return nil, fmt.Errorf("resource_type parameter required")
 	}
@@ -37,7 +37,7 @@ func (t *Tools) HandleTop(ctx context.Context, req mcp.CallToolRequest) (*mcp.Ca
 		cmdArgs = append([]string{"--context", contextName}, cmdArgs...)
 	}
 
-	if allNamespaces, ok := args["all_namespaces"].(bool); ok && allNamespaces {
+	if allNamespaces, ok := args["all-namespaces"].(bool); ok && allNamespaces {
 		cmdArgs = append(cmdArgs, "--all-namespaces")
 	} else if namespace, ok := args["namespace"].(string); ok && namespace != "" {
 		cmdArgs = append(cmdArgs, "-n", namespace)

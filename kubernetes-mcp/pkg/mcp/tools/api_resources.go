@@ -12,9 +12,11 @@ func (t *Tools) CreateAPIResourcesTool() mcp.Tool {
 	return mcp.NewTool("api-resources",
 		mcp.WithDescription("Get supported API resources on the server"),
 		mcp.WithString("context", mcp.Description("Kubernetes context to use (default: current context)")),
-		mcp.WithBoolean("namespaced", mcp.Description("Show only namespaced resources")),
-		mcp.WithBoolean("no_headers", mcp.Description("Don't show headers")),
-		mcp.WithString("output", mcp.Description("Output format: 'wide' or default")),
+		mcp.WithBoolean("namespaced", mcp.Description("Filter by namespaced resources (true: only namespaced, false: only non-namespaced, unset: all)")),
+		mcp.WithString("api-group", mcp.Description("Limit to resources in the specified API group")),
+		mcp.WithString("sort-by", mcp.Description("Sort by field: 'name' or 'kind'")),
+		mcp.WithBoolean("no-headers", mcp.Description("Don't show headers")),
+		mcp.WithString("output", mcp.Description("Output format: 'wide' or 'name'")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -32,11 +34,19 @@ func (t *Tools) HandleAPIResources(ctx context.Context, req mcp.CallToolRequest)
 		cmdArgs = append([]string{"--context", contextName}, cmdArgs...)
 	}
 
-	if namespaced, ok := args["namespaced"].(bool); ok && namespaced {
-		cmdArgs = append(cmdArgs, "--namespaced=true")
+	if namespaced, ok := args["namespaced"].(bool); ok {
+		cmdArgs = append(cmdArgs, fmt.Sprintf("--namespaced=%t", namespaced))
 	}
 
-	if noHeaders, ok := args["no_headers"].(bool); ok && noHeaders {
+	if apiGroup, ok := args["api-group"].(string); ok && apiGroup != "" {
+		cmdArgs = append(cmdArgs, "--api-group", apiGroup)
+	}
+
+	if sortBy, ok := args["sort-by"].(string); ok && sortBy != "" {
+		cmdArgs = append(cmdArgs, "--sort-by", sortBy)
+	}
+
+	if noHeaders, ok := args["no-headers"].(bool); ok && noHeaders {
 		cmdArgs = append(cmdArgs, "--no-headers")
 	}
 

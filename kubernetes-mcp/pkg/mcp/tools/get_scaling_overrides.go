@@ -10,10 +10,10 @@ import (
 func (t *Tools) CreateGetScalingOverridesTool() mcp.Tool {
 	return mcp.NewTool("get-scaling-overrides",
 		mcp.WithDescription("Get scaling overrides for resources (HPA, VPA, etc.)"),
-		mcp.WithString("resource_type", mcp.Description("The type of scaling resource (hpa, vpa)")),
+		mcp.WithString("resource-type", mcp.Description("The type of scaling resource (hpa, vpa)")),
 		mcp.WithString("namespace", mcp.Description("Namespace to get resources from (default: current namespace)")),
 		mcp.WithString("context", mcp.Description("Kubernetes context to use (default: current context)")),
-		mcp.WithBoolean("all_namespaces", mcp.Description("Get resources from all namespaces")),
+		mcp.WithBoolean("all-namespaces", mcp.Description("Get resources from all namespaces")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -26,7 +26,7 @@ func (t *Tools) HandleGetScalingOverrides(ctx context.Context, req mcp.CallToolR
 
 	// Default to HPA if not specified
 	resourceType := "hpa"
-	if rt, ok := args["resource_type"].(string); ok && rt != "" {
+	if rt, ok := args["resource-type"].(string); ok && rt != "" {
 		resourceType = rt
 	}
 
@@ -36,7 +36,7 @@ func (t *Tools) HandleGetScalingOverrides(ctx context.Context, req mcp.CallToolR
 		cmdArgs = append([]string{"--context", contextName}, cmdArgs...)
 	}
 
-	if allNamespaces, ok := args["all_namespaces"].(bool); ok && allNamespaces {
+	if allNamespaces, ok := args["all-namespaces"].(bool); ok && allNamespaces {
 		cmdArgs = append(cmdArgs, "--all-namespaces")
 	} else if namespace, ok := args["namespace"].(string); ok && namespace != "" {
 		cmdArgs = append(cmdArgs, "-n", namespace)

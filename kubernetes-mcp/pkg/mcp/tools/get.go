@@ -11,13 +11,13 @@ import (
 func (t *Tools) CreateGetTool() mcp.Tool {
 	return mcp.NewTool("get",
 		mcp.WithDescription("Get Kubernetes resources from the current context/namespace using kubectl"),
-		mcp.WithString("resource_type", mcp.Required(), mcp.Description("The type of Kubernetes resource to get (e.g., pods, deployments, services)")),
-		mcp.WithString("resource_name", mcp.Description("Optional specific resource name to get. If not provided, lists all resources of the given type")),
+		mcp.WithString("resource-type", mcp.Required(), mcp.Description("The type of Kubernetes resource to get (e.g., pods, deployments, services)")),
+		mcp.WithString("resource-name", mcp.Description("Optional specific resource name to get. If not provided, lists all resources of the given type")),
 		mcp.WithString("namespace", mcp.Description("Namespace to get resources from (default: current namespace)")),
 		mcp.WithString("context", mcp.Description("Kubernetes context to use (default: current context)")),
 		mcp.WithString("selector", mcp.Description("Label selector to filter results (e.g., 'app=nginx')")),
 		mcp.WithString("output", mcp.Description("Output format: 'json', 'yaml', 'wide', or default table format")),
-		mcp.WithBoolean("all_namespaces", mcp.Description("Get resources from all namespaces (equivalent to kubectl get --all-namespaces or -A)")),
+		mcp.WithBoolean("all-namespaces", mcp.Description("Get resources from all namespaces (equivalent to kubectl get --all-namespaces or -A)")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -29,7 +29,7 @@ func (t *Tools) HandleGet(ctx context.Context, req mcp.CallToolRequest) (*mcp.Ca
 		return nil, fmt.Errorf("invalid arguments")
 	}
 
-	resourceType, ok := args["resource_type"].(string)
+	resourceType, ok := args["resource-type"].(string)
 	if !ok {
 		return nil, fmt.Errorf("resource_type parameter required")
 	}
@@ -49,13 +49,13 @@ func (t *Tools) HandleGet(ctx context.Context, req mcp.CallToolRequest) (*mcp.Ca
 		cmdArgs = append([]string{"--context", contextName}, cmdArgs...)
 	}
 
-	if allNamespaces, ok := args["all_namespaces"].(bool); ok && allNamespaces {
+	if allNamespaces, ok := args["all-namespaces"].(bool); ok && allNamespaces {
 		cmdArgs = append(cmdArgs, "--all-namespaces")
 	} else if namespace, ok := args["namespace"].(string); ok && namespace != "" {
 		cmdArgs = append(cmdArgs, "-n", namespace)
 	}
 
-	if resourceName, ok := args["resource_name"].(string); ok && resourceName != "" {
+	if resourceName, ok := args["resource-name"].(string); ok && resourceName != "" {
 		cmdArgs = append(cmdArgs, resourceName)
 	}
 

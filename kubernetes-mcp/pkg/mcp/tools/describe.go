@@ -11,8 +11,8 @@ import (
 func (t *Tools) CreateDescribeTool() mcp.Tool {
 	return mcp.NewTool("describe",
 		mcp.WithDescription("Describe Kubernetes resources to get detailed information including events"),
-		mcp.WithString("resource_type", mcp.Required(), mcp.Description("The type of Kubernetes resource to describe (e.g., pods, deployments, services)")),
-		mcp.WithString("resource_name", mcp.Required(), mcp.Description("The name of the resource to describe")),
+		mcp.WithString("resource-type", mcp.Required(), mcp.Description("The type of Kubernetes resource to describe (e.g., pods, deployments, services)")),
+		mcp.WithString("resource-name", mcp.Required(), mcp.Description("The name of the resource to describe")),
 		mcp.WithString("namespace", mcp.Description("Namespace of the resource (default: current namespace)")),
 		mcp.WithString("context", mcp.Description("Kubernetes context to use (default: current context)")),
 		mcp.WithReadOnlyHintAnnotation(true),
@@ -26,7 +26,7 @@ func (t *Tools) HandleDescribe(ctx context.Context, req mcp.CallToolRequest) (*m
 		return nil, fmt.Errorf("invalid arguments")
 	}
 
-	resourceType, ok := args["resource_type"].(string)
+	resourceType, ok := args["resource-type"].(string)
 	if !ok {
 		return nil, fmt.Errorf("resource_type parameter required")
 	}
@@ -40,7 +40,7 @@ func (t *Tools) HandleDescribe(ctx context.Context, req mcp.CallToolRequest) (*m
 		}, nil
 	}
 
-	resourceName, ok := args["resource_name"].(string)
+	resourceName, ok := args["resource-name"].(string)
 	if !ok {
 		return nil, fmt.Errorf("resource_name parameter required")
 	}

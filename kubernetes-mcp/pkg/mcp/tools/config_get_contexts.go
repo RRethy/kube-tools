@@ -10,7 +10,7 @@ import (
 func (t *Tools) CreateConfigGetContextsTool() mcp.Tool {
 	return mcp.NewTool("config-get-contexts",
 		mcp.WithDescription("Display all available contexts from kubeconfig"),
-		mcp.WithBoolean("no_headers", mcp.Description("Don't show headers")),
+		mcp.WithBoolean("no-headers", mcp.Description("Don't show headers")),
 		mcp.WithString("output", mcp.Description("Output format: 'name' for context names only, or default")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
@@ -24,7 +24,7 @@ func (t *Tools) HandleConfigGetContexts(ctx context.Context, req mcp.CallToolReq
 
 	cmdArgs := []string{"config", "get-contexts"}
 
-	if noHeaders, ok := args["no_headers"].(bool); ok && noHeaders {
+	if noHeaders, ok := args["no-headers"].(bool); ok && noHeaders {
 		cmdArgs = append(cmdArgs, "--no-headers")
 	}
 
