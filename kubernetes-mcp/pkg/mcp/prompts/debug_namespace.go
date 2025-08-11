@@ -60,8 +60,14 @@ Context: %s
 Namespace: %s
 
 CRITICAL INSTRUCTIONS:
-- ONLY use the kubernetes MCP server tools (get, describe, logs, events, top-pod, top-node, etc.) to investigate the namespace
-- Focus EXCLUSIVELY on the Kubernetes resources within the namespace specified above
+- FIRST check what MCP servers are available - there may be other MCP servers beyond kubernetes that could help with debugging (e.g., gcloud, buildkite, monitoring tools, git servers, etc.)
+- Use the kubernetes MCP server tools (get, describe, logs, events, top-pod, top-node, etc.) to investigate the namespace
+- If other relevant MCP servers are available, use them to gather additional context:
+  - Application logs from logging MCP servers
+  - Deployment history from CI/CD MCP servers
+  - Recent configuration changes from git MCP servers
+  - Cloud provider details from cloud MCP servers
+- Focus EXCLUSIVELY on the Kubernetes resources within the namespace specified above and related systems
 - ALWAYS use filters to limit data retrieval (selectors, limits, field-selector, etc.)
 - ALWAYS specify the namespace parameter explicitly - never rely on defaults
 
@@ -75,6 +81,15 @@ IMPORTANT: When you encounter a problem during the analysis, STOP the systematic
 5. STOP analysis.
 
 Gather all results before proceeding with analysis.
+
+## 0. Check Available MCP Servers
+- List all available MCP servers and their capabilities
+- Identify which servers might provide useful debugging information for this namespace:
+  - Application-specific MCP servers for app metrics/logs
+  - Database MCP servers if the namespace uses databases
+  - Monitoring/APM MCP servers for performance data
+  - CI/CD MCP servers for recent deployments to this namespace
+  - Git MCP servers for recent configuration changes
 
 ## 1. Namespace Overview
 - Check if the namespace exists and its status

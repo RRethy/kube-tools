@@ -41,8 +41,10 @@ func (p *Prompts) HandleDebugClusterPrompt(ctx context.Context, req mcp.GetPromp
 Context/Cluster: %s
 
 CRITICAL INSTRUCTIONS:
-- ONLY use the kubernetes MCP server tools (get, describe, logs, events, top-pod, top-node, etc.) to investigate the cluster
-- Focus EXCLUSIVELY on the Kubernetes cluster resources
+- FIRST check what MCP servers are available - there may be other MCP servers beyond kubernetes that could help with debugging (e.g., gcloud, buildkite, monitoring tools, etc.)
+- Use the kubernetes MCP server tools (get, describe, logs, events, top-pod, top-node, etc.) to investigate the cluster
+- If other relevant MCP servers are available, use them to gather additional context (cloud provider info, CI/CD status, monitoring metrics, etc.)
+- Focus EXCLUSIVELY on the Kubernetes cluster resources and related infrastructure
 - ALWAYS use filters to limit data retrieval (selectors, limits, field-selector, etc.)
 - ALWAYS specify the namespace parameter explicitly - never rely on defaults (use all-namespaces: true or specific namespace names)
 
@@ -56,6 +58,14 @@ IMPORTANT: When you encounter a problem during the analysis, STOP the systematic
 5. STOP analysis.
 
 Gather all results before proceeding with analysis.
+
+## 0. Check Available MCP Servers
+- List all available MCP servers and their capabilities
+- Identify which servers might provide useful debugging information:
+  - Cloud provider MCP servers (AWS, GCP, Azure) for infrastructure details
+  - Monitoring/observability MCP servers for metrics and traces
+  - CI/CD MCP servers for deployment history
+  - Git MCP servers for recent configuration changes
 
 ## 1. Cluster Overview
 - Check cluster version and basic info
