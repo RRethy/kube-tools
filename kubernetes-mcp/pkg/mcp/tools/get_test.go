@@ -30,6 +30,12 @@ func TestToolsCreateGetTool(t *testing.T) {
 		"selector",
 		"output",
 		"all-namespaces",
+		"field-selector",
+		"show-labels",
+		"no-headers",
+		"sort-by",
+		"show-kind",
+		"label-columns",
 	}
 
 	for _, param := range expectedParams {
@@ -357,6 +363,110 @@ pod/frontend-3`,
 			kubectlStdout: `NAME          GATEWAYS   HOSTS   AGE
 bookinfo-vs   [gateway]  [*]     5d`,
 			wantArgs: []string{"get", "virtualservices.networking.istio.io", "-n", "istio-system"},
+		},
+		{
+			name: "with field-selector",
+			args: map[string]any{
+				"resource-type":  "pods",
+				"field-selector": "status.phase=Running",
+			},
+			kubectlStdout: "pod-1\npod-2",
+			wantArgs:      []string{"get", "pods", "--field-selector", "status.phase=Running"},
+		},
+		{
+			name: "with show-labels",
+			args: map[string]any{
+				"resource-type": "pods",
+				"show-labels":   true,
+			},
+			kubectlStdout: "NAME    READY   STATUS    LABELS\npod-1   1/1     Running   app=web",
+			wantArgs:      []string{"get", "pods", "--show-labels"},
+		},
+		{
+			name: "with no-headers",
+			args: map[string]any{
+				"resource-type": "pods",
+				"no-headers":    true,
+			},
+			kubectlStdout: "pod-1   1/1   Running   0   5m",
+			wantArgs:      []string{"get", "pods", "--no-headers"},
+		},
+		{
+			name: "with sort-by",
+			args: map[string]any{
+				"resource-type": "pods",
+				"sort-by":       "{.metadata.name}",
+			},
+			kubectlStdout: "pod-a\npod-b\npod-c",
+			wantArgs:      []string{"get", "pods", "--sort-by", "{.metadata.name}"},
+		},
+		{
+			name: "with show-kind",
+			args: map[string]any{
+				"resource-type": "pods",
+				"show-kind":     true,
+			},
+			kubectlStdout: "KIND   NAME    READY\nPod    pod-1   1/1",
+			wantArgs:      []string{"get", "pods", "--show-kind"},
+		},
+		{
+			name: "with label-columns",
+			args: map[string]any{
+				"resource-type": "pods",
+				"label-columns": "app,version",
+			},
+			kubectlStdout: "NAME    APP   VERSION\npod-1   web   v1.0",
+			wantArgs:      []string{"get", "pods", "--label-columns", "app,version"},
+		},
+		{
+			name: "multiple new parameters combined",
+			args: map[string]any{
+				"resource-type":  "pods",
+				"namespace":      "prod",
+				"field-selector": "status.phase=Running",
+				"show-labels":    true,
+				"no-headers":     true,
+				"sort-by":        "{.metadata.name}",
+			},
+			kubectlStdout: "pod-1   1/1   Running   0   5m   app=web",
+			wantArgs: []string{
+				"get", "pods", "-n", "prod",
+				"--field-selector", "status.phase=Running",
+				"--show-labels", "--no-headers",
+				"--sort-by", "{.metadata.name}",
+			},
+		},
+		{
+			name: "empty field-selector ignored",
+			args: map[string]any{
+				"resource-type":  "pods",
+				"field-selector": "",
+			},
+			kubectlStdout: "pod-1",
+			wantArgs:      []string{"get", "pods"},
+		},
+		{
+			name: "false boolean flags ignored",
+			args: map[string]any{
+				"resource-type": "pods",
+				"show-labels":   false,
+				"no-headers":    false,
+				"show-kind":     false,
+			},
+			kubectlStdout: "pod-1",
+			wantArgs:      []string{"get", "pods"},
+		},
+		{
+			name: "invalid type for new parameters ignored",
+			args: map[string]any{
+				"resource-type":  "pods",
+				"field-selector": 123,
+				"show-labels":    "yes",
+				"sort-by":        true,
+				"label-columns":  456,
+			},
+			kubectlStdout: "pod-1",
+			wantArgs:      []string{"get", "pods"},
 		},
 	}
 

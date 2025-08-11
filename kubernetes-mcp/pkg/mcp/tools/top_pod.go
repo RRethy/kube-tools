@@ -17,6 +17,9 @@ func (t *Tools) CreateTopPodTool() mcp.Tool {
 		mcp.WithString("selector", mcp.Description("Label selector to filter results")),
 		mcp.WithBoolean("containers", mcp.Description("Show metrics for containers")),
 		mcp.WithString("sort-by", mcp.Description("Sort by 'cpu' or 'memory'")),
+		mcp.WithString("field-selector", mcp.Description("Selector (field query) to filter on")),
+		mcp.WithBoolean("no-headers", mcp.Description("Don't print headers")),
+		mcp.WithBoolean("sum", mcp.Description("Show sum of resource usage")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -54,6 +57,18 @@ func (t *Tools) HandleTopPod(ctx context.Context, req mcp.CallToolRequest) (*mcp
 
 	if sortBy, ok := args["sort-by"].(string); ok && sortBy != "" {
 		cmdArgs = append(cmdArgs, "--sort-by", sortBy)
+	}
+
+	if fieldSelector, ok := args["field-selector"].(string); ok && fieldSelector != "" {
+		cmdArgs = append(cmdArgs, "--field-selector", fieldSelector)
+	}
+
+	if noHeaders, ok := args["no-headers"].(bool); ok && noHeaders {
+		cmdArgs = append(cmdArgs, "--no-headers")
+	}
+
+	if sum, ok := args["sum"].(bool); ok && sum {
+		cmdArgs = append(cmdArgs, "--sum")
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)

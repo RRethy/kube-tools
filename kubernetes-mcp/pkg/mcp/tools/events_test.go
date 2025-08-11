@@ -292,6 +292,101 @@ production  1h          Normal   Scheduled  pod/web-app      Successfully assign
 			kubectlStdout: `LAST SEEN   TYPE     REASON     OBJECT     MESSAGE`,
 			wantArgs:      []string{"get", "events", "--sort-by=.lastTimestamp", "-n", "default"},
 		},
+		{
+			name: "with types filter for Warning",
+			args: map[string]any{
+				"types": "Warning",
+			},
+			kubectlStdout: `LAST SEEN   TYPE      REASON    OBJECT           MESSAGE
+2m          Warning   BackOff   pod/crash-loop   Back-off restarting failed container`,
+			wantArgs: []string{"get", "events", "--sort-by=.lastTimestamp", "--field-selector", "type=Warning"},
+		},
+		{
+			name: "with types filter for Normal",
+			args: map[string]any{
+				"types": "Normal",
+			},
+			kubectlStdout: `LAST SEEN   TYPE     REASON      OBJECT        MESSAGE
+1m          Normal   Scheduled   pod/my-pod    Successfully assigned`,
+			wantArgs: []string{"get", "events", "--sort-by=.lastTimestamp", "--field-selector", "type=Normal"},
+		},
+		{
+			name: "with json output",
+			args: map[string]any{
+				"output": "json",
+			},
+			kubectlStdout: `{"items":[{"type":"Normal","reason":"Scheduled"}]}`,
+			wantArgs:      []string{"get", "events", "--sort-by=.lastTimestamp", "-o", "json"},
+		},
+		{
+			name: "with yaml output",
+			args: map[string]any{
+				"output": "yaml",
+			},
+			kubectlStdout: `apiVersion: v1
+kind: EventList`,
+			wantArgs:      []string{"get", "events", "--sort-by=.lastTimestamp", "-o", "yaml"},
+		},
+		{
+			name: "with wide output",
+			args: map[string]any{
+				"output": "wide",
+			},
+			kubectlStdout: `LAST SEEN   TYPE     REASON    OBJECT     MESSAGE    FIRST SEEN   COUNT   NAME`,
+			wantArgs:      []string{"get", "events", "--sort-by=.lastTimestamp", "-o", "wide"},
+		},
+		{
+			name: "with no-headers",
+			args: map[string]any{
+				"no-headers": true,
+			},
+			kubectlStdout: `5m   Normal   Scheduled   pod/nginx   Successfully assigned`,
+			wantArgs:      []string{"get", "events", "--sort-by=.lastTimestamp", "--no-headers"},
+		},
+		{
+			name: "combined new parameters",
+			args: map[string]any{
+				"namespace":  "default",
+				"types":      "Warning",
+				"output":     "json",
+				"no-headers": true,
+			},
+			kubectlStdout: `{"items":[]}`,
+			wantArgs: []string{
+				"get", "events", "--sort-by=.lastTimestamp",
+				"-n", "default",
+				"--field-selector", "type=Warning",
+				"-o", "json",
+				"--no-headers",
+			},
+		},
+		{
+			name: "empty new parameters ignored",
+			args: map[string]any{
+				"types":  "",
+				"output": "",
+			},
+			kubectlStdout: `LAST SEEN   TYPE     REASON     OBJECT     MESSAGE`,
+			wantArgs:      []string{"get", "events", "--sort-by=.lastTimestamp"},
+		},
+		{
+			name: "false no-headers ignored",
+			args: map[string]any{
+				"no-headers": false,
+			},
+			kubectlStdout: `LAST SEEN   TYPE     REASON     OBJECT     MESSAGE`,
+			wantArgs:      []string{"get", "events", "--sort-by=.lastTimestamp"},
+		},
+		{
+			name: "invalid types for new parameters ignored",
+			args: map[string]any{
+				"types":      123,
+				"output":     true,
+				"no-headers": "yes",
+			},
+			kubectlStdout: `LAST SEEN   TYPE     REASON     OBJECT     MESSAGE`,
+			wantArgs:      []string{"get", "events", "--sort-by=.lastTimestamp"},
+		},
 	}
 
 	for _, tt := range tests {

@@ -13,6 +13,9 @@ func (t *Tools) CreateTopNodeTool() mcp.Tool {
 		mcp.WithDescription("Display Resource (CPU/Memory) usage for nodes"),
 		mcp.WithString("context", mcp.Description("Kubernetes context to use (default: current context)")),
 		mcp.WithString("selector", mcp.Description("Label selector to filter results")),
+		mcp.WithString("sort-by", mcp.Description("Sort by 'cpu' or 'memory'")),
+		mcp.WithBoolean("no-headers", mcp.Description("Don't print headers")),
+		mcp.WithBoolean("show-capacity", mcp.Description("Show capacity values instead of allocatable")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -36,6 +39,18 @@ func (t *Tools) HandleTopNode(ctx context.Context, req mcp.CallToolRequest) (*mc
 
 	if selector, ok := args["selector"].(string); ok && selector != "" {
 		cmdArgs = append(cmdArgs, "-l", selector)
+	}
+
+	if sortBy, ok := args["sort-by"].(string); ok && sortBy != "" {
+		cmdArgs = append(cmdArgs, "--sort-by", sortBy)
+	}
+
+	if noHeaders, ok := args["no-headers"].(bool); ok && noHeaders {
+		cmdArgs = append(cmdArgs, "--no-headers")
+	}
+
+	if showCapacity, ok := args["show-capacity"].(bool); ok && showCapacity {
+		cmdArgs = append(cmdArgs, "--show-capacity")
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)

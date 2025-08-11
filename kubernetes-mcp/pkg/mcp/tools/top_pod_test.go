@@ -25,6 +25,9 @@ func TestToolsCreateTopPodTool(t *testing.T) {
 	assert.Contains(t, tool.InputSchema.Properties, "selector")
 	assert.Contains(t, tool.InputSchema.Properties, "containers")
 	assert.Contains(t, tool.InputSchema.Properties, "sort-by")
+	assert.Contains(t, tool.InputSchema.Properties, "field-selector")
+	assert.Contains(t, tool.InputSchema.Properties, "no-headers")
+	assert.Contains(t, tool.InputSchema.Properties, "sum")
 
 	assert.Empty(t, tool.InputSchema.Required)
 
@@ -249,6 +252,79 @@ coredns-2           8m           65Mi`,
 pod-busy    worker      80m          300Mi
 pod-busy    sidecar     20m          100Mi
 pod-idle    main        5m           50Mi`,
+		},
+		{
+			name: "with field-selector",
+			args: map[string]any{
+				"field-selector": "status.phase=Running",
+			},
+			expectedArgs:  []string{"top", "pod", "--field-selector", "status.phase=Running"},
+			kubectlOutput: "NAME        CPU(cores)   MEMORY(bytes)\nrunning-1   10m          100Mi",
+		},
+		{
+			name: "with no-headers",
+			args: map[string]any{
+				"no-headers": true,
+			},
+			expectedArgs:  []string{"top", "pod", "--no-headers"},
+			kubectlOutput: "pod-1       10m          100Mi\npod-2       20m          200Mi",
+		},
+		{
+			name: "with sum",
+			args: map[string]any{
+				"sum": true,
+			},
+			expectedArgs: []string{"top", "pod", "--sum"},
+			kubectlOutput: `NAME        CPU(cores)   MEMORY(bytes)
+pod-1       10m          100Mi
+pod-2       20m          200Mi
+            --------     --------
+            30m          300Mi`,
+		},
+		{
+			name: "all new parameters combined",
+			args: map[string]any{
+				"namespace":      "test",
+				"field-selector": "status.phase=Running",
+				"no-headers":     true,
+				"sum":            true,
+				"sort-by":        "memory",
+			},
+			expectedArgs: []string{
+				"top", "pod", "-n", "test",
+				"--sort-by", "memory",
+				"--field-selector", "status.phase=Running",
+				"--no-headers",
+				"--sum",
+			},
+			kubectlOutput: "test-pod-1  5m   50Mi\ntest-pod-2  10m  100Mi\n            ---  ----\n            15m  150Mi",
+		},
+		{
+			name: "empty new parameters ignored",
+			args: map[string]any{
+				"field-selector": "",
+			},
+			expectedArgs:  []string{"top", "pod"},
+			kubectlOutput: "NAME        CPU(cores)   MEMORY(bytes)",
+		},
+		{
+			name: "false boolean new parameters ignored",
+			args: map[string]any{
+				"no-headers": false,
+				"sum":        false,
+			},
+			expectedArgs:  []string{"top", "pod"},
+			kubectlOutput: "NAME        CPU(cores)   MEMORY(bytes)",
+		},
+		{
+			name: "invalid types for new parameters ignored",
+			args: map[string]any{
+				"field-selector": 123,
+				"no-headers":     "yes",
+				"sum":            "true",
+			},
+			expectedArgs:  []string{"top", "pod"},
+			kubectlOutput: "NAME        CPU(cores)   MEMORY(bytes)",
 		},
 	}
 

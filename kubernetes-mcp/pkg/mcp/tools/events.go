@@ -15,6 +15,9 @@ func (t *Tools) CreateEventsTool() mcp.Tool {
 		mcp.WithString("context", mcp.Description("Kubernetes context to use (default: current context)")),
 		mcp.WithString("for", mcp.Description("Filter events for a specific resource (e.g., pod/my-pod, deployment/my-deployment)")),
 		mcp.WithBoolean("all-namespaces", mcp.Description("Get events from all namespaces (equivalent to kubectl get events --all-namespaces or -A)")),
+		mcp.WithString("types", mcp.Description("Comma-separated list of event types to filter (Normal, Warning)")),
+		mcp.WithString("output", mcp.Description("Output format: 'json', 'yaml', 'wide', or default table format")),
+		mcp.WithBoolean("no-headers", mcp.Description("Don't print headers in table output")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -44,6 +47,20 @@ func (t *Tools) HandleEvents(ctx context.Context, req mcp.CallToolRequest) (*mcp
 
 	if forResource, ok := args["for"].(string); ok && forResource != "" {
 		cmdArgs = append(cmdArgs, "--field-selector", fmt.Sprintf("involvedObject.name=%s", forResource))
+	}
+
+	if types, ok := args["types"].(string); ok && types != "" {
+		// Convert comma-separated types to field selector
+		// kubectl doesn't have a direct --types flag, we use field-selector
+		cmdArgs = append(cmdArgs, "--field-selector", fmt.Sprintf("type=%s", types))
+	}
+
+	if output, ok := args["output"].(string); ok && output != "" {
+		cmdArgs = append(cmdArgs, "-o", output)
+	}
+
+	if noHeaders, ok := args["no-headers"].(bool); ok && noHeaders {
+		cmdArgs = append(cmdArgs, "--no-headers")
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)

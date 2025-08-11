@@ -21,6 +21,9 @@ func TestToolsCreateTopNodeTool(t *testing.T) {
 
 	assert.Contains(t, tool.InputSchema.Properties, "context")
 	assert.Contains(t, tool.InputSchema.Properties, "selector")
+	assert.Contains(t, tool.InputSchema.Properties, "sort-by")
+	assert.Contains(t, tool.InputSchema.Properties, "no-headers")
+	assert.Contains(t, tool.InputSchema.Properties, "show-capacity")
 
 	assert.Empty(t, tool.InputSchema.Required)
 
@@ -148,6 +151,94 @@ worker-east-2        750m         37%    3Gi             75%`,
 			expectedArgs: []string{"top", "node"},
 			kubectlOutput: `NAME                 CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
 minikube             1250m        62%    5Gi             62%`,
+		},
+		{
+			name: "with sort-by cpu",
+			args: map[string]any{
+				"sort-by": "cpu",
+			},
+			expectedArgs: []string{"top", "node", "--sort-by", "cpu"},
+			kubectlOutput: `NAME                 CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
+node-3               100m         10%    1Gi             25%
+node-2               250m         25%    2Gi             50%
+node-1               500m         50%    3Gi             75%`,
+		},
+		{
+			name: "with sort-by memory",
+			args: map[string]any{
+				"sort-by": "memory",
+			},
+			expectedArgs: []string{"top", "node", "--sort-by", "memory"},
+			kubectlOutput: `NAME                 CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
+node-3               100m         10%    1Gi             25%
+node-2               250m         25%    2Gi             50%
+node-1               500m         50%    3Gi             75%`,
+		},
+		{
+			name: "with no-headers",
+			args: map[string]any{
+				"no-headers": true,
+			},
+			expectedArgs: []string{"top", "node", "--no-headers"},
+			kubectlOutput: `node-1               250m         25%    1Gi             50%
+node-2               500m         50%    2Gi             75%`,
+		},
+		{
+			name: "with show-capacity",
+			args: map[string]any{
+				"show-capacity": true,
+			},
+			expectedArgs: []string{"top", "node", "--show-capacity"},
+			kubectlOutput: `NAME                 CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
+node-1               250m         12%    1Gi             25%
+node-2               500m         25%    2Gi             50%`,
+		},
+		{
+			name: "all new parameters combined",
+			args: map[string]any{
+				"context":       "prod",
+				"selector":      "zone=us-west",
+				"sort-by":       "memory",
+				"no-headers":    true,
+				"show-capacity": true,
+			},
+			expectedArgs: []string{
+				"--context", "prod",
+				"top", "node",
+				"-l", "zone=us-west",
+				"--sort-by", "memory",
+				"--no-headers",
+				"--show-capacity",
+			},
+			kubectlOutput: `prod-node-1          500m         25%    2Gi             50%
+prod-node-2          750m         37%    3Gi             75%`,
+		},
+		{
+			name: "empty sort-by ignored",
+			args: map[string]any{
+				"sort-by": "",
+			},
+			expectedArgs:  []string{"top", "node"},
+			kubectlOutput: `NAME                 CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%`,
+		},
+		{
+			name: "false boolean parameters ignored",
+			args: map[string]any{
+				"no-headers":    false,
+				"show-capacity": false,
+			},
+			expectedArgs:  []string{"top", "node"},
+			kubectlOutput: `NAME                 CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%`,
+		},
+		{
+			name: "invalid type for new parameters ignored",
+			args: map[string]any{
+				"sort-by":       123,
+				"no-headers":    "yes",
+				"show-capacity": "true",
+			},
+			expectedArgs:  []string{"top", "node"},
+			kubectlOutput: `NAME                 CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%`,
 		},
 		{
 			name: "unknown parameters ignored",

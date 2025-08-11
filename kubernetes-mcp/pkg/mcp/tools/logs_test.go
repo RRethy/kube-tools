@@ -27,6 +27,11 @@ func TestToolsCreateLogsTool(t *testing.T) {
 	assert.Contains(t, tool.InputSchema.Properties, "since")
 	assert.Contains(t, tool.InputSchema.Properties, "previous")
 	assert.Contains(t, tool.InputSchema.Properties, "timestamps")
+	assert.Contains(t, tool.InputSchema.Properties, "all-containers")
+	assert.Contains(t, tool.InputSchema.Properties, "limit-bytes")
+	assert.Contains(t, tool.InputSchema.Properties, "since-time")
+	assert.Contains(t, tool.InputSchema.Properties, "prefix")
+	assert.Contains(t, tool.InputSchema.Properties, "selector")
 
 	assert.Contains(t, tool.InputSchema.Required, "pod-name")
 
@@ -237,6 +242,127 @@ func TestToolsHandleLogs(t *testing.T) {
 			},
 			expectedArgs: []string{"logs", "my-pod", "--tail", "100"},
 			kubectlError: fmt.Errorf("pod not found"),
+		},
+		{
+			name: "with all-containers",
+			args: map[string]any{
+				"pod-name":       "my-pod",
+				"all-containers": true,
+			},
+			expectedArgs:  []string{"logs", "my-pod", "--tail", "100", "--all-containers"},
+			kubectlOutput: "container-1 logs\ncontainer-2 logs",
+		},
+		{
+			name: "with limit-bytes",
+			args: map[string]any{
+				"pod-name":    "my-pod",
+				"limit-bytes": 1024.0,
+			},
+			expectedArgs:  []string{"logs", "my-pod", "--tail", "100", "--limit-bytes", "1024"},
+			kubectlOutput: "limited log output",
+		},
+		{
+			name: "with since-time",
+			args: map[string]any{
+				"pod-name":   "my-pod",
+				"since-time": "2024-01-01T00:00:00Z",
+			},
+			expectedArgs:  []string{"logs", "my-pod", "--tail", "100", "--since-time", "2024-01-01T00:00:00Z"},
+			kubectlOutput: "logs since time",
+		},
+		{
+			name: "with prefix",
+			args: map[string]any{
+				"pod-name": "my-pod",
+				"prefix":   true,
+			},
+			expectedArgs:  []string{"logs", "my-pod", "--tail", "100", "--prefix"},
+			kubectlOutput: "[pod/my-pod/container] log line",
+		},
+		{
+			name: "with selector instead of pod-name",
+			args: map[string]any{
+				"selector": "app=nginx",
+			},
+			expectedArgs:  []string{"logs", "-l", "app=nginx", "--tail", "100"},
+			kubectlOutput: "logs from multiple pods",
+		},
+		{
+			name: "selector with namespace",
+			args: map[string]any{
+				"selector":  "app=web",
+				"namespace": "production",
+			},
+			expectedArgs:  []string{"logs", "-l", "app=web", "-n", "production", "--tail", "100"},
+			kubectlOutput: "production pod logs",
+		},
+		{
+			name: "all new parameters combined",
+			args: map[string]any{
+				"pod-name":       "my-pod",
+				"namespace":      "test",
+				"all-containers": true,
+				"limit-bytes":    2048.0,
+				"since-time":     "2024-01-01T00:00:00Z",
+				"prefix":         true,
+			},
+			expectedArgs: []string{
+				"logs", "my-pod", "-n", "test", "--tail", "100",
+				"--all-containers", "--limit-bytes", "2048",
+				"--since-time", "2024-01-01T00:00:00Z", "--prefix",
+			},
+			kubectlOutput: "combined output",
+		},
+		{
+			name: "empty new parameters ignored",
+			args: map[string]any{
+				"pod-name":   "my-pod",
+				"since-time": "",
+				"selector":   "",
+			},
+			expectedArgs:  []string{"logs", "my-pod", "--tail", "100"},
+			kubectlOutput: "normal logs",
+		},
+		{
+			name: "false boolean new parameters ignored",
+			args: map[string]any{
+				"pod-name":       "my-pod",
+				"all-containers": false,
+				"prefix":         false,
+			},
+			expectedArgs:  []string{"logs", "my-pod", "--tail", "100"},
+			kubectlOutput: "normal logs",
+		},
+		{
+			name: "zero limit-bytes ignored",
+			args: map[string]any{
+				"pod-name":    "my-pod",
+				"limit-bytes": 0.0,
+			},
+			expectedArgs:  []string{"logs", "my-pod", "--tail", "100"},
+			kubectlOutput: "normal logs",
+		},
+		{
+			name: "invalid types for new parameters ignored",
+			args: map[string]any{
+				"pod-name":       "my-pod",
+				"all-containers": "yes",
+				"limit-bytes":    "1024",
+				"since-time":     123,
+				"prefix":         "true",
+				"selector":       456,
+			},
+			expectedArgs:  []string{"logs", "my-pod", "--tail", "100"},
+			kubectlOutput: "normal logs",
+		},
+		{
+			name: "selector overrides pod-name",
+			args: map[string]any{
+				"pod-name": "my-pod",
+				"selector": "app=test",
+			},
+			expectedArgs:  []string{"logs", "-l", "app=test", "--tail", "100"},
+			kubectlOutput: "selector-based logs",
 		},
 	}
 

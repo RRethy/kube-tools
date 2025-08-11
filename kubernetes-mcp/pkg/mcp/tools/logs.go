@@ -19,6 +19,11 @@ func (t *Tools) CreateLogsTool() mcp.Tool {
 		mcp.WithString("since", mcp.Description("Show logs since this duration (e.g., 5m, 1h)")),
 		mcp.WithBoolean("previous", mcp.Description("Show logs from previous instance of container")),
 		mcp.WithBoolean("timestamps", mcp.Description("Include timestamps in log output")),
+		mcp.WithBoolean("all-containers", mcp.Description("Get all containers' logs in the pod")),
+		mcp.WithNumber("limit-bytes", mcp.Description("Maximum bytes of logs to return (default: no limit)")),
+		mcp.WithString("since-time", mcp.Description("Only return logs after a specific date (RFC3339)")),
+		mcp.WithBoolean("prefix", mcp.Description("Prefix each log line with the log source (pod name and container name)")),
+		mcp.WithString("selector", mcp.Description("Selector (label query) to filter on")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -36,12 +41,18 @@ func (t *Tools) HandleLogs(ctx context.Context, req mcp.CallToolRequest) (*mcp.C
 		return nil, fmt.Errorf("invalid arguments")
 	}
 
-	podName, ok := args["pod-name"].(string)
-	if !ok || podName == "" {
-		return nil, fmt.Errorf("pod-name parameter required")
+	var cmdArgs []string
+	
+	// Handle selector-based logs or pod-name based logs
+	if selector, ok := args["selector"].(string); ok && selector != "" {
+		cmdArgs = []string{"logs", "-l", selector}
+	} else {
+		podName, ok := args["pod-name"].(string)
+		if !ok || podName == "" {
+			return nil, fmt.Errorf("pod-name parameter required")
+		}
+		cmdArgs = []string{"logs", podName}
 	}
-
-	cmdArgs := []string{"logs", podName}
 
 	if contextName, ok := args["context"].(string); ok && contextName != "" {
 		cmdArgs = append([]string{"--context", contextName}, cmdArgs...)
@@ -73,6 +84,22 @@ func (t *Tools) HandleLogs(ctx context.Context, req mcp.CallToolRequest) (*mcp.C
 
 	if timestamps, ok := args["timestamps"].(bool); ok && timestamps {
 		cmdArgs = append(cmdArgs, "--timestamps")
+	}
+
+	if allContainers, ok := args["all-containers"].(bool); ok && allContainers {
+		cmdArgs = append(cmdArgs, "--all-containers")
+	}
+
+	if limitBytes, ok := args["limit-bytes"].(float64); ok && limitBytes > 0 {
+		cmdArgs = append(cmdArgs, "--limit-bytes", fmt.Sprintf("%d", int(limitBytes)))
+	}
+
+	if sinceTime, ok := args["since-time"].(string); ok && sinceTime != "" {
+		cmdArgs = append(cmdArgs, "--since-time", sinceTime)
+	}
+
+	if prefix, ok := args["prefix"].(bool); ok && prefix {
+		cmdArgs = append(cmdArgs, "--prefix")
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
