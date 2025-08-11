@@ -13,6 +13,9 @@ A Model Context Protocol (MCP) server that provides read-only access to Kubernet
   - View cluster events
   - Explain resource types and fields
   - Get cluster version and info
+- Intelligent debugging prompts:
+  - debug-cluster: Comprehensive cluster analysis
+  - debug-namespace: Focused namespace troubleshooting
 - Works with any MCP-compatible client
 - Respects KUBECONFIG and kubectl context
 
@@ -122,6 +125,39 @@ Get cluster information:
   "context": "my-context"        // optional
 }
 ```
+
+### Available MCP Prompts
+
+#### debug-cluster
+Comprehensive Kubernetes cluster debugging assistant that systematically analyzes the entire cluster for issues:
+```json
+{
+  "context": "my-context"        // optional: defaults to current context
+}
+```
+This prompt will:
+- Check cluster health and node status
+- Analyze system namespaces (kube-system)
+- Review cluster-wide events
+- Check resource pressure and quotas
+- Verify networking and storage components
+- Provide specific YAML fixes for any issues found
+
+#### debug-namespace
+Focused debugging assistant for a specific Kubernetes namespace:
+```json
+{
+  "namespace": "my-namespace",   // optional: defaults to current namespace
+  "context": "my-context"        // optional: defaults to current context
+}
+```
+This prompt will:
+- Analyze all pods in the namespace
+- Check deployments and replica sets
+- Review services and endpoints
+- Examine recent events
+- Check resource usage and limits
+- Provide specific YAML fixes for any issues found
 
 ## Security
 

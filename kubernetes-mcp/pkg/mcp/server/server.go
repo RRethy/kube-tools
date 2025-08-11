@@ -2,6 +2,7 @@
 package server
 
 import (
+	"github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/mcp/prompts"
 	"github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/mcp/tools"
 	"github.com/mark3labs/mcp-go/server"
 )
@@ -51,7 +52,7 @@ func (m *mcpServer) Serve(opts ...ServerOption) error {
 		m.name,
 		m.version,
 		server.WithToolCapabilities(false),
-		server.WithPromptCapabilities(false),
+		server.WithPromptCapabilities(true),
 	)
 
 	if options.includeReadonlyTools {
@@ -74,6 +75,13 @@ func (m *mcpServer) Serve(opts ...ServerOption) error {
 			server.ServerTool{Tool: t.CreateCurrentContextTool(), Handler: t.HandleCurrentContext},
 			server.ServerTool{Tool: t.CreateCurrentNamespaceTool(), Handler: t.HandleCurrentNamespace},
 			server.ServerTool{Tool: t.CreateUseContextTool(), Handler: t.HandleUseContext},
+		)
+		
+		// Add prompts
+		p := prompts.New()
+		s.AddPrompts(
+			server.ServerPrompt{Prompt: p.CreateDebugClusterPrompt(), Handler: p.HandleDebugClusterPrompt},
+			server.ServerPrompt{Prompt: p.CreateDebugNamespacePrompt(), Handler: p.HandleDebugNamespacePrompt},
 		)
 	}
 
