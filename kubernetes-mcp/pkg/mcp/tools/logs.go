@@ -28,6 +28,7 @@ func (t *Tools) CreateLogsTool() mcp.Tool {
 		mcp.WithNumber("head_offset", mcp.Description("Skip first N lines before applying head_limit")),
 		mcp.WithNumber("tail_limit", mcp.Description("Limit output to last N lines (applied client-side, use 'tail' for kubectl-level limiting)")),
 		mcp.WithNumber("tail_offset", mcp.Description("Skip last N lines before applying tail_limit")),
+		mcp.WithString("grep", mcp.Description("Filter log lines matching this pattern (regex or literal string)")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -47,7 +48,6 @@ func (t *Tools) HandleLogs(ctx context.Context, req mcp.CallToolRequest) (*mcp.C
 
 	var cmdArgs []string
 	
-	// Handle selector-based logs or pod-name based logs
 	if selector, ok := args["selector"].(string); ok && selector != "" {
 		cmdArgs = []string{"logs", "-l", selector}
 	} else {
@@ -109,6 +109,14 @@ func (t *Tools) HandleLogs(ctx context.Context, req mcp.CallToolRequest) (*mcp.C
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
 	
 	if err == nil && stdout != "" {
+		filterParams := GetFilterParams(args)
+		filteredOutput, filterErr := ApplyFilter(stdout, filterParams, "")
+		if filterErr != nil {
+			stderr = fmt.Sprintf("Filter error: %v\nOriginal output preserved", filterErr)
+		} else {
+			stdout = filteredOutput
+		}
+		
 		paginationParams := GetPaginationParams(args)
 		result := ApplyPagination(stdout, paginationParams)
 		stdout = result.Output

@@ -21,13 +21,15 @@ func (t *Tools) CreateAPIResourcesTool() mcp.Tool {
 		mcp.WithNumber("head_offset", mcp.Description("Skip first N lines before applying head_limit")),
 		mcp.WithNumber("tail_limit", mcp.Description("Limit output to last N lines")),
 		mcp.WithNumber("tail_offset", mcp.Description("Skip last N lines before applying tail_limit")),
+		mcp.WithString("grep", mcp.Description("Filter output lines matching this pattern (regex or literal string)")),
+		mcp.WithString("jq", mcp.Description("Apply jq filter to JSON output (requires output format to be 'json')")),
+		mcp.WithString("yq", mcp.Description("Apply yq filter to YAML output (requires output format to be 'yaml')")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
 
 // HandleAPIResources processes requests to list available API resources
 func (t *Tools) HandleAPIResources(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	// Handle nil or empty arguments
 	var args map[string]any
 	if req.Params.Arguments != nil {
 		var ok bool
@@ -59,13 +61,23 @@ func (t *Tools) HandleAPIResources(ctx context.Context, req mcp.CallToolRequest)
 		cmdArgs = append(cmdArgs, "--no-headers")
 	}
 
+	outputFormat := ""
 	if output, ok := args["output"].(string); ok && output != "" {
+		outputFormat = output
 		cmdArgs = append(cmdArgs, "-o", output)
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
 	
 	if err == nil && stdout != "" {
+		filterParams := GetFilterParams(args)
+		filteredOutput, filterErr := ApplyFilter(stdout, filterParams, outputFormat)
+		if filterErr != nil {
+			stderr = fmt.Sprintf("Filter error: %v\nOriginal output preserved", filterErr)
+		} else {
+			stdout = filteredOutput
+		}
+		
 		paginationParams := GetPaginationParams(args)
 		result := ApplyPagination(stdout, paginationParams)
 		stdout = result.Output

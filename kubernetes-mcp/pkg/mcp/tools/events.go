@@ -22,6 +22,9 @@ func (t *Tools) CreateEventsTool() mcp.Tool {
 		mcp.WithNumber("head_offset", mcp.Description("Skip first N lines before applying head_limit")),
 		mcp.WithNumber("tail_limit", mcp.Description("Limit output to last N lines")),
 		mcp.WithNumber("tail_offset", mcp.Description("Skip last N lines before applying tail_limit")),
+		mcp.WithString("grep", mcp.Description("Filter output lines matching this pattern (regex or literal string)")),
+		mcp.WithString("jq", mcp.Description("Apply jq filter to JSON output (requires output format to be 'json')")),
+		mcp.WithString("yq", mcp.Description("Apply yq filter to YAML output (requires output format to be 'yaml')")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -54,12 +57,13 @@ func (t *Tools) HandleEvents(ctx context.Context, req mcp.CallToolRequest) (*mcp
 	}
 
 	if types, ok := args["types"].(string); ok && types != "" {
-		// Convert comma-separated types to field selector
 		// kubectl doesn't have a direct --types flag, we use field-selector
 		cmdArgs = append(cmdArgs, "--field-selector", fmt.Sprintf("type=%s", types))
 	}
 
+	outputFormat := ""
 	if output, ok := args["output"].(string); ok && output != "" {
+		outputFormat = output
 		cmdArgs = append(cmdArgs, "-o", output)
 	}
 
@@ -70,6 +74,14 @@ func (t *Tools) HandleEvents(ctx context.Context, req mcp.CallToolRequest) (*mcp
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
 	
 	if err == nil && stdout != "" {
+		filterParams := GetFilterParams(args)
+		filteredOutput, filterErr := ApplyFilter(stdout, filterParams, outputFormat)
+		if filterErr != nil {
+			stderr = fmt.Sprintf("Filter error: %v\nOriginal output preserved", filterErr)
+		} else {
+			stdout = filteredOutput
+		}
+		
 		paginationParams := GetPaginationParams(args)
 		result := ApplyPagination(stdout, paginationParams)
 		stdout = result.Output
