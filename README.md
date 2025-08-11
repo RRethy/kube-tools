@@ -12,6 +12,12 @@ Kubectl plugin that provides convenient context and namespace switching utilitie
 ### kubernetes-mcp
 A readonly MCP (Model Context Protocol) server that exposes Kubernetes cluster information through a standardized interface. Enables AI assistants and other tools to interact with Kubernetes clusters safely.
 
+**Key Features:**
+- Output filtering with `grep`, `jq`, and `yq` expressions
+- Intelligent pagination with configurable limits and clear feedback
+- Comprehensive debugging prompts for cluster and namespace analysis
+- Full kubectl context and namespace management support
+
 ### celery
 CEL-based Kubernetes resource validator that allows you to define and enforce custom validation rules using the Common Expression Language (CEL). Validate YAML manifests against complex policies before applying them to your cluster.
 
@@ -92,23 +98,60 @@ Start the MCP server to expose Kubernetes cluster information:
 ```bash
 # Start the server
 kubernetes-mcp serve
-
-# The server provides tools for:
-# - Getting cluster information
-# - Listing and describing resources
-# - Viewing pod logs
-# - Watching events
-# - Explaining resource types
 ```
 
-The MCP server is readonly and safe to use in production environments. It exposes the following capabilities:
-- `cluster-info` - Get cluster and services information
-- `get` - List Kubernetes resources
-- `describe` - Get detailed resource information
-- `logs` - View pod container logs
-- `events` - List and filter cluster events
-- `explain` - Explain resource types and fields
-- `version` - Get kubectl and cluster version info
+The MCP server is readonly and safe to use in production environments.
+
+### Available Tools
+
+- **Resource Management:**
+  - `get` - List resources with filtering (grep, jq, yq) and pagination
+  - `describe` - Get detailed resource information
+  - `api-resources` - List available API resources
+  - `explain` - Explain resource types and fields
+
+- **Monitoring & Debugging:**
+  - `logs` - View pod logs with grep filtering and pagination
+  - `events` - List cluster events with filtering and pagination
+  - `top-pod` / `top-node` - Resource usage metrics
+  - `debug-cluster` - Comprehensive cluster analysis prompt
+  - `debug-namespace` - Focused namespace troubleshooting prompt
+
+- **Cluster Information:**
+  - `cluster-info` - Get cluster and services information
+  - `version` - Get kubectl and cluster version info
+  - `config-get-contexts` - List available contexts
+  - `current-context` / `current-namespace` - Show current settings
+  - `use-context` - Switch kubectl context
+
+### Output Filtering Examples
+
+```json
+// Find pods with issues using grep
+{"resource_type": "pods", "grep": "Error|CrashLoop"}
+
+// Extract specific fields with jq
+{"resource_type": "pods", "output": "json", "jq": ".items[].metadata.name"}
+
+// Filter YAML output with yq
+{"resource_type": "deployments", "output": "yaml", "yq": ".spec.replicas"}
+```
+
+### Pagination Examples
+
+```json
+// Default: First 50 lines
+{"resource_type": "pods"}
+
+// Custom limits
+{"resource_type": "events", "head_limit": 20}  // First 20 lines
+{"resource_type": "events", "tail_limit": 30}  // Last 30 lines
+
+// Disable pagination
+{"resource_type": "pods", "head_limit": 0}  // All results
+```
+
+Pagination feedback shows: `[Showing first 50 lines of 200 total lines]`
 
 ## celery Documentation
 
