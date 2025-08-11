@@ -108,11 +108,13 @@ func (t *Tools) HandleLogs(ctx context.Context, req mcp.CallToolRequest) (*mcp.C
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
 	
-	// Apply client-side pagination to stdout if successful
-	// Note: kubectl's --tail parameter is more efficient for large logs
 	if err == nil && stdout != "" {
 		paginationParams := GetPaginationParams(args)
-		stdout = ApplyPagination(stdout, paginationParams)
+		result := ApplyPagination(stdout, paginationParams)
+		stdout = result.Output
+		if result.PaginationInfo != "" {
+			stdout += result.PaginationInfo
+		}
 	}
 	
 	return t.formatOutput(stdout, stderr, err)

@@ -65,10 +65,13 @@ func (t *Tools) HandleAPIResources(ctx context.Context, req mcp.CallToolRequest)
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
 	
-	// Apply pagination to stdout if successful
 	if err == nil && stdout != "" {
 		paginationParams := GetPaginationParams(args)
-		stdout = ApplyPagination(stdout, paginationParams)
+		result := ApplyPagination(stdout, paginationParams)
+		stdout = result.Output
+		if result.PaginationInfo != "" {
+			stdout += result.PaginationInfo
+		}
 	}
 	
 	return t.formatOutput(stdout, stderr, err)

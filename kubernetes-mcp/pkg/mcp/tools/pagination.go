@@ -1,6 +1,9 @@
 package tools
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // PaginationParams holds pagination configuration for output limiting
 type PaginationParams struct {
@@ -16,7 +19,6 @@ func GetPaginationParams(args map[string]any) PaginationParams {
 		HeadLimit: 50, // Default to 50 lines to prevent context overflow
 	}
 
-	// Extract head parameters
 	if val, ok := args["head_limit"].(float64); ok {
 		params.HeadLimit = int(val)
 	}
@@ -24,16 +26,14 @@ func GetPaginationParams(args map[string]any) PaginationParams {
 		params.HeadOffset = int(val)
 	}
 
-	// Extract tail parameters
 	if val, ok := args["tail_limit"].(float64); ok {
 		params.TailLimit = int(val)
-		params.HeadLimit = 0 // Disable head if tail is specified
+		params.HeadLimit = 0
 	}
 	if val, ok := args["tail_offset"].(float64); ok {
 		params.TailOffset = int(val)
 	}
 
-	// Validate parameters
 	if params.HeadLimit < 0 {
 		params.HeadLimit = 0
 	}
@@ -50,15 +50,24 @@ func GetPaginationParams(args map[string]any) PaginationParams {
 	return params
 }
 
+// PaginationResult contains the paginated output and information about what was paginated
+type PaginationResult struct {
+	Output       string
+	OriginalLines int
+	ReturnedLines int
+	PaginationInfo string
+}
+
 // ApplyPagination applies pagination parameters to limit output size
-func ApplyPagination(output string, params PaginationParams) string {
+func ApplyPagination(output string, params PaginationParams) PaginationResult {
 	if output == "" {
-		return output
+		return PaginationResult{Output: output}
 	}
 
 	lines := strings.Split(output, "\n")
+	originalCount := len(lines)
+	var paginationInfo string
 
-	// Apply tail pagination if specified (takes precedence)
 	if params.TailLimit > 0 {
 		start := len(lines) - params.TailLimit - params.TailOffset
 		if start < 0 {
@@ -73,24 +82,41 @@ func ApplyPagination(output string, params PaginationParams) string {
 		}
 		if start < end {
 			lines = lines[start:end]
+			if params.TailOffset > 0 {
+				paginationInfo = fmt.Sprintf("\n[Showing last %d lines (skipped %d from end) of %d total lines]", len(lines), params.TailOffset, originalCount)
+			} else {
+				paginationInfo = fmt.Sprintf("\n[Showing last %d lines of %d total lines]", len(lines), originalCount)
+			}
 		} else {
-			return ""
+			return PaginationResult{Output: "", PaginationInfo: fmt.Sprintf("[No lines to display from %d total lines]", originalCount)}
 		}
 	} else if params.HeadLimit > 0 {
-		// Apply head pagination
 		start := params.HeadOffset
 		end := params.HeadOffset + params.HeadLimit
 		if start > len(lines) {
-			return ""
+			return PaginationResult{Output: "", PaginationInfo: fmt.Sprintf("[Offset %d exceeds %d total lines]", start, originalCount)}
 		}
 		if end > len(lines) {
 			end = len(lines)
 		}
 		lines = lines[start:end]
+		if params.HeadOffset > 0 {
+			paginationInfo = fmt.Sprintf("\n[Showing lines %d-%d of %d total lines]", start+1, end, originalCount)
+		} else if len(lines) < originalCount {
+			paginationInfo = fmt.Sprintf("\n[Showing first %d lines of %d total lines]", len(lines), originalCount)
+		}
 	} else if params.HeadLimit == 0 && params.TailLimit == 0 {
-		// User explicitly wants all results (head_limit=0)
-		return output
+		return PaginationResult{
+			Output: output,
+			OriginalLines: originalCount,
+			ReturnedLines: originalCount,
+		}
 	}
 
-	return strings.Join(lines, "\n")
+	return PaginationResult{
+		Output: strings.Join(lines, "\n"),
+		OriginalLines: originalCount,
+		ReturnedLines: len(lines),
+		PaginationInfo: paginationInfo,
+	}
 }

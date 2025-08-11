@@ -120,10 +120,11 @@ func TestApplyPagination(t *testing.T) {
 	testData := strings.Join(lines, "\n")
 
 	tests := []struct {
-		name     string
-		input    string
-		params   PaginationParams
-		expected string
+		name           string
+		input          string
+		params         PaginationParams
+		expectedOutput string
+		expectedInfo   string
 	}{
 		{
 			name:  "Empty input",
@@ -131,7 +132,8 @@ func TestApplyPagination(t *testing.T) {
 			params: PaginationParams{
 				HeadLimit: 10,
 			},
-			expected: "",
+			expectedOutput: "",
+			expectedInfo:   "",
 		},
 		{
 			name:  "Head limit only",
@@ -139,7 +141,8 @@ func TestApplyPagination(t *testing.T) {
 			params: PaginationParams{
 				HeadLimit: 5,
 			},
-			expected: "A\nB\nC\nD\nE",
+			expectedOutput: "A\nB\nC\nD\nE",
+			expectedInfo:   "\n[Showing first 5 lines of 20 total lines]",
 		},
 		{
 			name:  "Head limit with offset",
@@ -148,7 +151,8 @@ func TestApplyPagination(t *testing.T) {
 				HeadLimit:  5,
 				HeadOffset: 3,
 			},
-			expected: "D\nE\nF\nG\nH",
+			expectedOutput: "D\nE\nF\nG\nH",
+			expectedInfo:   "\n[Showing lines 4-8 of 20 total lines]",
 		},
 		{
 			name:  "Head offset beyond input",
@@ -157,7 +161,8 @@ func TestApplyPagination(t *testing.T) {
 				HeadLimit:  5,
 				HeadOffset: 25,
 			},
-			expected: "",
+			expectedOutput: "",
+			expectedInfo:   "[Offset 25 exceeds 20 total lines]",
 		},
 		{
 			name:  "Head limit exceeds remaining lines",
@@ -166,7 +171,8 @@ func TestApplyPagination(t *testing.T) {
 				HeadLimit:  10,
 				HeadOffset: 15,
 			},
-			expected: "P\nQ\nR\nS\nT",
+			expectedOutput: "P\nQ\nR\nS\nT",
+			expectedInfo:   "\n[Showing lines 16-20 of 20 total lines]",
 		},
 		{
 			name:  "Tail limit only",
@@ -174,7 +180,8 @@ func TestApplyPagination(t *testing.T) {
 			params: PaginationParams{
 				TailLimit: 5,
 			},
-			expected: "P\nQ\nR\nS\nT",
+			expectedOutput: "P\nQ\nR\nS\nT",
+			expectedInfo:   "\n[Showing last 5 lines of 20 total lines]",
 		},
 		{
 			name:  "Tail limit with offset",
@@ -183,7 +190,8 @@ func TestApplyPagination(t *testing.T) {
 				TailLimit:  5,
 				TailOffset: 3,
 			},
-			expected: "M\nN\nO\nP\nQ",
+			expectedOutput: "M\nN\nO\nP\nQ",
+			expectedInfo:   "\n[Showing last 5 lines (skipped 3 from end) of 20 total lines]",
 		},
 		{
 			name:  "Tail offset beyond input",
@@ -192,7 +200,8 @@ func TestApplyPagination(t *testing.T) {
 				TailLimit:  5,
 				TailOffset: 25,
 			},
-			expected: "",
+			expectedOutput: "",
+			expectedInfo:   "[No lines to display from 20 total lines]",
 		},
 		{
 			name:  "Zero head_limit returns all",
@@ -200,7 +209,8 @@ func TestApplyPagination(t *testing.T) {
 			params: PaginationParams{
 				HeadLimit: 0,
 			},
-			expected: testData,
+			expectedOutput: testData,
+			expectedInfo:   "",
 		},
 		{
 			name:  "Default pagination (50 lines but only 20 available)",
@@ -208,7 +218,8 @@ func TestApplyPagination(t *testing.T) {
 			params: PaginationParams{
 				HeadLimit: 50,
 			},
-			expected: testData,
+			expectedOutput: testData,
+			expectedInfo:   "", // No info when all lines are shown
 		},
 		{
 			name:  "Single line",
@@ -216,7 +227,8 @@ func TestApplyPagination(t *testing.T) {
 			params: PaginationParams{
 				HeadLimit: 1,
 			},
-			expected: "single line",
+			expectedOutput: "single line",
+			expectedInfo:   "", // No info when all lines are shown
 		},
 		{
 			name:  "Tail with large offset",
@@ -225,7 +237,8 @@ func TestApplyPagination(t *testing.T) {
 				TailLimit:  30,
 				TailOffset: 5,
 			},
-			expected: "A\nB\nC\nD\nE\nF\nG\nH\nI\nJ\nK\nL\nM\nN\nO",
+			expectedOutput: "A\nB\nC\nD\nE\nF\nG\nH\nI\nJ\nK\nL\nM\nN\nO",
+			expectedInfo:   "\n[Showing last 15 lines (skipped 5 from end) of 20 total lines]",
 		},
 		{
 			name:  "Head and tail both zero",
@@ -234,15 +247,19 @@ func TestApplyPagination(t *testing.T) {
 				HeadLimit: 0,
 				TailLimit: 0,
 			},
-			expected: testData,
+			expectedOutput: testData,
+			expectedInfo:   "",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := ApplyPagination(tt.input, tt.params)
-			if result != tt.expected {
-				t.Errorf("ApplyPagination() = %q, want %q", result, tt.expected)
+			if result.Output != tt.expectedOutput {
+				t.Errorf("ApplyPagination().Output = %q, want %q", result.Output, tt.expectedOutput)
+			}
+			if result.PaginationInfo != tt.expectedInfo {
+				t.Errorf("ApplyPagination().PaginationInfo = %q, want %q", result.PaginationInfo, tt.expectedInfo)
 			}
 		})
 	}
@@ -260,6 +277,7 @@ func TestApplyPaginationLargeData(t *testing.T) {
 		name          string
 		params        PaginationParams
 		expectedLines int
+		hasInfo       bool
 	}{
 		{
 			name: "Default 50 lines",
@@ -267,6 +285,7 @@ func TestApplyPaginationLargeData(t *testing.T) {
 				HeadLimit: 50,
 			},
 			expectedLines: 50,
+			hasInfo:       true,
 		},
 		{
 			name: "Last 100 lines",
@@ -274,6 +293,7 @@ func TestApplyPaginationLargeData(t *testing.T) {
 				TailLimit: 100,
 			},
 			expectedLines: 100,
+			hasInfo:       true,
 		},
 		{
 			name: "Middle section",
@@ -282,6 +302,7 @@ func TestApplyPaginationLargeData(t *testing.T) {
 				HeadOffset: 475,
 			},
 			expectedLines: 50,
+			hasInfo:       true,
 		},
 		{
 			name: "Skip and take from end",
@@ -290,15 +311,25 @@ func TestApplyPaginationLargeData(t *testing.T) {
 				TailOffset: 100,
 			},
 			expectedLines: 200,
+			hasInfo:       true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := ApplyPagination(largeData, tt.params)
-			resultLines := strings.Split(result, "\n")
+			resultLines := strings.Split(result.Output, "\n")
 			if len(resultLines) != tt.expectedLines {
 				t.Errorf("ApplyPagination() returned %d lines, want %d", len(resultLines), tt.expectedLines)
+			}
+			if tt.hasInfo && result.PaginationInfo == "" {
+				t.Errorf("ApplyPagination() expected pagination info but got none")
+			}
+			if result.OriginalLines != 1000 {
+				t.Errorf("ApplyPagination().OriginalLines = %d, want 1000", result.OriginalLines)
+			}
+			if result.ReturnedLines != tt.expectedLines {
+				t.Errorf("ApplyPagination().ReturnedLines = %d, want %d", result.ReturnedLines, tt.expectedLines)
 			}
 		})
 	}

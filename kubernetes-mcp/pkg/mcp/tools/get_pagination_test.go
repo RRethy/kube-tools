@@ -24,10 +24,11 @@ func (m *mockKubectlWithLines) Execute(ctx context.Context, args ...string) (str
 
 func TestHandleGetWithPagination(t *testing.T) {
 	tests := []struct {
-		name          string
-		totalLines    int
-		args          map[string]any
-		expectedLines int
+		name            string
+		totalLines      int
+		args            map[string]any
+		expectedLines   int
+		hasPaginationInfo bool
 	}{
 		{
 			name:       "Default pagination limits to 50 lines",
@@ -35,7 +36,8 @@ func TestHandleGetWithPagination(t *testing.T) {
 			args: map[string]any{
 				"resource-type": "pods",
 			},
-			expectedLines: 50,
+			expectedLines: 51, // 50 data lines + 1 pagination info
+			hasPaginationInfo: true,
 		},
 		{
 			name:       "Custom head_limit",
@@ -44,7 +46,8 @@ func TestHandleGetWithPagination(t *testing.T) {
 				"resource-type": "pods",
 				"head_limit":    float64(20),
 			},
-			expectedLines: 20,
+			expectedLines: 21, // 20 data lines + 1 pagination info
+			hasPaginationInfo: true,
 		},
 		{
 			name:       "Head with offset",
@@ -54,7 +57,8 @@ func TestHandleGetWithPagination(t *testing.T) {
 				"head_limit":    float64(10),
 				"head_offset":   float64(5),
 			},
-			expectedLines: 10,
+			expectedLines: 11, // 10 data lines + 1 pagination info
+			hasPaginationInfo: true,
 		},
 		{
 			name:       "Tail limit",
@@ -63,7 +67,8 @@ func TestHandleGetWithPagination(t *testing.T) {
 				"resource-type": "pods",
 				"tail_limit":    float64(15),
 			},
-			expectedLines: 15,
+			expectedLines: 16, // 15 data lines + 1 pagination info
+			hasPaginationInfo: true,
 		},
 		{
 			name:       "Explicit zero for all results",
@@ -72,7 +77,8 @@ func TestHandleGetWithPagination(t *testing.T) {
 				"resource-type": "pods",
 				"head_limit":    float64(0),
 			},
-			expectedLines: 100,
+			expectedLines: 100, // All lines, no pagination info
+			hasPaginationInfo: false,
 		},
 		{
 			name:       "Fewer lines than default",
@@ -80,7 +86,8 @@ func TestHandleGetWithPagination(t *testing.T) {
 			args: map[string]any{
 				"resource-type": "pods",
 			},
-			expectedLines: 20,
+			expectedLines: 20, // All lines shown, no pagination info
+			hasPaginationInfo: false,
 		},
 	}
 
@@ -115,6 +122,14 @@ func TestHandleGetWithPagination(t *testing.T) {
 			if len(lines) != tt.expectedLines {
 				t.Errorf("HandleGet() returned %d lines, want %d", len(lines), tt.expectedLines)
 			}
+			
+			// Check if pagination info is present when expected
+			if tt.hasPaginationInfo {
+				lastLine := lines[len(lines)-1]
+				if !strings.HasPrefix(lastLine, "[Showing") {
+					t.Errorf("Expected pagination info in last line, got: %s", lastLine)
+				}
+			}
 		})
 	}
 }
@@ -132,21 +147,21 @@ func TestHandleEventsWithPagination(t *testing.T) {
 		{
 			name: "Default pagination",
 			args: map[string]any{},
-			expectedLines: 50,
+			expectedLines: 51, // 50 + pagination info
 		},
 		{
 			name: "Custom limit",
 			args: map[string]any{
 				"head_limit": float64(30),
 			},
-			expectedLines: 30,
+			expectedLines: 31, // 30 + pagination info
 		},
 		{
 			name: "All results",
 			args: map[string]any{
 				"head_limit": float64(0),
 			},
-			expectedLines: 100,
+			expectedLines: 100, // All lines, no pagination info
 		},
 	}
 
@@ -191,21 +206,21 @@ func TestHandleAPIResourcesWithPagination(t *testing.T) {
 		{
 			name:          "Default pagination",
 			args:          map[string]any{},
-			expectedLines: 50,
+			expectedLines: 51, // 50 + pagination info
 		},
 		{
 			name: "Custom limit",
 			args: map[string]any{
 				"head_limit": float64(25),
 			},
-			expectedLines: 25,
+			expectedLines: 26, // 25 + pagination info
 		},
 		{
 			name: "All results",
 			args: map[string]any{
 				"head_limit": float64(0),
 			},
-			expectedLines: 100,
+			expectedLines: 100, // All lines, no pagination info
 		},
 	}
 
@@ -250,21 +265,21 @@ func TestHandleConfigGetContextsWithPagination(t *testing.T) {
 		{
 			name:          "Default pagination",
 			args:          map[string]any{},
-			expectedLines: 50,
+			expectedLines: 51, // 50 + pagination info
 		},
 		{
 			name: "Custom limit",
 			args: map[string]any{
 				"head_limit": float64(15),
 			},
-			expectedLines: 15,
+			expectedLines: 16, // 15 + pagination info
 		},
 		{
 			name: "Tail limit",
 			args: map[string]any{
 				"tail_limit": float64(20),
 			},
-			expectedLines: 20,
+			expectedLines: 21, // 20 + pagination info
 		},
 	}
 
@@ -309,14 +324,14 @@ func TestHandleTopPodWithPagination(t *testing.T) {
 		{
 			name:          "Default pagination",
 			args:          map[string]any{},
-			expectedLines: 50,
+			expectedLines: 51, // 50 + pagination info
 		},
 		{
 			name: "Custom limit",
 			args: map[string]any{
 				"head_limit": float64(35),
 			},
-			expectedLines: 35,
+			expectedLines: 36, // 35 + pagination info
 		},
 		{
 			name: "Head with offset",
@@ -324,7 +339,7 @@ func TestHandleTopPodWithPagination(t *testing.T) {
 				"head_limit":  float64(20),
 				"head_offset": float64(10),
 			},
-			expectedLines: 20,
+			expectedLines: 21, // 20 + pagination info
 		},
 	}
 
@@ -369,21 +384,21 @@ func TestHandleTopNodeWithPagination(t *testing.T) {
 		{
 			name:          "Default pagination",
 			args:          map[string]any{},
-			expectedLines: 50,
+			expectedLines: 51, // 50 + pagination info
 		},
 		{
 			name: "Custom limit",
 			args: map[string]any{
 				"head_limit": float64(10),
 			},
-			expectedLines: 10,
+			expectedLines: 11, // 10 + pagination info
 		},
 		{
 			name: "All results with zero",
 			args: map[string]any{
 				"head_limit": float64(0),
 			},
-			expectedLines: 100,
+			expectedLines: 100, // All lines, no pagination info
 		},
 	}
 
@@ -430,7 +445,7 @@ func TestHandleLogsWithPagination(t *testing.T) {
 			args: map[string]any{
 				"pod-name": "test-pod",
 			},
-			expectedLines: 50,
+			expectedLines: 51, // 50 + pagination info
 		},
 		{
 			name: "Custom head_limit overrides kubectl tail",
@@ -439,7 +454,7 @@ func TestHandleLogsWithPagination(t *testing.T) {
 				"tail":       float64(80), // kubectl level
 				"head_limit": float64(20), // client-side takes precedence
 			},
-			expectedLines: 20,
+			expectedLines: 21, // 20 + pagination info
 		},
 		{
 			name: "Tail_limit for client-side tail",
@@ -447,7 +462,7 @@ func TestHandleLogsWithPagination(t *testing.T) {
 				"pod-name":   "test-pod",
 				"tail_limit": float64(25),
 			},
-			expectedLines: 25,
+			expectedLines: 26, // 25 + pagination info
 		},
 	}
 
