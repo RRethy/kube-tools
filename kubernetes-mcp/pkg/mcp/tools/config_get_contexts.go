@@ -12,6 +12,10 @@ func (t *Tools) CreateConfigGetContextsTool() mcp.Tool {
 		mcp.WithDescription("Display all available contexts from kubeconfig"),
 		mcp.WithBoolean("no-headers", mcp.Description("Don't show headers")),
 		mcp.WithString("output", mcp.Description("Output format: 'name' for context names only, or default")),
+		mcp.WithNumber("head_limit", mcp.Description("Limit output to first N lines (default: 50, 0 for all)")),
+		mcp.WithNumber("head_offset", mcp.Description("Skip first N lines before applying head_limit")),
+		mcp.WithNumber("tail_limit", mcp.Description("Limit output to last N lines")),
+		mcp.WithNumber("tail_offset", mcp.Description("Skip last N lines before applying tail_limit")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -37,5 +41,12 @@ func (t *Tools) HandleConfigGetContexts(ctx context.Context, req mcp.CallToolReq
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
+	
+	// Apply pagination to stdout if successful
+	if err == nil && stdout != "" {
+		paginationParams := GetPaginationParams(args)
+		stdout = ApplyPagination(stdout, paginationParams)
+	}
+	
 	return t.formatOutput(stdout, stderr, err)
 }

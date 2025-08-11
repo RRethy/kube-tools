@@ -16,6 +16,10 @@ func (t *Tools) CreateTopNodeTool() mcp.Tool {
 		mcp.WithString("sort-by", mcp.Description("Sort by 'cpu' or 'memory'")),
 		mcp.WithBoolean("no-headers", mcp.Description("Don't print headers")),
 		mcp.WithBoolean("show-capacity", mcp.Description("Show capacity values instead of allocatable")),
+		mcp.WithNumber("head_limit", mcp.Description("Limit output to first N lines (default: 50, 0 for all)")),
+		mcp.WithNumber("head_offset", mcp.Description("Skip first N lines before applying head_limit")),
+		mcp.WithNumber("tail_limit", mcp.Description("Limit output to last N lines")),
+		mcp.WithNumber("tail_offset", mcp.Description("Skip last N lines before applying tail_limit")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -54,5 +58,12 @@ func (t *Tools) HandleTopNode(ctx context.Context, req mcp.CallToolRequest) (*mc
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
+	
+	// Apply pagination to stdout if successful
+	if err == nil && stdout != "" {
+		paginationParams := GetPaginationParams(args)
+		stdout = ApplyPagination(stdout, paginationParams)
+	}
+	
 	return t.formatOutput(stdout, stderr, err)
 }

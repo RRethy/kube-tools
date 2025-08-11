@@ -24,6 +24,10 @@ func (t *Tools) CreateGetTool() mcp.Tool {
 		mcp.WithString("sort-by", mcp.Description("Sort using JSONPath expression (e.g., '{.metadata.name}')")),
 		mcp.WithBoolean("show-kind", mcp.Description("Show resource type for the requested object(s)")),
 		mcp.WithString("label-columns", mcp.Description("Comma-separated list of labels to display as columns")),
+		mcp.WithNumber("head_limit", mcp.Description("Limit output to first N lines (default: 50, 0 for all)")),
+		mcp.WithNumber("head_offset", mcp.Description("Skip first N lines before applying head_limit")),
+		mcp.WithNumber("tail_limit", mcp.Description("Limit output to last N lines")),
+		mcp.WithNumber("tail_offset", mcp.Description("Skip last N lines before applying tail_limit")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -104,5 +108,12 @@ func (t *Tools) HandleGet(ctx context.Context, req mcp.CallToolRequest) (*mcp.Ca
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
+	
+	// Apply pagination to stdout if successful
+	if err == nil && stdout != "" {
+		paginationParams := GetPaginationParams(args)
+		stdout = ApplyPagination(stdout, paginationParams)
+	}
+	
 	return t.formatOutput(stdout, stderr, err)
 }

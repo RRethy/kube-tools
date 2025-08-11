@@ -24,6 +24,10 @@ func (t *Tools) CreateLogsTool() mcp.Tool {
 		mcp.WithString("since-time", mcp.Description("Only return logs after a specific date (RFC3339)")),
 		mcp.WithBoolean("prefix", mcp.Description("Prefix each log line with the log source (pod name and container name)")),
 		mcp.WithString("selector", mcp.Description("Selector (label query) to filter on")),
+		mcp.WithNumber("head_limit", mcp.Description("Limit output to first N lines after kubectl returns (default: 50, 0 for all)")),
+		mcp.WithNumber("head_offset", mcp.Description("Skip first N lines before applying head_limit")),
+		mcp.WithNumber("tail_limit", mcp.Description("Limit output to last N lines (applied client-side, use 'tail' for kubectl-level limiting)")),
+		mcp.WithNumber("tail_offset", mcp.Description("Skip last N lines before applying tail_limit")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -103,5 +107,13 @@ func (t *Tools) HandleLogs(ctx context.Context, req mcp.CallToolRequest) (*mcp.C
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
+	
+	// Apply client-side pagination to stdout if successful
+	// Note: kubectl's --tail parameter is more efficient for large logs
+	if err == nil && stdout != "" {
+		paginationParams := GetPaginationParams(args)
+		stdout = ApplyPagination(stdout, paginationParams)
+	}
+	
 	return t.formatOutput(stdout, stderr, err)
 }

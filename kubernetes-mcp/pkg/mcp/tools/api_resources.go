@@ -17,6 +17,10 @@ func (t *Tools) CreateAPIResourcesTool() mcp.Tool {
 		mcp.WithString("sort-by", mcp.Description("Sort by field: 'name' or 'kind'")),
 		mcp.WithBoolean("no-headers", mcp.Description("Don't show headers")),
 		mcp.WithString("output", mcp.Description("Output format: 'wide' or 'name'")),
+		mcp.WithNumber("head_limit", mcp.Description("Limit output to first N lines (default: 50, 0 for all)")),
+		mcp.WithNumber("head_offset", mcp.Description("Skip first N lines before applying head_limit")),
+		mcp.WithNumber("tail_limit", mcp.Description("Limit output to last N lines")),
+		mcp.WithNumber("tail_offset", mcp.Description("Skip last N lines before applying tail_limit")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -60,5 +64,12 @@ func (t *Tools) HandleAPIResources(ctx context.Context, req mcp.CallToolRequest)
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
+	
+	// Apply pagination to stdout if successful
+	if err == nil && stdout != "" {
+		paginationParams := GetPaginationParams(args)
+		stdout = ApplyPagination(stdout, paginationParams)
+	}
+	
 	return t.formatOutput(stdout, stderr, err)
 }

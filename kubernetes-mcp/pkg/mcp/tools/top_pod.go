@@ -20,6 +20,10 @@ func (t *Tools) CreateTopPodTool() mcp.Tool {
 		mcp.WithString("field-selector", mcp.Description("Selector (field query) to filter on")),
 		mcp.WithBoolean("no-headers", mcp.Description("Don't print headers")),
 		mcp.WithBoolean("sum", mcp.Description("Show sum of resource usage")),
+		mcp.WithNumber("head_limit", mcp.Description("Limit output to first N lines (default: 50, 0 for all)")),
+		mcp.WithNumber("head_offset", mcp.Description("Skip first N lines before applying head_limit")),
+		mcp.WithNumber("tail_limit", mcp.Description("Limit output to last N lines")),
+		mcp.WithNumber("tail_offset", mcp.Description("Skip last N lines before applying tail_limit")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -72,5 +76,12 @@ func (t *Tools) HandleTopPod(ctx context.Context, req mcp.CallToolRequest) (*mcp
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
+	
+	// Apply pagination to stdout if successful
+	if err == nil && stdout != "" {
+		paginationParams := GetPaginationParams(args)
+		stdout = ApplyPagination(stdout, paginationParams)
+	}
+	
 	return t.formatOutput(stdout, stderr, err)
 }
