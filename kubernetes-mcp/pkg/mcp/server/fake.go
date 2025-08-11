@@ -1,3 +1,4 @@
+// Package server provides the MCP server implementation for Kubernetes operations
 package server
 
 // FakeMCPServer provides a test implementation of MCPServer

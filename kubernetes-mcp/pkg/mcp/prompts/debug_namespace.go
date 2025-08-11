@@ -1,3 +1,4 @@
+// Package prompts provides MCP prompt handlers for Kubernetes debugging workflows
 package prompts
 
 import (
