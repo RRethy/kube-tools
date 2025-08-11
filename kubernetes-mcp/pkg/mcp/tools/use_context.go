@@ -16,13 +16,19 @@ func (t *Tools) CreateUseContextTool() mcp.Tool {
 }
 
 func (t *Tools) HandleUseContext(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	args, ok := req.Params.Arguments.(map[string]any)
-	if !ok {
+	var args map[string]any
+	if req.Params.Arguments != nil {
+		var ok bool
+		args, ok = req.Params.Arguments.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("invalid arguments")
+		}
+	} else {
 		return nil, fmt.Errorf("invalid arguments")
 	}
 
 	contextName, ok := args["context"].(string)
-	if !ok {
+	if !ok || contextName == "" {
 		return nil, fmt.Errorf("context parameter required")
 	}
 

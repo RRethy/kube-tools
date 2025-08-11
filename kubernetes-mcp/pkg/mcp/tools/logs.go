@@ -25,14 +25,20 @@ func (t *Tools) CreateLogsTool() mcp.Tool {
 
 // HandleLogs processes requests to retrieve pod container logs
 func (t *Tools) HandleLogs(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	args, ok := req.Params.Arguments.(map[string]any)
-	if !ok {
+	var args map[string]any
+	if req.Params.Arguments != nil {
+		var ok bool
+		args, ok = req.Params.Arguments.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("invalid arguments")
+		}
+	} else {
 		return nil, fmt.Errorf("invalid arguments")
 	}
 
 	podName, ok := args["pod-name"].(string)
-	if !ok {
-		return nil, fmt.Errorf("pod_name parameter required")
+	if !ok || podName == "" {
+		return nil, fmt.Errorf("pod-name parameter required")
 	}
 
 	cmdArgs := []string{"logs", podName}

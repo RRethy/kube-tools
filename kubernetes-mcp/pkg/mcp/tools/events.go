@@ -21,9 +21,13 @@ func (t *Tools) CreateEventsTool() mcp.Tool {
 
 // HandleEvents processes requests to retrieve Kubernetes events
 func (t *Tools) HandleEvents(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	args, ok := req.Params.Arguments.(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("invalid arguments")
+	var args map[string]any
+	if req.Params.Arguments != nil {
+		var ok bool
+		args, ok = req.Params.Arguments.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("invalid arguments")
+		}
 	}
 
 	cmdArgs := []string{"get", "events", "--sort-by=.lastTimestamp"}

@@ -21,14 +21,20 @@ func (t *Tools) CreateDescribeTool() mcp.Tool {
 
 // HandleDescribe processes describe requests for detailed resource information
 func (t *Tools) HandleDescribe(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	args, ok := req.Params.Arguments.(map[string]any)
-	if !ok {
+	var args map[string]any
+	if req.Params.Arguments != nil {
+		var ok bool
+		args, ok = req.Params.Arguments.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("invalid arguments")
+		}
+	} else {
 		return nil, fmt.Errorf("invalid arguments")
 	}
 
 	resourceType, ok := args["resource-type"].(string)
 	if !ok {
-		return nil, fmt.Errorf("resource_type parameter required")
+		return nil, fmt.Errorf("resource-type parameter required")
 	}
 
 	if t.isBlockedResource(resourceType) {
@@ -42,7 +48,7 @@ func (t *Tools) HandleDescribe(ctx context.Context, req mcp.CallToolRequest) (*m
 
 	resourceName, ok := args["resource-name"].(string)
 	if !ok {
-		return nil, fmt.Errorf("resource_name parameter required")
+		return nil, fmt.Errorf("resource-name parameter required")
 	}
 
 	cmdArgs := []string{"describe", resourceType, resourceName}

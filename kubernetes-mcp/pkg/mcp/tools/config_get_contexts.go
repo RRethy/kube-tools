@@ -17,9 +17,13 @@ func (t *Tools) CreateConfigGetContextsTool() mcp.Tool {
 }
 
 func (t *Tools) HandleConfigGetContexts(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	args, ok := req.Params.Arguments.(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("invalid arguments")
+	var args map[string]any
+	if req.Params.Arguments != nil {
+		var ok bool
+		args, ok = req.Params.Arguments.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("invalid arguments")
+		}
 	}
 
 	cmdArgs := []string{"config", "get-contexts"}

@@ -24,14 +24,20 @@ func (t *Tools) CreateGetTool() mcp.Tool {
 
 // HandleGet processes get requests for Kubernetes resources
 func (t *Tools) HandleGet(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	args, ok := req.Params.Arguments.(map[string]any)
-	if !ok {
+	var args map[string]any
+	if req.Params.Arguments != nil {
+		var ok bool
+		args, ok = req.Params.Arguments.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("invalid arguments")
+		}
+	} else {
 		return nil, fmt.Errorf("invalid arguments")
 	}
 
 	resourceType, ok := args["resource-type"].(string)
 	if !ok {
-		return nil, fmt.Errorf("resource_type parameter required")
+		return nil, fmt.Errorf("resource-type parameter required")
 	}
 
 	if t.isBlockedResource(resourceType) {

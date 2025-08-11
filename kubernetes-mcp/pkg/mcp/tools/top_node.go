@@ -7,16 +7,18 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
-func (t *Tools) CreateVersionTool() mcp.Tool {
-	return mcp.NewTool("version",
-		mcp.WithDescription("Get version information for kubectl client and Kubernetes cluster"),
+// CreateTopNodeTool creates an MCP tool for displaying node CPU/Memory usage
+func (t *Tools) CreateTopNodeTool() mcp.Tool {
+	return mcp.NewTool("top-node",
+		mcp.WithDescription("Display Resource (CPU/Memory) usage for nodes"),
 		mcp.WithString("context", mcp.Description("Kubernetes context to use (default: current context)")),
-		mcp.WithString("output", mcp.Description("Output format: 'json', 'yaml', or default")),
+		mcp.WithString("selector", mcp.Description("Label selector to filter results")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
 
-func (t *Tools) HandleVersion(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+// HandleTopNode processes requests to display node resource usage
+func (t *Tools) HandleTopNode(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	var args map[string]any
 	if req.Params.Arguments != nil {
 		var ok bool
@@ -26,14 +28,14 @@ func (t *Tools) HandleVersion(ctx context.Context, req mcp.CallToolRequest) (*mc
 		}
 	}
 
-	cmdArgs := []string{"version"}
+	cmdArgs := []string{"top", "node"}
 
 	if contextName, ok := args["context"].(string); ok && contextName != "" {
 		cmdArgs = append([]string{"--context", contextName}, cmdArgs...)
 	}
 
-	if output, ok := args["output"].(string); ok && output != "" {
-		cmdArgs = append(cmdArgs, "-o", output)
+	if selector, ok := args["selector"].(string); ok && selector != "" {
+		cmdArgs = append(cmdArgs, "-l", selector)
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
