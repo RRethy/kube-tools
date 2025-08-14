@@ -1,4 +1,7 @@
-.PHONY: test lint lint-fix build build-kubectl-x build-kubernetes-mcp build-celery fmt vet tidy help
+.PHONY: test lint lint-fix build build-kubectl-x build-kubernetes-mcp build-celery fmt vet tidy install uninstall clean help
+
+# Installation directory
+INSTALL_DIR := /usr/local/bin
 
 # Default target
 help:
@@ -13,6 +16,9 @@ help:
 	@echo "  fmt                  - Format Go code"
 	@echo "  vet                  - Run go vet"
 	@echo "  tidy                 - Run go mod tidy"
+	@echo "  install              - Install all binaries to $(INSTALL_DIR)"
+	@echo "  uninstall            - Remove installed binaries from $(INSTALL_DIR)"
+	@echo "  clean                - Remove built binaries"
 
 # Run all tests
 test:
@@ -37,15 +43,15 @@ build: build-kubectl-x build-kubernetes-mcp build-celery
 
 # Build the kubectl-x binary
 build-kubectl-x:
-	cd kubectl-x && go build -o ../kubectl-x .
+	cd kubectl-x && go build -o ../bin/kubectl-x .
 
 # Build the kubernetes-mcp binary
 build-kubernetes-mcp:
-	cd kubernetes-mcp && go build -o ../kubernetes-mcp .
+	cd kubernetes-mcp && go build -o ../bin/kubernetes-mcp .
 
 # Build the celery binary
 build-celery:
-	cd celery && go build -o ../celery .
+	cd celery && go build -o ../bin/celery .
 
 # Format Go code
 fmt:
@@ -65,3 +71,29 @@ tidy:
 	cd kubernetes-mcp && go mod tidy
 	cd celery && go mod tidy
 	go work sync
+
+# Install all binaries to /usr/local/bin
+install: build
+	@echo "Installing binaries to $(INSTALL_DIR)..."
+	@mkdir -p bin
+	@install -m 755 bin/kubectl-x $(INSTALL_DIR)/kubectl-x
+	@install -m 755 bin/kubernetes-mcp $(INSTALL_DIR)/kubernetes-mcp
+	@install -m 755 bin/celery $(INSTALL_DIR)/celery
+	@echo "Installation complete!"
+	@echo "  kubectl-x installed to $(INSTALL_DIR)/kubectl-x"
+	@echo "  kubernetes-mcp installed to $(INSTALL_DIR)/kubernetes-mcp"
+	@echo "  celery installed to $(INSTALL_DIR)/celery"
+
+# Uninstall binaries from /usr/local/bin
+uninstall:
+	@echo "Removing binaries from $(INSTALL_DIR)..."
+	@rm -f $(INSTALL_DIR)/kubectl-x
+	@rm -f $(INSTALL_DIR)/kubernetes-mcp
+	@rm -f $(INSTALL_DIR)/celery
+	@echo "Uninstall complete!"
+
+# Clean built binaries
+clean:
+	@echo "Cleaning built binaries..."
+	@rm -rf bin
+	@echo "Clean complete!"
