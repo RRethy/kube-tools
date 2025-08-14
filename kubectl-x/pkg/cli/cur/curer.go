@@ -21,6 +21,10 @@ func NewCurer(kubeConfig kubeconfig.Interface, ioStreams genericiooptions.IOStre
 }
 
 func (c Curer) Cur(ctx context.Context) error {
+	return c.CurWithPrompt(ctx, false)
+}
+
+func (c Curer) CurWithPrompt(ctx context.Context, promptFormat bool) error {
 	currentContext, err := c.KubeConfig.GetCurrentContext()
 	if err != nil {
 		return fmt.Errorf("getting current context: %w", err)
@@ -34,7 +38,11 @@ func (c Curer) Cur(ctx context.Context) error {
 		currentNamespace = "default"
 	}
 
-	fmt.Fprintf(c.IoStreams.Out, "--context %s --namespace %s\n", currentContext, currentNamespace)
+	if promptFormat {
+		fmt.Fprintf(c.IoStreams.Out, "%s/%s\n", currentContext, currentNamespace)
+	} else {
+		fmt.Fprintf(c.IoStreams.Out, "--context %s --namespace %s\n", currentContext, currentNamespace)
+	}
 
 	return nil
 }
