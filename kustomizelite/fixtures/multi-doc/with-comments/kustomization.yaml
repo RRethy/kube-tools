@@ -1,0 +1,19 @@
+# This is a kustomization file
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Resources to include
+resources:
+  - deployment.yaml  # Main application
+  - service.yaml     # Service definition
+
+---
+# This shouldn't be here but let's test it
+# Second document in the file
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-secret
+type: Opaque
+data:
+  password: cGFzc3dvcmQ=

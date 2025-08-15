@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  database.url: "postgres://localhost:5432/myapp"
+  log.level: "info"

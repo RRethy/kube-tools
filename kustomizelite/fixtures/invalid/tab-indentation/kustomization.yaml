@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+	- deployment.yaml  # Tab instead of spaces
+	- service.yaml
+
+commonLabels:
+	app: my-app  # Tab instead of spaces

@@ -1,0 +1,9 @@
+apiVersion: stable.shopify.io/v1
+kind: FailingGenerator
+metadata:
+  annotations:
+    config.kubernetes.io/function: |
+      exec:
+        path: ./failing-generator
+  name: failing-generator
+spec: {}

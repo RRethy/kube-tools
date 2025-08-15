@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: test-namespace
+
+helmCharts:
+- name: nginx
+  releaseName: my-nginx
+  namespace: web
+  valuesInline:
+    service:
+      type: ClusterIP
+    replicaCount: 2

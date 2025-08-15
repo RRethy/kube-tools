@@ -1,0 +1,9 @@
+apiVersion: stable.shopify.io/v1
+kind: EmptyGenerator
+metadata:
+  annotations:
+    config.kubernetes.io/function: |
+      exec:
+        path: ./empty-generator
+  name: empty-generator
+spec: {}

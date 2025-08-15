@@ -1,0 +1,9 @@
+apiVersion: stable.shopify.io/v1
+kind: CertloaderGenerator
+metadata:
+  annotations:
+    config.kubernetes.io/function: |
+      exec:
+        path: ./certloader-generator
+  name: certloader-generator
+spec: {}

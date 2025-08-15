@@ -1,0 +1,9 @@
+apiVersion: stable.shopify.io/v1
+kind: MultiDocGenerator
+metadata:
+  annotations:
+    config.kubernetes.io/function: |
+      exec:
+        path: ./multi-doc-generator
+  name: multi-doc-generator
+spec: {}
