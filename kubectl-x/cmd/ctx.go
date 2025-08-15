@@ -9,22 +9,23 @@ import (
 )
 
 var ctxCmd = &cobra.Command{
-	Use:   "ctx",
-	Short: "Switch context.",
-	Long: `Switch context.
+	Use:   "ctx [context] [namespace]",
+	Short: "Switch context",
+	Long: `Switch kubeconfig context and optionally namespace using interactive fuzzy search.
 
-Usage:
-  kubectl x ctx [context] [namespace]
-
-Args:
-  context    Partial match to filter contexts on.
-             "-" to switch to the previous ctx/ns.
-  namespace  Partial match to filter namespaces on.
-
-Example:
-  kubectl-pi ctx
-  kubectl-pi ctx my-context
-  kubectl-pi ctx my-context my-namespace`,
+Both arguments are optional and act as initial filters for the fuzzy search interface.
+Use "-" as the context to switch to the previous context/namespace combination.`,
+	Example: `  # Browse all contexts interactively
+  kubectl x ctx
+  
+  # Filter contexts by partial name
+  kubectl x ctx prod
+  
+  # Switch to specific context and namespace
+  kubectl x ctx prod-cluster my-namespace
+  
+  # Switch to previous context/namespace
+  kubectl x ctx -`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var contextName string
 		var namespace string

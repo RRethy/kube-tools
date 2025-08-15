@@ -9,20 +9,23 @@ import (
 )
 
 var nsCmd = &cobra.Command{
-	Use:   "ns",
-	Short: "Switch namespace.",
-	Long: `Switch namespace.
+	Use:   "ns [namespace]",
+	Short: "Switch namespace",
+	Long: `Switch Kubernetes namespace within the current context using interactive fuzzy search.
 
-Usage:
-  kubectl x ns [namespace]
-
-Args:
-  namespace  Partial match to filter namespaces on.
-             "-" to switch to the previous namespace.
-
-Example:
-  kubectl-pi ns
-  kubectl-pi ns my-namespace`,
+The namespace argument is optional and acts as an initial filter for the fuzzy search.
+Use "-" as the namespace to switch to the previous namespace.`,
+	Example: `  # Browse all namespaces interactively
+  kubectl x ns
+  
+  # Filter namespaces by partial name
+  kubectl x ns kube
+  
+  # Switch to specific namespace
+  kubectl x ns my-namespace
+  
+  # Switch to previous namespace
+  kubectl x ns -`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var namespace string
 		if len(args) > 0 {

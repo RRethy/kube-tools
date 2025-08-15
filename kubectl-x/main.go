@@ -1,7 +1,16 @@
 package main
 
-import "github.com/RRethy/kubectl-x/cmd"
+import (
+	"context"
+	"os"
+
+	"github.com/charmbracelet/fang"
+
+	"github.com/RRethy/kubectl-x/cmd"
+)
 
 func main() {
-	cmd.Execute()
+	if err := fang.Execute(context.Background(), cmd.GetRootCmd()); err != nil {
+		os.Exit(1)
+	}
 }

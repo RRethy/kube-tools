@@ -26,7 +26,20 @@ var (
 		Annotations: map[string]string{
 			cobra.CommandDisplayNameAnnotation: "kubectl x",
 		},
-		Short: "kubectl (kube-control) plugin with various useful extensions.",
+		Short: "Fast context and namespace switching for kubectl",
+		Long: `kubectl-x provides efficient context and namespace switching capabilities
+for kubectl with interactive fuzzy search powered by fzf.
+
+It maintains a history of recent contexts and namespaces for quick switching
+and provides a streamlined interface for common Kubernetes operations.`,
+		Example: `  # Switch context interactively
+  kubectl x ctx
+  
+  # Switch namespace in current context
+  kubectl x ns
+  
+  # Show current context and namespace
+  kubectl x cur`,
 		Run: func(cmd *cobra.Command, args []string) {
 			checkErr(cmd.Help())
 		},
@@ -43,6 +56,10 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
+}
+
+func GetRootCmd() *cobra.Command {
+	return rootCmd
 }
 
 func initConfig() {
