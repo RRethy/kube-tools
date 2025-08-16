@@ -137,7 +137,7 @@ func (e *Eacher) executeCommands(ctx context.Context, contexts []string, outputF
 
 func (e *Eacher) executeCommand(ctx context.Context, contextName string, outputFormat string, args []string) clusterResult {
 	cmdArgs := append(args, "--context", contextName)
-	cmdArgs = append(cmdArgs, "--namespace", e.Namespace)
+	cmdArgs = append(cmdArgs, "-n", e.Namespace)
 
 	if outputFormat != "raw" {
 		cmdArgs = append(cmdArgs, fmt.Sprintf("-o%s", outputFormat))
@@ -216,7 +216,7 @@ func (e *Eacher) outputYAML(items []clusterResult) error {
 func (e *Eacher) outputRaw(items []clusterResult) error {
 	for _, result := range items {
 		contextColor := color.New(color.FgCyan, color.Bold)
-		contextColor.Fprintf(e.IOStreams.Out, "%s:\n", result.Context)
+		contextColor.Fprintf(e.IOStreams.Out, "%s:\n", result.Args)
 
 		if result.Error != "" {
 			errorColor := color.New(color.FgRed)

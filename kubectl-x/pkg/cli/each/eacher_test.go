@@ -73,7 +73,7 @@ func TestEacher_Each(t *testing.T) {
 				"ctx3": {Cluster: "ctx3"},
 			},
 			fzfResults:     []string{"ctx1", "ctx3"},
-			expectedOutput: "ctx1:",
+			expectedOutput: "get pods --context ctx1",
 			verifyFzfConfig: func(t *testing.T, fzf *fzftesting.FakeFzf) {
 				assert.True(t, fzf.LastConfig.Multi)
 				assert.Equal(t, "Select context", fzf.LastConfig.Prompt)
@@ -104,7 +104,7 @@ func TestEacher_Each(t *testing.T) {
 				"ctx1": {Cluster: "ctx1"},
 				"ctx2": {Cluster: "ctx2"},
 			},
-			expectedOutput: "ctx1:",
+			expectedOutput: "get pods --context ctx1",
 		},
 		{
 			name:           "pattern selection with regex",
@@ -405,11 +405,12 @@ func TestEacher_OutputResults(t *testing.T) {
 			items: []clusterResult{
 				{
 					Context: "ctx1",
+					Args:    "get pods --context ctx1 -n default",
 					Output:  "pod1\npod2",
 				},
 			},
-			expectedOutput: "ctx1:",
 			verifyOutput: func(t *testing.T, output string) {
+				assert.Contains(t, output, "get pods --context ctx1")
 				assert.Contains(t, output, "pod1")
 				assert.Contains(t, output, "pod2")
 			},
@@ -420,12 +421,14 @@ func TestEacher_OutputResults(t *testing.T) {
 			items: []clusterResult{
 				{
 					Context: "ctx1",
+					Args:    "get pods --context ctx1 -n default",
 					Error:   "command failed",
 					Output:  "error output",
 				},
 			},
 			expectedOutput: "Error:",
 			verifyOutput: func(t *testing.T, output string) {
+				assert.Contains(t, output, "get pods --context ctx1")
 				assert.Contains(t, output, "command failed")
 				assert.Contains(t, output, "error output")
 			},
@@ -460,21 +463,24 @@ func TestEacher_OutputResults(t *testing.T) {
 			items: []clusterResult{
 				{
 					Context: "ctx1",
+					Args:    "get pods --context ctx1 -n default",
 					Output:  "output1",
 				},
 				{
 					Context: "ctx2",
+					Args:    "get pods --context ctx2 -n default",
 					Error:   "error2",
 				},
 				{
 					Context: "ctx3",
+					Args:    "get pods --context ctx3 -n default",
 					Output:  "output3",
 				},
 			},
 			verifyOutput: func(t *testing.T, output string) {
-				assert.Contains(t, output, "ctx1:")
-				assert.Contains(t, output, "ctx2:")
-				assert.Contains(t, output, "ctx3:")
+				assert.Contains(t, output, "get pods --context ctx1")
+				assert.Contains(t, output, "get pods --context ctx2")
+				assert.Contains(t, output, "get pods --context ctx3")
 				assert.Contains(t, output, "Error: error2")
 			},
 		},
@@ -484,11 +490,12 @@ func TestEacher_OutputResults(t *testing.T) {
 			items: []clusterResult{
 				{
 					Context: "ctx1",
+					Args:    "get pods --context ctx1 -n default",
 					Output:  map[string]string{"key": "value"},
 				},
 			},
-			expectedOutput: "ctx1:",
 			verifyOutput: func(t *testing.T, output string) {
+				assert.Contains(t, output, "get pods --context ctx1")
 				assert.Contains(t, output, "map[key:value]")
 			},
 		},
@@ -538,12 +545,12 @@ func TestEacher_ExecuteCommand(t *testing.T) {
 			namespace:    "test-ns",
 			outputFormat: "raw",
 			args:         []string{"get", "pods"},
-			expectedArgs: []string{"get", "pods", "--context", "test-ctx", "--namespace", "test-ns"},
+			expectedArgs: []string{"get", "pods", "--context", "test-ctx", "-n", "test-ns"},
 			verifyResult: func(t *testing.T, result clusterResult) {
 				assert.Equal(t, "test-ctx", result.Context)
 				assert.Contains(t, result.Args, "get pods")
 				assert.Contains(t, result.Args, "--context test-ctx")
-				assert.Contains(t, result.Args, "--namespace test-ns")
+				assert.Contains(t, result.Args, "-n test-ns")
 			},
 		},
 		{
@@ -552,7 +559,7 @@ func TestEacher_ExecuteCommand(t *testing.T) {
 			namespace:    "default",
 			outputFormat: "json",
 			args:         []string{"get", "pods"},
-			expectedArgs: []string{"get", "pods", "--context", "test-ctx", "--namespace", "default", "-ojson"},
+			expectedArgs: []string{"get", "pods", "--context", "test-ctx", "-n", "default", "-ojson"},
 			verifyResult: func(t *testing.T, result clusterResult) {
 				assert.Contains(t, result.Args, "-ojson")
 			},
@@ -563,7 +570,7 @@ func TestEacher_ExecuteCommand(t *testing.T) {
 			namespace:    "kube-system",
 			outputFormat: "yaml",
 			args:         []string{"get", "pods"},
-			expectedArgs: []string{"get", "pods", "--context", "test-ctx", "--namespace", "kube-system", "-oyaml"},
+			expectedArgs: []string{"get", "pods", "--context", "test-ctx", "-n", "kube-system", "-oyaml"},
 			verifyResult: func(t *testing.T, result clusterResult) {
 				assert.Contains(t, result.Args, "-oyaml")
 			},
@@ -575,7 +582,7 @@ func TestEacher_ExecuteCommand(t *testing.T) {
 			outputFormat: "raw",
 			args:         []string{"get", "nodes"},
 			verifyResult: func(t *testing.T, result clusterResult) {
-				assert.Contains(t, result.Args, "--namespace ")
+				assert.Contains(t, result.Args, "-n ")
 			},
 		},
 		{
@@ -656,7 +663,7 @@ func TestEacher_ExecuteCommands(t *testing.T) {
 				assert.Len(t, results, 8)
 				// All should have the same namespace
 				for _, r := range results {
-					assert.Contains(t, r.Args, "--namespace test")
+					assert.Contains(t, r.Args, "-n test")
 					assert.Contains(t, r.Args, "-ojson")
 				}
 			},
