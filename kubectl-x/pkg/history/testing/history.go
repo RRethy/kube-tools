@@ -1,6 +1,8 @@
 package testing
 
 import (
+	"errors"
+
 	"github.com/RRethy/kubectl-x/pkg/history"
 )
 
@@ -13,7 +15,10 @@ type FakeHistory struct {
 }
 
 func (fake *FakeHistory) Get(key string, index int) (string, error) {
-	return fake.Data[key][index], nil
+	if values, ok := fake.Data[key]; ok && len(values) > index {
+		return values[index], nil
+	}
+	return "", errors.New("not found")
 }
 
 func (fake *FakeHistory) Add(key, value string) {
