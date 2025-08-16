@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"os/exec"
 	"sort"
 	"strings"
 
@@ -59,7 +58,7 @@ func NewFzf(opts ...Option) Interface {
 
 func (f *Fzf) Run(ctx context.Context, items []string, cfg Config) ([]string, error) {
 	args := cfg.buildArgs()
-	cmd := exec.CommandContext(ctx, binaryName, args...)
+	cmd := f.exec.CommandContext(ctx, binaryName, args...)
 	pipeReader, pipeWriter := io.Pipe()
 
 	go func() {
@@ -77,11 +76,11 @@ func (f *Fzf) Run(ctx context.Context, items []string, cfg Config) ([]string, er
 		}
 	}()
 
-	cmd.Stdin = pipeReader
+	cmd.SetStdin(pipeReader)
 
 	var out bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = f.ioStreams.ErrOut
+	cmd.SetStdout(&out)
+	cmd.SetStderr(f.ioStreams.ErrOut)
 
 	if err := cmd.Run(); err != nil {
 		if ctx.Err() != nil {
