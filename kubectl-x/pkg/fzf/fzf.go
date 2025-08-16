@@ -1,3 +1,4 @@
+// Package fzf provides integration with the fzf fuzzy finder
 package fzf
 
 import (
@@ -15,29 +16,36 @@ import (
 
 const binaryName = "fzf"
 
+// Interface defines methods for fuzzy finding operations
 type Interface interface {
+	// Run executes fzf with the given items and configuration
 	Run(ctx context.Context, items []string, cfg Config) ([]string, error)
 }
 
+// Option allows customizing Fzf behavior
 type Option func(*Fzf)
 
+// WithExec sets a custom exec interface for testing
 func WithExec(exec kexec.Interface) Option {
 	return func(f *Fzf) {
 		f.exec = exec
 	}
 }
 
+// WithIOStreams sets custom IO streams for fzf interaction
 func WithIOStreams(ioStreams genericiooptions.IOStreams) Option {
 	return func(f *Fzf) {
 		f.ioStreams = ioStreams
 	}
 }
 
+// Fzf provides fuzzy finder functionality using the external fzf binary
 type Fzf struct {
 	exec      kexec.Interface
 	ioStreams genericiooptions.IOStreams
 }
 
+// NewFzf creates a new fuzzy finder with the given options
 func NewFzf(opts ...Option) Interface {
 	f := &Fzf{
 		exec:      kexec.New(),

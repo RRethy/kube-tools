@@ -13,6 +13,7 @@ import (
 	"github.com/RRethy/kubectl-x/pkg/kubernetes"
 )
 
+// Ns switches Kubernetes namespace based on the provided substring
 func Ns(ctx context.Context, configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags *genericclioptions.ResourceBuilderFlags, namespace string, exactMatch bool) error {
 	kubeConfig, err := kubeconfig.NewKubeConfig()
 	if err != nil {

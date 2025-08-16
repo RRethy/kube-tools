@@ -1,3 +1,4 @@
+// Package history manages command history for kubectl-x operations
 package history
 
 import (
@@ -18,24 +19,32 @@ var (
 	defaultHistoryPath = filepath.Join(os.ExpandEnv("$HOME"), ".local", "share", "kubectl-x", "history.yaml")
 )
 
+// Interface defines methods for managing command history
 type Interface interface {
+	// Get retrieves a historical item from the specified group at the given distance
 	Get(group string, distance int) (string, error)
+	// Add appends an item to the specified history group
 	Add(group, item string)
+	// Write persists the history to storage
 	Write() error
 }
 
+// ConfigOption allows customizing History configuration
 type ConfigOption func(*Config)
 
+// WithHistoryPath sets a custom path for the history file
 func WithHistoryPath(path string) ConfigOption {
 	return func(config *Config) {
 		config.historyPath = path
 	}
 }
 
+// Config holds configuration for History
 type Config struct {
 	historyPath string
 }
 
+// NewConfig creates a new configuration with the given options
 func NewConfig(options ...ConfigOption) *Config {
 	config := &Config{historyPath: defaultHistoryPath}
 	for _, option := range options {
@@ -44,12 +53,14 @@ func NewConfig(options ...ConfigOption) *Config {
 	return config
 }
 
+// History manages persistent command history
 type History struct {
 	Data map[string][]string `json:"data"`
 
 	path string
 }
 
+// NewHistory creates a history manager that loads from the configured path
 func NewHistory(config *Config) (*History, error) {
 	contents, err := os.ReadFile(config.historyPath)
 	history := History{path: config.historyPath}

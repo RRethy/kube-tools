@@ -1,3 +1,4 @@
+// Package cur provides functionality to display current context and namespace
 package cur
 
 import (
@@ -8,11 +9,13 @@ import (
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 )
 
+// Curer displays current Kubernetes context and namespace information
 type Curer struct {
 	KubeConfig kubeconfig.Interface
 	IoStreams  genericiooptions.IOStreams
 }
 
+// NewCurer creates a new current status displayer with the provided dependencies
 func NewCurer(kubeConfig kubeconfig.Interface, ioStreams genericiooptions.IOStreams) Curer {
 	return Curer{
 		KubeConfig: kubeConfig,
@@ -20,10 +23,12 @@ func NewCurer(kubeConfig kubeconfig.Interface, ioStreams genericiooptions.IOStre
 	}
 }
 
+// Cur displays the current context and namespace in standard format
 func (c Curer) Cur(ctx context.Context) error {
 	return c.CurWithPrompt(ctx, false)
 }
 
+// CurWithPrompt displays the current context and namespace with optional prompt format
 func (c Curer) CurWithPrompt(ctx context.Context, promptFormat bool) error {
 	currentContext, err := c.KubeConfig.GetCurrentContext()
 	if err != nil {

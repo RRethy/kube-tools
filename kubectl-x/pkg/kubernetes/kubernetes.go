@@ -9,6 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// List retrieves and type-asserts Kubernetes resources of type T
 func List[T metav1.Object](ctx context.Context, client Interface) ([]T, error) {
 	var obj T
 	kind := reflect.TypeOf(obj).Elem().Name()

@@ -1,3 +1,4 @@
+// Package testing provides mock implementations for testing kubeconfig operations
 package testing
 
 import (
@@ -9,12 +10,14 @@ import (
 
 var _ kubeconfig.Interface = &FakeKubeConfig{}
 
+// FakeKubeConfig is a mock implementation of kubeconfig.Interface for testing
 type FakeKubeConfig struct {
 	contexts         map[string]*api.Context
 	currentContext   string
 	currentNamespace string
 }
 
+// NewFakeKubeConfig creates a new fake kubeconfig with the given contexts and current settings
 func NewFakeKubeConfig(contexts map[string]*api.Context, currentContext, currentNamespace string) *FakeKubeConfig {
 	return &FakeKubeConfig{
 		contexts,

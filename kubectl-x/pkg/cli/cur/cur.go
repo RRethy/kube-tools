@@ -1,3 +1,4 @@
+// Package cur provides functionality to display current Kubernetes context and namespace
 package cur
 
 import (
@@ -8,10 +9,12 @@ import (
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 )
 
+// Cur displays the current Kubernetes context and namespace
 func Cur(ctx context.Context) error {
 	return CurWithPrompt(ctx, false)
 }
 
+// CurWithPrompt displays the current context and namespace with optional prompt formatting
 func CurWithPrompt(ctx context.Context, promptFormat bool) error {
 	kubeConfig, err := kubeconfig.NewKubeConfig()
 	if err != nil {

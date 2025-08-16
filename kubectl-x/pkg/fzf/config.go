@@ -1,11 +1,12 @@
 package fzf
 
+// Config holds configuration options for fzf execution
 type Config struct {
-	ExactMatch bool
-	Sorted     bool
-	Multi      bool
-	Prompt     string
-	Query      string
+	ExactMatch bool   // ExactMatch enables exact matching instead of fuzzy
+	Sorted     bool   // Sorted preserves the original order of items
+	Multi      bool   // Multi allows selecting multiple items
+	Prompt     string // Prompt sets the prompt text
+	Query      string // Query sets the initial search query
 }
 
 func (c Config) buildArgs() []string {

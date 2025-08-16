@@ -12,6 +12,7 @@ import (
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 )
 
+// Ctx switches Kubernetes context based on the provided substring with optional namespace selection
 func Ctx(ctx context.Context, configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags *genericclioptions.ResourceBuilderFlags, contextSubstring, namespaceSubstring string, exactMatch bool) error {
 	kubeConfig, err := kubeconfig.NewKubeConfig()
 	if err != nil {

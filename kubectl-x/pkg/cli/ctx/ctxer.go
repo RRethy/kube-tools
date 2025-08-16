@@ -1,3 +1,4 @@
+// Package ctx provides context switching functionality for kubectl-x
 package ctx
 
 import (
@@ -13,6 +14,7 @@ import (
 	"github.com/RRethy/kubectl-x/pkg/kubernetes"
 )
 
+// Ctxer handles Kubernetes context switching operations
 type Ctxer struct {
 	KubeConfig kubeconfig.Interface
 	IoStreams  genericiooptions.IOStreams
@@ -21,6 +23,7 @@ type Ctxer struct {
 	History    history.Interface
 }
 
+// NewCtxer creates a new context switcher with the provided dependencies
 func NewCtxer(kubeConfig kubeconfig.Interface, ioStreams genericiooptions.IOStreams, k8sClient kubernetes.Interface, fzf fzf.Interface, history history.Interface) Ctxer {
 	return Ctxer{
 		KubeConfig: kubeConfig,
@@ -31,6 +34,7 @@ func NewCtxer(kubeConfig kubeconfig.Interface, ioStreams genericiooptions.IOStre
 	}
 }
 
+// Ctx switches to a context matching the given substring and optionally sets namespace
 func (c Ctxer) Ctx(ctx context.Context, contextSubstring, namespaceSubstring string, exactMatch bool) error {
 	var selectedContext string
 	var selectedNamespace string

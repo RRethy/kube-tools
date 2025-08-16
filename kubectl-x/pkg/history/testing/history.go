@@ -1,3 +1,4 @@
+// Package testing provides mock implementations for testing history operations
 package testing
 
 import (
@@ -6,9 +7,9 @@ import (
 	"github.com/RRethy/kubectl-x/pkg/history"
 )
 
-// TODO: we don't need to do this
 var _ history.Interface = &FakeHistory{}
 
+// FakeHistory is a mock implementation of history.Interface for testing
 type FakeHistory struct {
 	Data    map[string][]string
 	Written bool

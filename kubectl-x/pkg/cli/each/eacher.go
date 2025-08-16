@@ -1,3 +1,4 @@
+// Package each provides functionality to execute kubectl commands across multiple contexts
 package each
 
 import (
@@ -19,6 +20,7 @@ import (
 	"github.com/RRethy/kubectl-x/pkg/kubeconfig"
 )
 
+// Eacher executes kubectl commands across multiple contexts
 type Eacher struct {
 	IOStreams  genericclioptions.IOStreams
 	Kubeconfig kubeconfig.Interface
@@ -33,6 +35,7 @@ type clusterResult struct {
 	Error   string `json:"error,omitempty" yaml:"error,omitempty"`
 }
 
+// Each executes the given kubectl command across contexts matching the pattern
 func (e *Eacher) Each(ctx context.Context, contextPattern, outputFormat string, interactive bool, args []string) error {
 	if !slices.Contains([]string{"yaml", "json", "raw"}, outputFormat) {
 		return fmt.Errorf("invalid output format: %s (must be yaml, json, or raw)", outputFormat)

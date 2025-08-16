@@ -1,3 +1,4 @@
+// Package namespace provides Kubernetes namespace resolution functionality
 package namespace
 
 import (
@@ -6,7 +7,9 @@ import (
 	"github.com/RRethy/kubectl-x/pkg/kubeconfig"
 )
 
+// Resolver defines methods for resolving Kubernetes namespaces
 type Resolver interface {
+	// Resolve determines the namespace for the given context
 	Resolve(contextName string) string
 }
 
@@ -15,6 +18,7 @@ type resolver struct {
 	configFlags *genericclioptions.ConfigFlags
 }
 
+// NewResolver creates a new namespace resolver with the given kubeconfig and flags
 func NewResolver(kubeconfig kubeconfig.Interface, configFlags *genericclioptions.ConfigFlags) Resolver {
 	return &resolver{
 		kubeconfig:  kubeconfig,

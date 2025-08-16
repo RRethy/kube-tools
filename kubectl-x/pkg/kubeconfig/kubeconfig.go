@@ -1,3 +1,4 @@
+// Package kubeconfig provides utilities for managing Kubernetes configuration files
 package kubeconfig
 
 import (
@@ -8,21 +9,31 @@ import (
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 
+// Interface defines methods for interacting with kubeconfig files
 type Interface interface {
+	// Contexts returns all available context names
 	Contexts() []string
+	// SetContext switches to the specified context
 	SetContext(context string) error
+	// SetNamespace changes the namespace for the current context
 	SetNamespace(namespace string) error
+	// GetCurrentContext returns the name of the active context
 	GetCurrentContext() (string, error)
+	// GetCurrentNamespace returns the namespace for the current context
 	GetCurrentNamespace() (string, error)
+	// GetNamespaceForContext returns the namespace configured for a specific context
 	GetNamespaceForContext(context string) (string, error)
+	// Write persists changes to the kubeconfig file
 	Write() error
 }
 
+// KubeConfig provides kubeconfig file operations
 type KubeConfig struct {
 	configAccess clientcmd.ConfigAccess
 	apiConfig    *api.Config
 }
 
+// NewKubeConfig creates a kubeconfig manager using default paths
 func NewKubeConfig() (Interface, error) {
 	configAccess := clientcmd.NewDefaultPathOptions()
 	config, err := configAccess.GetStartingConfig()

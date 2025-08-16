@@ -13,6 +13,7 @@ import (
 	"github.com/RRethy/kubectl-x/pkg/namespace"
 )
 
+// Each executes kubectl commands across multiple contexts matching the given pattern
 func Each(ctx context.Context, configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags *genericclioptions.ResourceBuilderFlags, contextPattern string, outputFormat string, interactive bool, commandArgs []string) error {
 	kubeConfig, err := kubeconfig.NewKubeConfig()
 	if err != nil {

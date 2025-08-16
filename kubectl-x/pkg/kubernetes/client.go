@@ -1,3 +1,4 @@
+// Package kubernetes provides a client for interacting with Kubernetes resources
 package kubernetes
 
 import (
@@ -8,15 +9,19 @@ import (
 	"k8s.io/kubectl/pkg/scheme"
 )
 
+// Interface defines methods for Kubernetes resource operations
 type Interface interface {
+	// List retrieves all resources of the specified type
 	List(ctx context.Context, resourceType string) ([]any, error)
 }
 
+// Client implements Kubernetes resource operations
 type Client struct {
 	configFlags          *genericclioptions.ConfigFlags
 	resourceBuilderFlags *genericclioptions.ResourceBuilderFlags
 }
 
+// NewClient creates a new Kubernetes client with the given configuration
 func NewClient(configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags *genericclioptions.ResourceBuilderFlags) Interface {
 	return &Client{configFlags, resourceBuilderFlags}
 }

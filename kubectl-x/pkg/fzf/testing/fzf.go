@@ -1,3 +1,4 @@
+// Package testing provides mock implementations for testing fzf operations
 package testing
 
 import (
@@ -9,7 +10,7 @@ import (
 
 var _ fzf.Interface = &FakeFzf{}
 
-// FakeFzf is a fake implementation of fzf.Interface for testing
+// FakeFzf is a mock implementation of fzf.Interface for testing
 type FakeFzf struct {
 	// Configuration for the fake
 	ReturnItems []string
@@ -26,7 +27,7 @@ type FakeFzf struct {
 	callIndex   int
 }
 
-// CallResult represents the result of a single fzf call
+// CallResult represents the result of a single fzf call for multi-call testing
 type CallResult struct {
 	Items []string
 	Error error

@@ -1,3 +1,4 @@
+// Package testing provides mock implementations for testing Kubernetes operations
 package testing
 
 import (
@@ -9,10 +10,12 @@ import (
 
 var _ kubernetes.Interface = &FakeClient{}
 
+// FakeClient is a mock implementation of kubernetes.Interface for testing
 type FakeClient struct {
 	resources map[string][]any
 }
 
+// NewFakeClient creates a new fake Kubernetes client with the given resources
 func NewFakeClient(resources map[string][]any) *FakeClient {
 	return &FakeClient{resources}
 }

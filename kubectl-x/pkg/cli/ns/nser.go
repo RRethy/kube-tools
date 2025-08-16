@@ -1,3 +1,4 @@
+// Package ns provides namespace switching functionality for kubectl-x
 package ns
 
 import (
@@ -13,6 +14,7 @@ import (
 	"github.com/RRethy/kubectl-x/pkg/kubernetes"
 )
 
+// Nser handles Kubernetes namespace switching operations
 type Nser struct {
 	KubeConfig kubeconfig.Interface
 	IoStreams  genericiooptions.IOStreams
@@ -21,6 +23,7 @@ type Nser struct {
 	History    history.Interface
 }
 
+// NewNser creates a new namespace switcher with the provided dependencies
 func NewNser(kubeConfig kubeconfig.Interface, ioStreams genericiooptions.IOStreams, k8sClient kubernetes.Interface, fzf fzf.Interface, history history.Interface) Nser {
 	return Nser{
 		KubeConfig: kubeConfig,
@@ -31,6 +34,7 @@ func NewNser(kubeConfig kubeconfig.Interface, ioStreams genericiooptions.IOStrea
 	}
 }
 
+// Ns switches to a namespace matching the given substring
 func (n Nser) Ns(ctx context.Context, namespace string, exactMatch bool) error {
 	var selectedNamespace string
 	var err error
