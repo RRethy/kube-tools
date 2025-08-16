@@ -31,7 +31,7 @@ func NewNser(kubeConfig kubeconfig.Interface, ioStreams genericiooptions.IOStrea
 	}
 }
 
-func (n Nser) Ns(ctx context.Context, namespace string) error {
+func (n Nser) Ns(ctx context.Context, namespace string, exactMatch bool) error {
 	var selectedNamespace string
 	var err error
 	if namespace == "-" {
@@ -50,10 +50,15 @@ func (n Nser) Ns(ctx context.Context, namespace string) error {
 			namespaceNames[i] = ns.Name
 		}
 
-		selectedNamespace, err = n.Fzf.Run(namespace, namespaceNames)
+		fzfCfg := fzf.Config{ExactMatch: exactMatch, Sorted: true, Multi: false, Prompt: "Select context", Query: namespace}
+		results, err := n.Fzf.Run(context.Background(), namespaceNames, fzfCfg)
 		if err != nil {
 			return fmt.Errorf("selecting namespace: %s", err)
 		}
+		if len(results) == 0 {
+			return fmt.Errorf("no namespace selected")
+		}
+		selectedNamespace = results[0]
 	}
 
 	err = n.KubeConfig.SetNamespace(selectedNamespace)

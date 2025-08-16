@@ -8,8 +8,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 
-var _ Interface = &KubeConfig{}
-
 type Interface interface {
 	Contexts() []string
 	SetContext(context string) error

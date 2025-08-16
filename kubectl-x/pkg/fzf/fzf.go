@@ -2,116 +2,90 @@ package fzf
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
+	"os/exec"
 	"sort"
 	"strings"
 
 	"k8s.io/cli-runtime/pkg/genericiooptions"
-	"k8s.io/utils/exec"
+	kexec "k8s.io/utils/exec"
 )
 
 const binaryName = "fzf"
 
 type Interface interface {
-	Run(initialSearch string, items []string) (string, error)
+	Run(ctx context.Context, items []string, cfg Config) ([]string, error)
 }
 
-type FzfOption func(*Fzf)
+type Option func(*Fzf)
 
-func WithExec(exec exec.Interface) FzfOption {
+func WithExec(exec kexec.Interface) Option {
 	return func(f *Fzf) {
 		f.exec = exec
 	}
 }
 
-func WithIOStreams(ioStreams genericiooptions.IOStreams) FzfOption {
+func WithIOStreams(ioStreams genericiooptions.IOStreams) Option {
 	return func(f *Fzf) {
 		f.ioStreams = ioStreams
 	}
 }
 
-func WithExactMatch(exactMatch bool) FzfOption {
-	return func(f *Fzf) {
-		f.exactMatch = exactMatch
-	}
-}
-
-func WithSorted(sorted bool) FzfOption {
-	return func(f *Fzf) {
-		f.sorted = sorted
-	}
-}
-
 type Fzf struct {
-	exec       exec.Interface
-	ioStreams  genericiooptions.IOStreams
-	exactMatch bool
-	sorted     bool
+	exec      kexec.Interface
+	ioStreams genericiooptions.IOStreams
 }
 
-func NewFzf(opts ...FzfOption) *Fzf {
-	fzf := &Fzf{
-		exec:       exec.New(),
-		ioStreams:  genericiooptions.IOStreams{},
-		exactMatch: false,
-		sorted:     true,
+func NewFzf(opts ...Option) Interface {
+	f := &Fzf{
+		exec:      kexec.New(),
+		ioStreams: genericiooptions.IOStreams{},
 	}
 	for _, opt := range opts {
-		opt(fzf)
+		opt(f)
 	}
-	return fzf
+	return f
 }
 
-func (f *Fzf) Run(initialSearch string, items []string) (string, error) {
-	cmd := f.exec.Command(binaryName, f.buildArgs()...)
+func (f *Fzf) Run(ctx context.Context, items []string, cfg Config) ([]string, error) {
+	args := cfg.buildArgs()
+	cmd := exec.CommandContext(ctx, binaryName, args...)
 	pipeReader, pipeWriter := io.Pipe()
 
 	go func() {
 		defer pipeWriter.Close()
-		var filteredItems []string
-		for _, item := range items {
-			if strings.Contains(item, initialSearch) {
-				filteredItems = append(filteredItems, item)
-			}
+
+		sortedItems := items
+		if cfg.Sorted {
+			sortedItems = make([]string, len(items))
+			copy(sortedItems, items)
+			sort.Strings(sortedItems)
 		}
-		if f.sorted {
-			sort.Strings(filteredItems)
-		}
-		if _, err := fmt.Fprint(pipeWriter, strings.Join(filteredItems, "\n")); err != nil {
+
+		if _, err := fmt.Fprint(pipeWriter, strings.Join(sortedItems, "\n")); err != nil {
 			panic(err)
 		}
 	}()
 
-	cmd.SetStdin(pipeReader)
+	cmd.Stdin = pipeReader
 
 	var out bytes.Buffer
-	cmd.SetStdout(&out)
-	cmd.SetStderr(f.ioStreams.ErrOut)
+	cmd.Stdout = &out
+	cmd.Stderr = f.ioStreams.ErrOut
 
 	if err := cmd.Run(); err != nil {
-		return "", fmt.Errorf("running fzf: %s", err)
+		if ctx.Err() != nil {
+			return nil, fmt.Errorf("context cancelled: %w", ctx.Err())
+		}
+		return nil, fmt.Errorf("running fzf: %w", err)
 	}
 
 	output := strings.TrimSpace(out.String())
 	if output == "" {
-		return "", fmt.Errorf("no item selected")
+		return nil, fmt.Errorf("no item selected")
 	}
-	return output, nil
-}
 
-func (f Fzf) buildArgs() []string {
-	args := []string{
-		"--height",
-		"30%",
-		"--ansi",
-		"--select-1",
-		"--exit-0",
-		"--color=dark",
-		"--layout=reverse",
-	}
-	if f.exactMatch {
-		args = append(args, "--exact")
-	}
-	return args
+	return strings.Split(output, "\n"), nil
 }

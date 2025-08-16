@@ -4,6 +4,7 @@ import (
 	"github.com/RRethy/kubectl-x/pkg/history"
 )
 
+// TODO: we don't need to do this
 var _ history.Interface = &FakeHistory{}
 
 type FakeHistory struct {

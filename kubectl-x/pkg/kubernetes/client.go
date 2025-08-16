@@ -8,8 +8,6 @@ import (
 	"k8s.io/kubectl/pkg/scheme"
 )
 
-var _ Interface = &Client{}
-
 type Interface interface {
 	List(ctx context.Context, resourceType string) ([]any, error)
 }

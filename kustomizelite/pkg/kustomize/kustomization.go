@@ -19,8 +19,6 @@ import (
 	"github.com/RRethy/k8s-tools/kustomizelite/pkg/patch"
 )
 
-var _ Kustomizer = (*kustomization)(nil)
-
 type kustomization struct {
 	helmTemplater helm.Templater
 	execWrapper   exec.Wrapper
