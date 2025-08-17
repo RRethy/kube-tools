@@ -12,6 +12,8 @@ kubectl x ns                     # Interactive namespace selection
 kubectl x ns my-namespace       # Switch to namespace with partial match
 kubectl x cur                    # Show current context and namespace
 kubectl x ctx -                  # Switch to previous context/namespace
+kubectl x shell my-pod          # Shell into a pod
+kubectl x shell deploy/nginx    # Shell into a pod from deployment
 ```
 
 ## Module Commands
@@ -57,6 +59,7 @@ go mod download
 - `ctx.go` - Context switching command definition
 - `ns.go` - Namespace switching command definition  
 - `cur.go` - Current status display command definition
+- `shell.go` - Shell command definition for pod execution
 
 ### Package Details
 
@@ -77,6 +80,12 @@ go mod download
 - `curer.go` - Current status display logic
 - `curer_test.go` - Status display tests
 - **Key interfaces**: `Curer` for status operations
+
+#### `pkg/cli/shell/`
+- `shell.go` - Shell command implementation
+- `sheller.go` - Shell execution business logic
+- `sheller_test.go` - Comprehensive test suite for shell operations
+- **Key interfaces**: `Sheller` for pod shell execution
 
 #### `pkg/fzf/`
 - `fzf.go` - Fuzzy finder integration with external fzf binary
@@ -103,6 +112,10 @@ go mod download
 - `testing/client.go` - Mock Kubernetes client
 - **Key interfaces**: `Client` for Kubernetes operations
 
+#### `pkg/shortname/`
+- `shortname.go` - Kubernetes resource shortname expansion (deploy->deployment, etc.)
+- Used by shell command for resource type resolution
+
 ## Development Patterns
 
 ### Interface Implementation Pattern
@@ -116,12 +129,14 @@ Each package follows this pattern:
 - Wrap errors with context using `fmt.Errorf`
 - Return user-friendly error messages
 - Handle kubectl client errors consistently
+- Use k8s.io/utils/exec for command execution to enable better error handling and testing
 
 ### Testing Pattern
 - Table-driven tests for multiple scenarios
-- Mock all external dependencies
+- Mock all external dependencies using k8s.io/utils/exec/testing for exec mocks
 - Test both success and error conditions
 - Use testify/assert for assertions
+- Prefer k8s.io utilities over standard library when available
 
 ### Command Integration Pattern
 - Commands are thin wrappers around package implementations
@@ -148,6 +163,11 @@ k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0 // Kubernetes utilities
 ### External Runtime Dependencies
 - `fzf` binary - Required for interactive selection
 - `kubectl` - Uses kubectl's configuration and patterns
+
+### Kubernetes Utilities Usage
+- Use `k8s.io/utils/exec` instead of `os/exec` for better testability
+- Use `k8s.io/utils/exec/testing` for mock exec implementations in tests
+- Leverage existing k8s.io utilities when they provide better abstraction or testability
 
 
 ## Code Style Guidelines

@@ -10,6 +10,7 @@ Fast Kubernetes context and namespace switching with fuzzy search.
 - Previous context/namespace support (`-` flag)
 - Command history tracking
 - Display current context and namespace
+- Shell into pods with resource resolution
 - Native kubectl plugin integration
 
 ## Installation
@@ -71,6 +72,27 @@ kubectl x ns -
 ```bash
 # Show current context and namespace
 kubectl x cur
+```
+
+### Shell into Pods
+
+```bash
+# Shell into a pod directly
+kubectl x shell my-pod
+
+# Shell into a pod from a deployment
+kubectl x shell deployment/nginx
+kubectl x shell deploy nginx
+
+# Shell into a pod from other resources
+kubectl x shell statefulset/database
+kubectl x shell service/web-service
+
+# Shell into a specific container
+kubectl x shell my-pod -c container-name
+
+# Use a different shell command
+kubectl x shell my-pod --command=/bin/bash
 ```
 
 ## Features

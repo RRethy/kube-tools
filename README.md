@@ -91,6 +91,18 @@ Print current context and namespace.
 kubectl x cur
 ```
 
+### `kubectl x shell`
+
+Shell into a pod with resource resolution.
+
+```bash
+kubectl x shell my-pod                    # Shell into a specific pod
+kubectl x shell deployment/nginx          # Shell into a pod from deployment
+kubectl x shell deploy nginx              # Shell into a pod from deployment (space separator)
+kubectl x shell my-pod -c container-name  # Shell into specific container
+kubectl x shell my-pod --command=/bin/bash # Use different shell
+```
+
 ## kubernetes-mcp Documentation
 
 Start the MCP server to expose Kubernetes cluster information:
