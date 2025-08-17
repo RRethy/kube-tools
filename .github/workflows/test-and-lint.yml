@@ -28,12 +28,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
     
-    - name: Download dependencies
-      run: go mod download
-      working-directory: ./
-    
     - name: Sync workspace
       run: go work sync
+    
+    - name: Create bin directory
+      run: mkdir -p bin
     
     - name: Run tests
       run: make test
