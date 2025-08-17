@@ -26,3 +26,8 @@ func (fake *FakeClient) List(ctx context.Context, resourceType string) ([]any, e
 	}
 	return nil, errors.New("resource type not found")
 }
+
+func (fake *FakeClient) ListInNamespace(ctx context.Context, resourceType, namespace string) ([]any, error) {
+	// For testing purposes, namespace filtering is simplified
+	return fake.List(ctx, resourceType)
+}

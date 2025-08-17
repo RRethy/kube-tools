@@ -13,6 +13,8 @@ import (
 type Interface interface {
 	// List retrieves all resources of the specified type
 	List(ctx context.Context, resourceType string) ([]any, error)
+	// ListInNamespace retrieves all resources of the specified type in the given namespace
+	ListInNamespace(ctx context.Context, resourceType, namespace string) ([]any, error)
 }
 
 // Client implements Kubernetes resource operations
@@ -27,16 +29,29 @@ func NewClient(configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags 
 }
 
 func (c *Client) List(ctx context.Context, resourceType string) ([]any, error) {
-	infos, err := resource.NewBuilder(c.configFlags).
+	return c.list(ctx, resourceType, "")
+}
+
+func (c *Client) ListInNamespace(ctx context.Context, resourceType, namespace string) ([]any, error) {
+	return c.list(ctx, resourceType, namespace)
+}
+
+func (c *Client) list(ctx context.Context, resourceType, namespace string) ([]any, error) {
+	builder := resource.NewBuilder(c.configFlags).
 		WithScheme(scheme.Scheme, scheme.Scheme.PrioritizedVersionsAllGroups()...).
-		// NamespaceParam("default").
 		FieldSelectorParam(*c.resourceBuilderFlags.FieldSelector).
 		LabelSelectorParam(*c.resourceBuilderFlags.LabelSelector).
 		ContinueOnError().
 		ResourceTypeOrNameArgs(true, string(resourceType)).
-		Flatten().
-		Do().
-		Infos()
+		Flatten()
+
+	if namespace != "" {
+		builder = builder.NamespaceParam(namespace).DefaultNamespace()
+	} else {
+		builder = builder.AllNamespaces(true)
+	}
+
+	infos, err := builder.Do().Infos()
 	if err != nil {
 		return nil, err
 	}
