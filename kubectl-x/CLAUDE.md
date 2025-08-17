@@ -28,11 +28,13 @@ kubectl x ctx -v=8              # Show HTTP request contents
 
 ### Build and Test (from kubectl-x/ directory)
 ```bash
-# Build the application
-go build .
+# From workspace root - complete development cycle
+make all                     # Build, test, and lint-fix
+make build-kubectl-x         # Build only kubectl-x
 
-# Run all module tests
-go test ./...
+# From kubectl-x/ directory - individual operations
+go build .                   # Build the application
+go test ./...                # Run all module tests
 
 # Run specific package tests
 go test ./pkg/cli/ctx/

@@ -4,7 +4,7 @@ A collection of Kubernetes CLI tools for enhanced cluster management, resource v
 
 ## Tools
 
-This workspace contains three independent tools:
+This workspace contains four independent tools:
 
 ### kubectl-x
 Kubectl plugin that provides convenient context and namespace switching utilities for Kubernetes. Features interactive fuzzy search capabilities and maintains command history for quick navigation.
@@ -21,6 +21,9 @@ A readonly MCP (Model Context Protocol) server that exposes Kubernetes cluster i
 ### celery
 CEL-based Kubernetes resource validator that allows you to define and enforce custom validation rules using the Common Expression Language (CEL). Validate YAML manifests against complex policies before applying them to your cluster.
 
+### kustomizelite
+A lightweight, simplified implementation of Kustomize that handles basic resource composition and patching. Focuses on essential functionality with minimal dependencies for environments where full Kustomize might be too heavy.
+
 ## Installation
 
 Install any or all tools directly from source:
@@ -34,6 +37,9 @@ go install github.com/RRethy/k8s-tools/kubernetes-mcp@latest
 
 # celery - CEL-based resource validator
 go install github.com/RRethy/k8s-tools/celery@latest
+
+# kustomizelite - Lightweight Kustomize implementation
+go install github.com/RRethy/k8s-tools/kustomizelite@latest
 ```
 
 ## Development
@@ -41,6 +47,9 @@ go install github.com/RRethy/k8s-tools/celery@latest
 This is a Go workspace with multiple modules. Use the provided Makefile for common development tasks:
 
 ```bash
+# Complete development cycle (build, test, lint-fix)
+make all
+
 # Build all tools
 make build
 
@@ -48,12 +57,14 @@ make build
 make build-kubectl-x
 make build-kubernetes-mcp
 make build-celery
+make build-kustomizelite
 
 # Run tests
 make test
 
 # Lint and format
 make lint
+make lint-fix
 make fmt
 
 # See all available commands

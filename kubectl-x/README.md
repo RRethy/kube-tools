@@ -74,6 +74,37 @@ kubectl x ns -
 kubectl x cur
 ```
 
+### Debugging and Logging
+
+kubectl-x follows kubectl's standard logging practices with verbose output levels:
+
+```bash
+# Basic verbose output (shows important operations)
+kubectl x ctx -v=1
+
+# Debug level output (shows detailed operations) 
+kubectl x ctx -v=4
+
+# Trace level output (shows all operations including fzf interactions)
+kubectl x ns -v=5
+
+# API request level (shows Kubernetes API calls)
+kubectl x shell my-pod -v=6
+
+# Full HTTP debugging (shows complete request/response details)
+kubectl x ctx -v=8
+```
+
+**Verbosity Levels:**
+- `--v=0`: Errors and warnings only (default)
+- `--v=1`: Basic information about operations
+- `--v=2`: Useful steady state information
+- `--v=4`: Debug level verbosity
+- `--v=5`: Trace level verbosity (user interactions)
+- `--v=6`: Resource operations and API calls
+- `--v=8`: HTTP request/response content
+- `--v=9`: Full HTTP content without truncation
+
 ### Shell into Pods
 
 ```bash

@@ -8,6 +8,7 @@ This file provides workspace-level guidance to Claude Code (claude.ai/code) when
 
 Use the provided Makefile for common development tasks:
 ```bash
+make all                   - Build, test, and lint-fix (full development cycle)
 make build                 - Build all binaries
 make build-kubectl-x       - Build the kubectl-x binary
 make build-kubernetes-mcp  - Build the kubernetes-mcp binary
