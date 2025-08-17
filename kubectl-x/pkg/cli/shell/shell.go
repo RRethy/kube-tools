@@ -15,8 +15,8 @@ import (
 	"github.com/RRethy/kubectl-x/pkg/namespace"
 )
 
-// Shell executes a shell command in a Kubernetes pod resolved from the given target
-func Shell(ctx context.Context, configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags *genericclioptions.ResourceBuilderFlags, target string, container string, command string) error {
+// Shell executes either a shell command in a pod or a debug container
+func Shell(ctx context.Context, configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags *genericclioptions.ResourceBuilderFlags, target string, container string, command string, debug bool, image string) error {
 	kubeConfig, err := kubeconfig.NewKubeConfig()
 	if err != nil {
 		return fmt.Errorf("loading kubeconfig: %w", err)
@@ -38,5 +38,5 @@ func Shell(ctx context.Context, configFlags *genericclioptions.ConfigFlags, reso
 		K8sClient:  k8sClient,
 		Fzf:        fzf,
 		Exec:       exec,
-	}).Shell(ctx, target, container, command)
+	}).Shell(ctx, target, container, command, debug, image)
 }

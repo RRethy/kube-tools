@@ -126,6 +126,31 @@ kubectl x shell my-pod -c container-name
 kubectl x shell my-pod --command=/bin/bash
 ```
 
+### Debug Containers
+
+Use `--debug` to run a debug container instead of exec'ing into the existing pod:
+
+```bash
+# Debug mode - run a debug container as sidecar
+kubectl x shell my-pod --debug
+
+# Debug mode with custom image
+kubectl x shell my-pod --debug --image=ubuntu:latest
+
+# Debug mode targeting a specific container (shares process namespace)
+kubectl x shell my-pod --debug -c=app-container
+
+# Debug with custom command
+kubectl x shell my-pod --debug --command=/bin/bash --image=busybox
+```
+
+**Debug Mode Features:**
+- Uses `kubectl debug` under the hood for safe debugging
+- Runs as ephemeral sidecar container by default
+- Can target specific containers to share process namespace
+- Supports custom debug images with debugging tools
+- Does not affect the running application
+
 ## Features
 
 ### Fuzzy Search

@@ -11,6 +11,8 @@ import (
 var (
 	shellContainer string
 	shellCommand   string
+	shellDebug     bool
+	shellDebugImage string
 	shellCmd       = &cobra.Command{
 		Use:   "shell [pod-name | resource-type resource-name | resource-type/resource-name]",
 		Short: "Shell into a pod",
@@ -18,7 +20,9 @@ var (
 
 When given a pod name, it shells directly into that pod.
 When given a resource type and name (separated by space or slash), it resolves 
-to the associated pods and shells into one of them.`,
+to the associated pods and shells into one of them.
+
+Use --debug to run a debug container instead of exec'ing into the pod.`,
 		Example: `  # Shell into a pod directly
   kubectl x shell my-pod
   
@@ -45,7 +49,12 @@ to the associated pods and shells into one of them.`,
   kubectl x shell my-pod -c container-name
   
   # Use a different shell
-  kubectl x shell my-pod --command=/bin/bash`,
+  kubectl x shell my-pod --command=/bin/bash
+  
+  # Debug mode examples
+  kubectl x shell my-pod --debug
+  kubectl x shell my-pod --debug --image=ubuntu
+  kubectl x shell my-pod --debug -c=app-container`,
 		Args: cobra.RangeArgs(0, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var target string
@@ -54,14 +63,16 @@ to the associated pods and shells into one of them.`,
 			} else if len(args) == 2 {
 				target = args[0] + " " + args[1]
 			}
-			return shell.Shell(context.Background(), configFlags, resourceBuilderFlags, target, shellContainer, shellCommand)
+			return shell.Shell(context.Background(), configFlags, resourceBuilderFlags, target, shellContainer, shellCommand, shellDebug, shellDebugImage)
 		},
 	}
 )
 
 func init() {
 	rootCmd.AddCommand(shellCmd)
-	shellCmd.Flags().StringVarP(&shellContainer, "container", "c", "", "Container name (if multiple containers in pod)")
+	shellCmd.Flags().StringVarP(&shellContainer, "container", "c", "", "Container name (for shell exec) or target container (for debug)")
 	shellCmd.Flags().StringVar(&shellCommand, "command", "/bin/sh", "Shell command to execute")
+	shellCmd.Flags().BoolVar(&shellDebug, "debug", false, "Use kubectl debug to run a debug container")
+	shellCmd.Flags().StringVar(&shellDebugImage, "image", "", "Debug container image (when using --debug)")
 }
 

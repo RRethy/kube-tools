@@ -32,28 +32,59 @@ type Sheller struct {
 	Exec       kexec.Interface
 }
 
-// Shell executes a shell command in the resolved pod
-func (s *Sheller) Shell(ctx context.Context, target string, container string, command string) error {
-	klog.V(2).Infof("Shell operation started: target=%s container=%s command=%s", target, container, command)
+// Shell executes either a shell command in a pod or a debug container
+func (s *Sheller) Shell(ctx context.Context, target string, container string, command string, debug bool, image string) error {
+	if debug {
+		klog.V(2).Infof("Debug operation started: target=%s container=%s command=%s image=%s", target, container, command, image)
+	} else {
+		klog.V(2).Infof("Shell operation started: target=%s container=%s command=%s", target, container, command)
+	}
 	
 	pod, err := s.resolvePod(ctx, target)
 	if err != nil {
 		return fmt.Errorf("resolving pod: %w", err)
 	}
-	klog.V(4).Infof("Resolved target to pod: %s", pod.GetName())
+	
+	if debug {
+		klog.V(4).Infof("Resolved target to pod for debug: %s", pod.GetName())
+	} else {
+		klog.V(4).Infof("Resolved target to pod: %s", pod.GetName())
+	}
 
-	args := []string{"exec", "-it", pod.GetName()}
-	args = append(args, "--context", s.Context)
-	args = append(args, "-n", s.Namespace)
+	var args []string
+	if debug {
+		args = []string{"debug", "-it", pod.GetName()}
+		args = append(args, "--context", s.Context)
+		args = append(args, "-n", s.Namespace)
 
-	if container != "" {
-		args = append(args, "-c", container)
-		klog.V(5).Infof("Using specific container: %s", container)
+		if image != "" {
+			args = append(args, "--image", image)
+			klog.V(5).Infof("Using debug image: %s", image)
+		}
+
+		if container != "" {
+			args = append(args, "--target", container)
+			klog.V(5).Infof("Targeting container: %s", container)
+		}
+	} else {
+		args = []string{"exec", "-it", pod.GetName()}
+		args = append(args, "--context", s.Context)
+		args = append(args, "-n", s.Namespace)
+
+		if container != "" {
+			args = append(args, "-c", container)
+			klog.V(5).Infof("Using specific container: %s", container)
+		}
 	}
 
 	args = append(args, "--", command)
 
-	klog.V(6).Infof("Executing kubectl command: %v", args)
+	if debug {
+		klog.V(6).Infof("Executing kubectl debug command: %v", args)
+	} else {
+		klog.V(6).Infof("Executing kubectl command: %v", args)
+	}
+	
 	cmd := s.Exec.Command("kubectl", args...)
 	cmd.SetStdin(s.IOStreams.In)
 	cmd.SetStdout(s.IOStreams.Out)
@@ -61,6 +92,7 @@ func (s *Sheller) Shell(ctx context.Context, target string, container string, co
 
 	return cmd.Run()
 }
+
 
 func (s *Sheller) resolvePod(ctx context.Context, target string) (*corev1.Pod, error) {
 	klog.V(4).Infof("Resolving pod from target: %s", target)

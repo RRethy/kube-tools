@@ -14,6 +14,7 @@ kubectl x cur                    # Show current context and namespace
 kubectl x ctx -                  # Switch to previous context/namespace
 kubectl x shell my-pod          # Shell into a pod
 kubectl x shell deploy/nginx    # Shell into a pod from deployment
+kubectl x shell my-pod --debug  # Run debug container as sidecar
 
 # Verbose logging examples
 kubectl x ctx -v=0              # Only errors and warnings (default)
