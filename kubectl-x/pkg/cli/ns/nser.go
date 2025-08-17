@@ -7,6 +7,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/cli-runtime/pkg/genericiooptions"
+	"k8s.io/klog/v2"
 
 	"github.com/RRethy/kubectl-x/pkg/fzf"
 	"github.com/RRethy/kubectl-x/pkg/history"
@@ -36,9 +37,12 @@ func NewNser(kubeConfig kubeconfig.Interface, ioStreams genericiooptions.IOStrea
 
 // Ns switches to a namespace matching the given substring
 func (n Nser) Ns(ctx context.Context, namespace string, exactMatch bool) error {
+	klog.V(2).Infof("Namespace switching operation started: namespace=%s exactMatch=%t", namespace, exactMatch)
+	
 	var selectedNamespace string
 	var err error
 	if namespace == "-" {
+		klog.V(4).Info("Using previous namespace from history")
 		selectedNamespace, err = n.History.Get("namespace", 1)
 		if err != nil {
 			return fmt.Errorf("getting namespace from history: %s", err)
@@ -48,12 +52,14 @@ func (n Nser) Ns(ctx context.Context, namespace string, exactMatch bool) error {
 		if err != nil {
 			return fmt.Errorf("listing namespaces: %s", err)
 		}
+		klog.V(6).Infof("Retrieved %d namespaces from cluster", len(namespaces))
 
 		namespaceNames := make([]string, len(namespaces))
 		for i, ns := range namespaces {
 			namespaceNames[i] = ns.Name
 		}
 
+		klog.V(4).Infof("Running fzf for namespace selection: query=%s", namespace)
 		fzfCfg := fzf.Config{ExactMatch: exactMatch, Sorted: true, Multi: false, Prompt: "Select context", Query: namespace}
 		results, err := n.Fzf.Run(context.Background(), namespaceNames, fzfCfg)
 		if err != nil {
@@ -63,8 +69,10 @@ func (n Nser) Ns(ctx context.Context, namespace string, exactMatch bool) error {
 			return fmt.Errorf("no namespace selected")
 		}
 		selectedNamespace = results[0]
+		klog.V(5).Infof("User selected namespace: %s", selectedNamespace)
 	}
 
+	klog.V(1).Infof("Setting Kubernetes namespace: %s", selectedNamespace)
 	err = n.KubeConfig.SetNamespace(selectedNamespace)
 	if err != nil {
 		return fmt.Errorf("setting namespace: %w", err)
@@ -76,12 +84,14 @@ func (n Nser) Ns(ctx context.Context, namespace string, exactMatch bool) error {
 	if err != nil {
 		return fmt.Errorf("writing kubeconfig: %w", err)
 	}
+	klog.V(4).Info("Successfully wrote kubeconfig after namespace switch")
 
 	err = n.History.Write()
 	if err != nil {
-		fmt.Fprintf(n.IoStreams.ErrOut, "writing history: %s\n", err)
+		klog.Warningf("Failed to write history: %v", err)
 	}
 
+	klog.V(1).Infof("Successfully switched namespace: %s", selectedNamespace)
 	fmt.Fprintf(n.IoStreams.Out, "Switched to namespace \"%s\".\n", selectedNamespace)
 
 	return nil

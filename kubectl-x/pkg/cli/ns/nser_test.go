@@ -198,7 +198,6 @@ func TestNser_Ns(t *testing.T) {
 				return &mockHistoryWithWriteError{FakeHistory: *h}
 			},
 			expectedOutput:    "Switched to namespace \"test-ns\"",
-			expectedErrOutput: "writing history",
 			expectedNamespace: "test-ns",
 		},
 		{

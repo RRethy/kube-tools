@@ -12,6 +12,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/klog/v2"
 	kexec "k8s.io/utils/exec"
 
 	"github.com/RRethy/kubectl-x/pkg/fzf"
@@ -33,10 +34,13 @@ type Sheller struct {
 
 // Shell executes a shell command in the resolved pod
 func (s *Sheller) Shell(ctx context.Context, target string, container string, command string) error {
+	klog.V(2).Infof("Shell operation started: target=%s container=%s command=%s", target, container, command)
+	
 	pod, err := s.resolvePod(ctx, target)
 	if err != nil {
 		return fmt.Errorf("resolving pod: %w", err)
 	}
+	klog.V(4).Infof("Resolved target to pod: %s", pod.GetName())
 
 	args := []string{"exec", "-it", pod.GetName()}
 	args = append(args, "--context", s.Context)
@@ -44,10 +48,12 @@ func (s *Sheller) Shell(ctx context.Context, target string, container string, co
 
 	if container != "" {
 		args = append(args, "-c", container)
+		klog.V(5).Infof("Using specific container: %s", container)
 	}
 
 	args = append(args, "--", command)
 
+	klog.V(6).Infof("Executing kubectl command: %v", args)
 	cmd := s.Exec.Command("kubectl", args...)
 	cmd.SetStdin(s.IOStreams.In)
 	cmd.SetStdout(s.IOStreams.Out)
@@ -57,6 +63,7 @@ func (s *Sheller) Shell(ctx context.Context, target string, container string, co
 }
 
 func (s *Sheller) resolvePod(ctx context.Context, target string) (*corev1.Pod, error) {
+	klog.V(4).Infof("Resolving pod from target: %s", target)
 	target = strings.ToLower(strings.TrimSpace(target))
 	var resourceKind, resourceName string
 	if strings.Contains(target, " ") || strings.Contains(target, "/") {
@@ -83,13 +90,16 @@ func (s *Sheller) resolvePod(ctx context.Context, target string) (*corev1.Pod, e
 			resourceKind = "pod"
 		}
 	}
+	klog.V(5).Infof("Parsed target: resourceKind=%s resourceName=%s", resourceKind, resourceName)
 
 	allPods, err := kubernetes.ListInNamespace[*corev1.Pod](ctx, s.K8sClient, s.Namespace)
 	if err != nil {
 		return nil, fmt.Errorf("getting all pods: %w", err)
 	}
+	klog.V(6).Infof("Retrieved %d pods from namespace %s", len(allPods), s.Namespace)
 
 	var pods []*corev1.Pod
+	klog.V(5).Infof("Filtering pods by resource type: %s", resourceKind)
 	switch resourceKind {
 	case "pod", "pods":
 		for _, pod := range allPods {

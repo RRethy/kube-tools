@@ -14,6 +14,7 @@ import (
 
 	"github.com/fatih/color"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/yaml"
 
 	"github.com/RRethy/kubectl-x/pkg/fzf"
@@ -37,6 +38,8 @@ type clusterResult struct {
 
 // Each executes the given kubectl command across contexts matching the pattern
 func (e *Eacher) Each(ctx context.Context, contextPattern, outputFormat string, interactive bool, args []string) error {
+	klog.V(2).Infof("Each operation started: pattern=%s format=%s interactive=%t args=%v", contextPattern, outputFormat, interactive, args)
+	
 	if !slices.Contains([]string{"yaml", "json", "raw"}, outputFormat) {
 		return fmt.Errorf("invalid output format: %s (must be yaml, json, or raw)", outputFormat)
 	}
@@ -45,22 +48,27 @@ func (e *Eacher) Each(ctx context.Context, contextPattern, outputFormat string, 
 	if err != nil {
 		return fmt.Errorf("selecting contexts: %w", err)
 	}
+	klog.V(4).Infof("Selected %d contexts for execution", len(contexts))
 
 	if len(contexts) == 0 {
 		return fmt.Errorf("no contexts matched pattern: %s", contextPattern)
 	}
 
 	results := e.executeCommands(ctx, contexts, outputFormat, args)
+	klog.V(2).Infof("Command execution completed across %d contexts", len(contexts))
 
 	return e.outputResults(results, outputFormat)
 }
 
 func (e *Eacher) selectContexts(ctx context.Context, pattern string, interactive bool) ([]string, error) {
 	allContexts := e.Kubeconfig.Contexts()
+	klog.V(5).Infof("Available contexts: %d total", len(allContexts))
+	
 	filteredContexts, err := e.selectContextsByPattern(allContexts, pattern)
 	if err != nil {
 		return nil, fmt.Errorf("selecting contexts by pattern: %w", err)
 	}
+	klog.V(4).Infof("Filtered contexts by pattern '%s': %d matches", pattern, len(filteredContexts))
 
 	if interactive {
 		return e.selectContextsInteractively(ctx, filteredContexts, pattern)
@@ -69,11 +77,13 @@ func (e *Eacher) selectContexts(ctx context.Context, pattern string, interactive
 }
 
 func (e *Eacher) selectContextsInteractively(ctx context.Context, allContexts []string, initialPattern string) ([]string, error) {
+	klog.V(4).Infof("Running interactive context selection with %d contexts", len(allContexts))
 	fzfCfg := fzf.Config{ExactMatch: false, Sorted: true, Multi: true, Prompt: "Select context", Query: initialPattern}
 	selectedContexts, err := e.Fzf.Run(ctx, allContexts, fzfCfg)
 	if err != nil {
 		return nil, fmt.Errorf("interactive selection: %w", err)
 	}
+	klog.V(5).Infof("User selected %d contexts interactively", len(selectedContexts))
 
 	return selectedContexts, nil
 }
@@ -99,6 +109,7 @@ func (e *Eacher) selectContextsByPattern(allContexts []string, pattern string) (
 }
 
 func (e *Eacher) executeCommands(ctx context.Context, contexts []string, outputFormat string, args []string) []clusterResult {
+	klog.V(4).Infof("Executing commands across %d contexts with concurrency limit of 32", len(contexts))
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 32)
 	results := make(chan clusterResult, len(contexts))
@@ -136,6 +147,7 @@ func (e *Eacher) executeCommands(ctx context.Context, contexts []string, outputF
 }
 
 func (e *Eacher) executeCommand(ctx context.Context, contextName string, outputFormat string, args []string) clusterResult {
+	klog.V(6).Infof("Executing command in context %s: %v", contextName, args)
 	cmdArgs := append(args, "--context", contextName)
 	cmdArgs = append(cmdArgs, "-n", e.Namespace)
 
@@ -152,16 +164,20 @@ func (e *Eacher) executeCommand(ctx context.Context, contextName string, outputF
 	output, err := cmd.CombinedOutput()
 
 	if err != nil {
+		klog.V(5).Infof("Command failed in context %s: %v", contextName, err)
 		result.Error = err.Error()
 		result.Output = strings.TrimSpace(string(output))
-	} else if outputFormat == "raw" {
-		result.Output = strings.TrimSpace(string(output))
 	} else {
-		var yamlOutput map[string]any
-		if err := yaml.Unmarshal(output, &yamlOutput); err == nil {
-			result.Output = yamlOutput
-		} else {
+		klog.V(6).Infof("Command succeeded in context %s", contextName)
+		if outputFormat == "raw" {
 			result.Output = strings.TrimSpace(string(output))
+		} else {
+			var yamlOutput map[string]any
+			if err := yaml.Unmarshal(output, &yamlOutput); err == nil {
+				result.Output = yamlOutput
+			} else {
+				result.Output = strings.TrimSpace(string(output))
+			}
 		}
 	}
 

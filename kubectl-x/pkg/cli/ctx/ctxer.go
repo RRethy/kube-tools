@@ -65,6 +65,7 @@ func (c Ctxer) Ctx(ctx context.Context, contextSubstring, namespaceSubstring str
 			return fmt.Errorf("no context selected")
 		}
 		selectedContext = results[0]
+		klog.V(5).Infof("User selected context: %s", selectedContext)
 	}
 
 	c.History.Add("context", selectedContext)
@@ -78,22 +79,24 @@ func (c Ctxer) Ctx(ctx context.Context, contextSubstring, namespaceSubstring str
 	err = c.History.Write()
 	if err != nil {
 		klog.Warningf("Failed to write history: %v", err)
-		fmt.Fprintf(c.IoStreams.ErrOut, "writing history: %s\n", err)
 	}
 
 	err = c.KubeConfig.Write()
 	if err != nil {
 		return fmt.Errorf("writing kubeconfig: %w", err)
 	}
+	klog.V(4).Info("Successfully wrote kubeconfig after context switch")
 
 	klog.V(1).Infof("Successfully switched context: %s", selectedContext)
 	fmt.Fprintf(c.IoStreams.Out, "Switched to context \"%s\".\n", selectedContext)
 
 	if selectedNamespace == "" {
+		klog.V(4).Info("No namespace selected from history, prompting user for namespace selection")
 		nser := ns.NewNser(c.KubeConfig, c.IoStreams, c.K8sClient, c.Fzf, c.History)
 		return nser.Ns(ctx, namespaceSubstring, exactMatch)
 	}
 
+	klog.V(4).Infof("Setting namespace from history: %s", selectedNamespace)
 	err = c.KubeConfig.SetNamespace(selectedNamespace)
 	if err != nil {
 		return fmt.Errorf("setting namespace: %w", err)
@@ -103,6 +106,7 @@ func (c Ctxer) Ctx(ctx context.Context, contextSubstring, namespaceSubstring str
 	if err != nil {
 		return fmt.Errorf("writing kubeconfig: %w", err)
 	}
+	klog.V(4).Info("Successfully wrote kubeconfig after namespace switch")
 
 	fmt.Fprintf(c.IoStreams.Out, "Switched to namespace \"%s\".\n", selectedNamespace)
 	return nil

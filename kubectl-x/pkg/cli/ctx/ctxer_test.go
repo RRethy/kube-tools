@@ -187,7 +187,6 @@ func TestCtxer_Ctx(t *testing.T) {
 				return &mockHistoryWithWriteError{FakeHistory: *h}
 			},
 			expectedOutput:    []string{"Switched to context \"ctx2\"", "Switched to namespace \"ns2\""},
-			expectedErrOutput: "writing history",
 			expectedContext:   "ctx2",
 			expectedNamespace: "ns2",
 		},
