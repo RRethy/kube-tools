@@ -64,15 +64,15 @@ metadata:
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			resources, err := ParseYAMLToUnstructured([]byte(tt.input))
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.Len(t, resources, tt.wantCount)
-			
+
 			// Verify resource properties if we got resources
 			if len(resources) > 0 {
 				for _, r := range resources {
@@ -168,15 +168,15 @@ metadata:
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			rules, err := ParseYAMLToValidationRules([]byte(tt.input), tt.filename)
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.Len(t, rules, tt.wantCount)
-			
+
 			// Verify filename is set correctly
 			for _, r := range rules {
 				assert.Equal(t, tt.filename, r.Filename)
@@ -228,15 +228,15 @@ metadata:
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			items, err := ParseYAMLBytes[TestStruct]([]byte(tt.input))
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.Len(t, items, tt.wantCount)
-			
+
 			// Verify parsed data
 			for i, item := range items {
 				assert.Equal(t, "v1", item.APIVersion)
@@ -251,7 +251,7 @@ func TestParseYAMLFileToUnstructured(t *testing.T) {
 	// Create a temporary test file
 	tmpDir := t.TempDir()
 	testFile := filepath.Join(tmpDir, "test.yaml")
-	
+
 	content := `
 apiVersion: apps/v1
 kind: Deployment
@@ -259,17 +259,17 @@ metadata:
   name: test-deployment
 spec:
   replicas: 3`
-	
+
 	err := os.WriteFile(testFile, []byte(content), 0644)
 	require.NoError(t, err)
-	
+
 	// Test successful parsing
 	resources, err := ParseYAMLFileToUnstructured(testFile)
 	require.NoError(t, err)
 	assert.Len(t, resources, 1)
 	assert.Equal(t, "Deployment", resources[0].GetKind())
 	assert.Equal(t, "test-deployment", resources[0].GetName())
-	
+
 	// Test non-existent file
 	_, err = ParseYAMLFileToUnstructured("/non/existent/file.yaml")
 	assert.Error(t, err)
@@ -280,7 +280,7 @@ func TestParseYAMLFileToValidationRules(t *testing.T) {
 	// Create a temporary test file
 	tmpDir := t.TempDir()
 	testFile := filepath.Join(tmpDir, "rules.yaml")
-	
+
 	content := `
 apiVersion: celery.rrethy.io/v1
 kind: ValidationRules
@@ -291,17 +291,17 @@ spec:
     - name: test-rule
       expression: "true"
       message: "Test message"`
-	
+
 	err := os.WriteFile(testFile, []byte(content), 0644)
 	require.NoError(t, err)
-	
+
 	// Test successful parsing
 	rules, err := ParseYAMLFileToValidationRules(testFile)
 	require.NoError(t, err)
 	assert.Len(t, rules, 1)
 	assert.Equal(t, testFile, rules[0].Filename)
 	assert.Equal(t, "test-rules", rules[0].Name)
-	
+
 	// Test non-existent file
 	_, err = ParseYAMLFileToValidationRules("/non/existent/file.yaml")
 	assert.Error(t, err)
@@ -338,7 +338,7 @@ metadata:
 			wantCount: 0,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			resources, err := ParseYAMLToUnstructured([]byte(tt.input))

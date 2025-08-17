@@ -98,7 +98,7 @@ func TestResolver_EmptyFlagValue(t *testing.T) {
 		},
 	}
 	mockKubeconfig := kubeconfigtesting.NewFakeKubeConfig(contexts, "test-ctx", "default")
-	
+
 	configFlags := genericclioptions.NewConfigFlags(false)
 	emptyString := ""
 	configFlags.Context = &emptyString

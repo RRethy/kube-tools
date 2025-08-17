@@ -37,12 +37,12 @@ func TestToolsCreateTopPodTool(t *testing.T) {
 
 func TestToolsHandleTopPod(t *testing.T) {
 	tests := []struct {
-		name           string
-		args           interface{}
-		expectedArgs   []string
-		expectedError  string
-		kubectlOutput  string
-		kubectlError   error
+		name          string
+		args          interface{}
+		expectedArgs  []string
+		expectedError string
+		kubectlOutput string
+		kubectlError  error
 	}{
 		{
 			name:          "nil arguments",
@@ -110,7 +110,7 @@ pod-1       container2  5m           50Mi`,
 			args: map[string]any{
 				"sort-by": "cpu",
 			},
-			expectedArgs:  []string{"top", "pod", "--sort-by", "cpu"},
+			expectedArgs: []string{"top", "pod", "--sort-by", "cpu"},
 			kubectlOutput: `NAME        CPU(cores)   MEMORY(bytes)
 pod-high    100m         200Mi
 pod-med     50m          150Mi
@@ -121,7 +121,7 @@ pod-low     10m          100Mi`,
 			args: map[string]any{
 				"sort-by": "memory",
 			},
-			expectedArgs:  []string{"top", "pod", "--sort-by", "memory"},
+			expectedArgs: []string{"top", "pod", "--sort-by", "memory"},
 			kubectlOutput: `NAME        CPU(cores)   MEMORY(bytes)
 pod-heavy   20m          500Mi
 pod-med     50m          250Mi
@@ -236,7 +236,7 @@ default     web-1       container1  10m          100Mi`,
 				"selector":  "k8s-app=kube-dns",
 				"sort-by":   "memory",
 			},
-			expectedArgs:  []string{"top", "pod", "-n", "kube-system", "-l", "k8s-app=kube-dns", "--sort-by", "memory"},
+			expectedArgs: []string{"top", "pod", "-n", "kube-system", "-l", "k8s-app=kube-dns", "--sort-by", "memory"},
 			kubectlOutput: `NAME                CPU(cores)   MEMORY(bytes)
 coredns-1           10m          70Mi
 coredns-2           8m           65Mi`,

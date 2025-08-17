@@ -8,8 +8,8 @@ import (
 	apiv1 "github.com/RRethy/k8s-tools/celery/api/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 func TestValidatorValidate(t *testing.T) {
@@ -269,13 +269,13 @@ func TestValidatorConcurrency(t *testing.T) {
 	// Run validation which should process files concurrently
 	results, err := v.Validate(ctx, inputFiles, rules)
 	require.NoError(t, err)
-	
+
 	// Verify we got results from all files
 	fileMap := make(map[string]bool)
 	for _, r := range results {
 		fileMap[r.InputFile] = true
 	}
-	
+
 	assert.Equal(t, len(inputFiles), len(fileMap), "should have results from all input files")
 }
 
@@ -470,12 +470,12 @@ func TestTargetSelection(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			results, err := v.Validate(ctx, tt.inputFiles, tt.rules)
-			
+
 			if err != nil {
 				t.Skipf("Skipping test %s: %v", tt.name, err)
 				return
 			}
-			
+
 			assert.Equal(t, tt.expectedMatches, len(results), tt.description)
 		})
 	}
@@ -492,7 +492,7 @@ func TestMatchesTargetDirectly(t *testing.T) {
 			},
 		},
 	}
-	
+
 	service := &unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"apiVersion": "v1",
@@ -503,7 +503,7 @@ func TestMatchesTargetDirectly(t *testing.T) {
 			},
 		},
 	}
-	
+
 	tests := []struct {
 		name     string
 		resource *unstructured.Unstructured
@@ -541,7 +541,7 @@ func TestMatchesTargetDirectly(t *testing.T) {
 			expected: true,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := matchesTarget(tt.resource, tt.target)

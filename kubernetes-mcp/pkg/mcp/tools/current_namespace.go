@@ -32,11 +32,11 @@ func (t *Tools) HandleCurrentNamespace(ctx context.Context, req mcp.CallToolRequ
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
-	
+
 	// If namespace is empty, it means "default" namespace
 	if stdout == "" && err == nil {
 		stdout = "default"
 	}
-	
+
 	return t.formatOutput(stdout, stderr, err)
 }

@@ -39,12 +39,12 @@ func (s *Sheller) Shell(ctx context.Context, target string, container string, co
 	} else {
 		klog.V(2).Infof("Shell operation started: target=%s container=%s command=%s", target, container, command)
 	}
-	
+
 	pod, err := s.resolvePod(ctx, target)
 	if err != nil {
 		return fmt.Errorf("resolving pod: %w", err)
 	}
-	
+
 	if debug {
 		klog.V(4).Infof("Resolved target to pod for debug: %s", pod.GetName())
 	} else {
@@ -84,7 +84,7 @@ func (s *Sheller) Shell(ctx context.Context, target string, container string, co
 	} else {
 		klog.V(6).Infof("Executing kubectl command: %v", args)
 	}
-	
+
 	cmd := s.Exec.Command("kubectl", args...)
 	cmd.SetStdin(s.IOStreams.In)
 	cmd.SetStdout(s.IOStreams.Out)
@@ -92,7 +92,6 @@ func (s *Sheller) Shell(ctx context.Context, target string, container string, co
 
 	return cmd.Run()
 }
-
 
 func (s *Sheller) resolvePod(ctx context.Context, target string) (*corev1.Pod, error) {
 	klog.V(4).Infof("Resolving pod from target: %s", target)

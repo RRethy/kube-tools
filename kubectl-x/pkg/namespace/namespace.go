@@ -3,7 +3,7 @@ package namespace
 
 import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-	
+
 	"github.com/RRethy/kubectl-x/pkg/kubeconfig"
 )
 
@@ -30,7 +30,7 @@ func (r *resolver) Resolve(contextName string) string {
 	if r.configFlags != nil && r.configFlags.Namespace != nil && *r.configFlags.Namespace != "" {
 		return *r.configFlags.Namespace
 	}
-	
+
 	namespace, _ := r.kubeconfig.GetNamespaceForContext(contextName)
 	if namespace == "" {
 		return "default"

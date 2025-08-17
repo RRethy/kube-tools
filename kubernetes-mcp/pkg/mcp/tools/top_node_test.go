@@ -33,12 +33,12 @@ func TestToolsCreateTopNodeTool(t *testing.T) {
 
 func TestToolsHandleTopNode(t *testing.T) {
 	tests := []struct {
-		name           string
-		args           interface{}
-		expectedArgs   []string
-		expectedError  string
-		kubectlOutput  string
-		kubectlError   error
+		name          string
+		args          interface{}
+		expectedArgs  []string
+		expectedError string
+		kubectlOutput string
+		kubectlError  error
 	}{
 		{
 			name:         "nil arguments",
@@ -146,8 +146,8 @@ worker-east-1        500m         25%    2Gi             50%
 worker-east-2        750m         37%    3Gi             75%`,
 		},
 		{
-			name: "single node cluster",
-			args: map[string]any{},
+			name:         "single node cluster",
+			args:         map[string]any{},
 			expectedArgs: []string{"top", "node"},
 			kubectlOutput: `NAME                 CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
 minikube             1250m        62%    5Gi             62%`,

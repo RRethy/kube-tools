@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	shellContainer string
-	shellCommand   string
-	shellDebug     bool
+	shellContainer  string
+	shellCommand    string
+	shellDebug      bool
 	shellDebugImage string
-	shellCmd       = &cobra.Command{
+	shellCmd        = &cobra.Command{
 		Use:   "shell [pod-name | resource-type resource-name | resource-type/resource-name]",
 		Short: "Shell into a pod",
 		Long: `Shell into a pod directly or by resolving a resource to its associated pods.
@@ -75,4 +75,3 @@ func init() {
 	shellCmd.Flags().BoolVar(&shellDebug, "debug", false, "Use kubectl debug to run a debug container")
 	shellCmd.Flags().StringVar(&shellDebugImage, "image", "", "Debug container image (when using --debug)")
 }
-

@@ -28,7 +28,7 @@ func containsShellMetacharacters(s string) bool {
 		"(", ")", "{", "}", "[", "]", "*", "?", "~", "!",
 		"\\", "\"", "'", "\x00", "\t", "\v", "\f",
 	}
-	
+
 	// Special handling for & and > < which might be in operators
 	// Allow single & and single > or < but not doubles
 	if strings.Contains(s, "&&") || strings.Contains(s, "||") {
@@ -44,7 +44,7 @@ func containsShellMetacharacters(s string) bool {
 	if strings.HasSuffix(s, "&") {
 		return true // Background execution
 	}
-	
+
 	for _, char := range dangerousChars {
 		if strings.Contains(s, char) {
 			return true
@@ -57,11 +57,11 @@ func containsShellMetacharacters(s string) bool {
 func containsPathTraversal(s string) bool {
 	pathTraversalPatterns := []string{
 		"../", "..", "..\\", "/..", "\\..",
-		"....", // Multiple dots
+		"....",                              // Multiple dots
 		"/etc/", "/proc/", "/sys/", "/dev/", // System paths
 		"\\etc\\", "\\proc\\", "\\sys\\", "\\dev\\",
 	}
-	
+
 	for _, pattern := range pathTraversalPatterns {
 		if strings.Contains(s, pattern) {
 			return true
@@ -76,27 +76,27 @@ func validateArgument(arg string) error {
 	if arg == "" {
 		return nil // Empty arguments are allowed
 	}
-	
+
 	// Check for shell metacharacters
 	if containsShellMetacharacters(arg) {
 		return fmt.Errorf("argument contains potentially dangerous characters: %q", arg)
 	}
-	
+
 	// Check for path traversal
 	if containsPathTraversal(arg) {
 		return fmt.Errorf("argument contains potential path traversal: %q", arg)
 	}
-	
+
 	// Check for excessive length (prevent buffer overflow attempts)
 	if len(arg) > 4096 {
 		return fmt.Errorf("argument exceeds maximum length: %d characters", len(arg))
 	}
-	
+
 	// Check for null bytes
 	if strings.Contains(arg, "\x00") {
 		return fmt.Errorf("argument contains null bytes")
 	}
-	
+
 	return nil
 }
 
@@ -108,7 +108,7 @@ func (k *kubectl) Execute(ctx context.Context, args ...string) (string, string, 
 			return "", "", fmt.Errorf("invalid argument at position %d: %w", i, err)
 		}
 	}
-	
+
 	cmd := exec.CommandContext(ctx, "kubectl", args...)
 
 	var stdout, stderr bytes.Buffer

@@ -90,8 +90,8 @@ Line 3: This is an info message`,
 			expected: "",
 		},
 		{
-			name:    "Case sensitive",
-			pattern: "Error",
+			name:     "Case sensitive",
+			pattern:  "Error",
 			expected: "",
 		},
 	}
@@ -125,19 +125,19 @@ func TestApplySimpleJSONFilter(t *testing.T) {
 		expectErr bool
 	}{
 		{
-			name:   "Simple field access",
-			filter: ".status",
+			name:     "Simple field access",
+			filter:   ".status",
 			expected: `"Running"`,
 		},
 		{
-			name:   "Nested field access",
-			filter: ".metadata.name",
+			name:     "Nested field access",
+			filter:   ".metadata.name",
 			expected: `"test-pod"`,
 		},
 		{
-			name:      "Non-existent field",
-			filter:    ".nonexistent",
-			expected:  "null",
+			name:     "Non-existent field",
+			filter:   ".nonexistent",
+			expected: "null",
 		},
 		{
 			name:      "Invalid filter format",
@@ -180,19 +180,19 @@ status: Running`
 		expectErr bool
 	}{
 		{
-			name:   "Simple field access",
-			filter: ".status",
+			name:     "Simple field access",
+			filter:   ".status",
 			expected: `Running`,
 		},
 		{
-			name:   "Nested field access",
-			filter: ".metadata.name",
+			name:     "Nested field access",
+			filter:   ".metadata.name",
 			expected: `test-pod`,
 		},
 		{
-			name:      "Non-existent field",
-			filter:    ".nonexistent",
-			expected:  "null",
+			name:     "Non-existent field",
+			filter:   ".nonexistent",
+			expected: "null",
 		},
 		{
 			name:      "Invalid filter format",
@@ -223,7 +223,7 @@ Line 2: Error message
 Line 3: Warning message`
 
 	jsonOutput := `{"name": "test", "status": "Running", "items": [1, 2, 3]}`
-	
+
 	yamlOutput := `name: test
 status: Running
 items:

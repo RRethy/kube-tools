@@ -122,9 +122,9 @@ func TestToolsHandleAuthCanI(t *testing.T) {
 		{
 			name: "with all-namespaces flag",
 			args: map[string]any{
-				"verb":            "list",
-				"resource":        "pods",
-				"all-namespaces":  true,
+				"verb":           "list",
+				"resource":       "pods",
+				"all-namespaces": true,
 			},
 			kubectlStdout: "yes",
 			wantArgs:      []string{"auth", "can-i", "list", "pods", "--all-namespaces"},

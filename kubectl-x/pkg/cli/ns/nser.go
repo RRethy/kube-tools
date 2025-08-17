@@ -38,7 +38,7 @@ func NewNser(kubeConfig kubeconfig.Interface, ioStreams genericiooptions.IOStrea
 // Ns switches to a namespace matching the given substring
 func (n Nser) Ns(ctx context.Context, namespace string, exactMatch bool) error {
 	klog.V(2).Infof("Namespace switching operation started: namespace=%s exactMatch=%t", namespace, exactMatch)
-	
+
 	var selectedNamespace string
 	var err error
 	if namespace == "-" {

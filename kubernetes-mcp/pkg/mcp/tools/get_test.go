@@ -186,7 +186,7 @@ minikube   Ready    control-plane,master   10d   v1.25.3   192.168.49.2   <none>
 		{
 			name: "get with all-namespaces",
 			args: map[string]any{
-				"resource-type":   "pods",
+				"resource-type":  "pods",
 				"all-namespaces": true,
 			},
 			kubectlStdout: `NAMESPACE     NAME                                     READY   STATUS    RESTARTS   AGE
@@ -206,8 +206,8 @@ kube-system   etcd-minikube                            1/1     Running   0      
 		{
 			name: "all-namespaces overrides namespace",
 			args: map[string]any{
-				"resource-type":   "services",
-				"namespace":       "default",
+				"resource-type":  "services",
+				"namespace":      "default",
 				"all-namespaces": true,
 			},
 			kubectlStdout: `NAMESPACE     NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)`,
@@ -216,11 +216,11 @@ kube-system   etcd-minikube                            1/1     Running   0      
 		{
 			name: "all parameters combined",
 			args: map[string]any{
-				"resource-type":   "pods",
-				"namespace":       "production",
-				"context":         "staging",
-				"selector":        "tier=frontend",
-				"output":          "name",
+				"resource-type": "pods",
+				"namespace":     "production",
+				"context":       "staging",
+				"selector":      "tier=frontend",
+				"output":        "name",
 			},
 			kubectlStdout: `pod/frontend-1
 pod/frontend-2
@@ -264,7 +264,7 @@ pod/frontend-3`,
 		{
 			name: "all-namespaces false is ignored",
 			args: map[string]any{
-				"resource-type":   "pods",
+				"resource-type":  "pods",
 				"all-namespaces": false,
 			},
 			kubectlStdout: `NAME   READY   STATUS`,
@@ -343,12 +343,12 @@ pod/frontend-3`,
 		{
 			name: "numeric parameter values are ignored",
 			args: map[string]any{
-				"resource-type":   "pods",
-				"resource-name":   123,
-				"namespace":       456,
-				"context":         789,
-				"selector":        true,
-				"output":          false,
+				"resource-type":  "pods",
+				"resource-name":  123,
+				"namespace":      456,
+				"context":        789,
+				"selector":       true,
+				"output":         false,
 				"all-namespaces": "not-bool",
 			},
 			kubectlStdout: `NAME   READY   STATUS`,

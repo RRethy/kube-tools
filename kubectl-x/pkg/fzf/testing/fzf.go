@@ -15,13 +15,13 @@ type FakeFzf struct {
 	// Configuration for the fake
 	ReturnItems []string
 	ReturnError error
-	
+
 	// Capture what was called
-	LastConfig   fzf.Config
-	CallCount    int
-	AllConfigs   []fzf.Config
-	AllItems     [][]string
-	
+	LastConfig fzf.Config
+	CallCount  int
+	AllConfigs []fzf.Config
+	AllItems   [][]string
+
 	// For simulating multiple calls with different results
 	CallResults []CallResult
 	callIndex   int
@@ -55,7 +55,7 @@ func (f *FakeFzf) Run(ctx context.Context, items []string, cfg fzf.Config) ([]st
 	f.LastConfig = cfg
 	f.AllConfigs = append(f.AllConfigs, cfg)
 	f.AllItems = append(f.AllItems, items)
-	
+
 	// If using multiple call results
 	if len(f.CallResults) > 0 {
 		if f.callIndex >= len(f.CallResults) {
@@ -65,7 +65,7 @@ func (f *FakeFzf) Run(ctx context.Context, items []string, cfg fzf.Config) ([]st
 		f.callIndex++
 		return result.Items, result.Error
 	}
-	
+
 	// Otherwise use simple return values
 	return f.ReturnItems, f.ReturnError
 }

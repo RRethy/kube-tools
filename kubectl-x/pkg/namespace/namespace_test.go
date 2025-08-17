@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/tools/clientcmd/api"
-	
+
 	kubeconfigtesting "github.com/RRethy/kubectl-x/pkg/kubeconfig/testing"
 )
 

@@ -31,7 +31,7 @@ func TestServer_Serve(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fakeServer := mcpserver.NewFakeMCPServer(tt.serveError)
-			
+
 			s := &Server{
 				MCPServer: fakeServer,
 			}
@@ -53,4 +53,3 @@ func TestServer_Serve(t *testing.T) {
 		})
 	}
 }
-

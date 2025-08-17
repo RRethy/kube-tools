@@ -23,19 +23,19 @@ type testKubectl struct {
 
 func (t *testKubectl) Execute(ctx context.Context, args ...string) (string, string, error) {
 	t.calls = append(t.calls, args)
-	
+
 	// Check if this is a current-context call
 	for _, arg := range args {
 		if arg == "current-context" {
 			return t.contextResponse, "", t.contextError
 		}
 	}
-	
+
 	// Check if this is a namespace query
 	if contains(args, "config") && contains(args, "view") && strings.Contains(strings.Join(args, " "), "jsonpath") {
 		return t.namespaceResponse, "", t.namespaceError
 	}
-	
+
 	return "", "", nil
 }
 
@@ -174,7 +174,7 @@ func TestPromptsCreateDebugClusterPrompt(t *testing.T) {
 	assert.Equal(t, "debug-cluster", prompt.Name)
 	assert.NotEmpty(t, prompt.Description)
 	assert.Contains(t, prompt.Description, "Debug a Kubernetes cluster")
-	
+
 	// Check that the context argument exists
 	assert.Len(t, prompt.Arguments, 1)
 	assert.Equal(t, "context", prompt.Arguments[0].Name)
@@ -188,10 +188,10 @@ func TestPromptsCreateDebugNamespacePrompt(t *testing.T) {
 	assert.Equal(t, "debug-namespace", prompt.Name)
 	assert.NotEmpty(t, prompt.Description)
 	assert.Contains(t, prompt.Description, "Debug a specific Kubernetes namespace")
-	
+
 	// Check that both arguments exist
 	assert.Len(t, prompt.Arguments, 2)
-	
+
 	// Check argument names
 	argNames := make([]string, len(prompt.Arguments))
 	for i, arg := range prompt.Arguments {
@@ -203,12 +203,12 @@ func TestPromptsCreateDebugNamespacePrompt(t *testing.T) {
 
 func TestPromptsHandleDebugClusterPrompt(t *testing.T) {
 	tests := []struct {
-		name              string
-		arguments         map[string]string
-		currentContext    string
-		kubectlError      error
-		expectedContext   string
-		checkPromptText   func(*testing.T, string)
+		name            string
+		arguments       map[string]string
+		currentContext  string
+		kubectlError    error
+		expectedContext string
+		checkPromptText func(*testing.T, string)
 	}{
 		{
 			name:            "explicit context provided",
@@ -288,11 +288,11 @@ func TestPromptsHandleDebugClusterPrompt(t *testing.T) {
 			// Check messages
 			require.Len(t, result.Messages, 1)
 			assert.Equal(t, mcp.RoleUser, result.Messages[0].Role)
-			
+
 			// Check prompt text content
 			textContent, ok := result.Messages[0].Content.(mcp.TextContent)
 			require.True(t, ok, "expected text content in message")
-			
+
 			if tt.checkPromptText != nil {
 				tt.checkPromptText(t, textContent.Text)
 			}
@@ -400,18 +400,18 @@ func TestPromptsHandleDebugNamespacePrompt(t *testing.T) {
 			require.NotNil(t, result)
 
 			// Check the description
-			expectedDesc := fmt.Sprintf("Comprehensive namespace debugging for %s in context %s", 
+			expectedDesc := fmt.Sprintf("Comprehensive namespace debugging for %s in context %s",
 				tt.expectedNamespace, tt.expectedContext)
 			assert.Equal(t, expectedDesc, result.Description)
 
 			// Check messages
 			require.Len(t, result.Messages, 1)
 			assert.Equal(t, mcp.RoleUser, result.Messages[0].Role)
-			
+
 			// Check prompt text content
 			textContent, ok := result.Messages[0].Content.(mcp.TextContent)
 			require.True(t, ok, "expected text content in message")
-			
+
 			if tt.checkPromptText != nil {
 				tt.checkPromptText(t, textContent.Text)
 			}

@@ -39,7 +39,7 @@ type clusterResult struct {
 // Each executes the given kubectl command across contexts matching the pattern
 func (e *Eacher) Each(ctx context.Context, contextPattern, outputFormat string, interactive bool, args []string) error {
 	klog.V(2).Infof("Each operation started: pattern=%s format=%s interactive=%t args=%v", contextPattern, outputFormat, interactive, args)
-	
+
 	if !slices.Contains([]string{"yaml", "json", "raw"}, outputFormat) {
 		return fmt.Errorf("invalid output format: %s (must be yaml, json, or raw)", outputFormat)
 	}
@@ -63,7 +63,7 @@ func (e *Eacher) Each(ctx context.Context, contextPattern, outputFormat string, 
 func (e *Eacher) selectContexts(ctx context.Context, pattern string, interactive bool) ([]string, error) {
 	allContexts := e.Kubeconfig.Contexts()
 	klog.V(5).Infof("Available contexts: %d total", len(allContexts))
-	
+
 	filteredContexts, err := e.selectContextsByPattern(allContexts, pattern)
 	if err != nil {
 		return nil, fmt.Errorf("selecting contexts by pattern: %w", err)

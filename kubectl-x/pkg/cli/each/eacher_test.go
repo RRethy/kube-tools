@@ -18,18 +18,18 @@ import (
 
 func TestEacher_Each(t *testing.T) {
 	tests := []struct {
-		name             string
-		contextPattern   string
-		outputFormat     string
-		interactive      bool
-		args             []string
-		namespace        string
-		setupContexts    map[string]*api.Context
-		fzfResults       []string
-		fzfError         error
-		expectedError    string
-		expectedOutput   string
-		verifyFzfConfig  func(*testing.T, *fzftesting.FakeFzf)
+		name            string
+		contextPattern  string
+		outputFormat    string
+		interactive     bool
+		args            []string
+		namespace       string
+		setupContexts   map[string]*api.Context
+		fzfResults      []string
+		fzfError        error
+		expectedError   string
+		expectedOutput  string
+		verifyFzfConfig func(*testing.T, *fzftesting.FakeFzf)
 	}{
 		{
 			name:           "invalid output format",
@@ -440,21 +440,21 @@ func TestEacher_OutputResults(t *testing.T) {
 			expectError:  true,
 		},
 		{
-			name:         "empty results json",
-			outputFormat: "json",
-			items:        []clusterResult{},
+			name:           "empty results json",
+			outputFormat:   "json",
+			items:          []clusterResult{},
 			expectedOutput: `"items": []`,
 		},
 		{
-			name:         "empty results yaml",
-			outputFormat: "yaml",
-			items:        []clusterResult{},
+			name:           "empty results yaml",
+			outputFormat:   "yaml",
+			items:          []clusterResult{},
 			expectedOutput: "items: []",
 		},
 		{
-			name:         "empty results raw",
-			outputFormat: "raw",
-			items:        []clusterResult{},
+			name:           "empty results raw",
+			outputFormat:   "raw",
+			items:          []clusterResult{},
 			expectedOutput: "",
 		},
 		{
@@ -611,7 +611,7 @@ func TestEacher_ExecuteCommand(t *testing.T) {
 
 			assert.Equal(t, tt.contextName, result.Context)
 			assert.Contains(t, result.Args, strings.Join(tt.expectedArgs, " "))
-			
+
 			if tt.verifyResult != nil {
 				tt.verifyResult(t, result)
 			}
@@ -621,11 +621,11 @@ func TestEacher_ExecuteCommand(t *testing.T) {
 
 func TestEacher_ExecuteCommands(t *testing.T) {
 	tests := []struct {
-		name         string
-		contexts     []string
-		outputFormat string
-		args         []string
-		namespace    string
+		name          string
+		contexts      []string
+		outputFormat  string
+		args          []string
+		namespace     string
 		verifyResults func(*testing.T, []clusterResult)
 	}{
 		{
@@ -740,7 +740,7 @@ func TestEacher_SelectContextsInteractively(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fzf := fzftesting.NewFakeFzf(tt.fzfReturn, tt.fzfError)
-			
+
 			eacher := &Eacher{
 				Fzf: fzf,
 				IOStreams: genericclioptions.IOStreams{

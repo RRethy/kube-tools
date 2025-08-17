@@ -6,8 +6,8 @@ import (
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/resource"
-	"k8s.io/kubectl/pkg/scheme"
 	"k8s.io/klog/v2"
+	"k8s.io/kubectl/pkg/scheme"
 )
 
 // Interface defines methods for Kubernetes resource operations
@@ -40,7 +40,7 @@ func (c *Client) ListInNamespace(ctx context.Context, resourceType, namespace st
 
 func (c *Client) list(ctx context.Context, resourceType, namespace string) ([]any, error) {
 	klog.V(6).Infof("Listing Kubernetes resources: resourceType=%s namespace=%s", resourceType, namespace)
-	
+
 	builder := resource.NewBuilder(c.configFlags).
 		WithScheme(scheme.Scheme, scheme.Scheme.PrioritizedVersionsAllGroups()...).
 		FieldSelectorParam(*c.resourceBuilderFlags.FieldSelector).

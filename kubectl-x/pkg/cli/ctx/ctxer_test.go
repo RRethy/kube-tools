@@ -42,26 +42,26 @@ func TestNewCtxer(t *testing.T) {
 
 func TestCtxer_Ctx(t *testing.T) {
 	tests := []struct {
-		name                 string
-		contextSubstring     string
-		namespaceSubstring   string
-		exactMatch           bool
-		setupContexts        map[string]*api.Context
-		currentContext       string
-		currentNamespace     string
-		historyData          map[string][]string
-		fzfResults           []fzftesting.CallResult
-		fzfError             error
-		namespaces           []any
-		customKubeConfig     func(*kubeconfigtesting.FakeKubeConfig) interface{}
-		customHistory        func(*historytesting.FakeHistory) interface{}
-		expectedError        string
-		expectedOutput       []string
-		expectedErrOutput    string
-		expectedContext      string
-		expectedNamespace    string
-		expectedFzfCalls     int
-		verifyFzfConfigs     func(*testing.T, *fzftesting.FakeFzf)
+		name               string
+		contextSubstring   string
+		namespaceSubstring string
+		exactMatch         bool
+		setupContexts      map[string]*api.Context
+		currentContext     string
+		currentNamespace   string
+		historyData        map[string][]string
+		fzfResults         []fzftesting.CallResult
+		fzfError           error
+		namespaces         []any
+		customKubeConfig   func(*kubeconfigtesting.FakeKubeConfig) interface{}
+		customHistory      func(*historytesting.FakeHistory) interface{}
+		expectedError      string
+		expectedOutput     []string
+		expectedErrOutput  string
+		expectedContext    string
+		expectedNamespace  string
+		expectedFzfCalls   int
+		verifyFzfConfigs   func(*testing.T, *fzftesting.FakeFzf)
 	}{
 		{
 			name:               "select from history",
@@ -262,7 +262,7 @@ func TestCtxer_Ctx(t *testing.T) {
 				require.True(t, ok)
 				assert.True(t, cfg0.ExactMatch)
 				assert.Equal(t, "dev", cfg0.Query)
-				
+
 				cfg1, ok := fzf.GetConfig(1)
 				require.True(t, ok)
 				assert.True(t, cfg1.ExactMatch)
@@ -380,7 +380,7 @@ func TestCtxer_Ctx(t *testing.T) {
 			if tt.customHistory != nil {
 				historyInterface = tt.customHistory(history).(pkghistory.Interface)
 			}
-			
+
 			ctxer := NewCtxer(kubeCfg, ioStreams, k8sClient, fzf, historyInterface)
 			err := ctxer.Ctx(context.Background(), tt.contextSubstring, tt.namespaceSubstring, tt.exactMatch)
 

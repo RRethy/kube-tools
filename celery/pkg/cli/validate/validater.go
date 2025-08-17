@@ -13,7 +13,7 @@ import (
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 )
 
-type Validater struct{
+type Validater struct {
 	IOStreams genericiooptions.IOStreams
 }
 
@@ -72,8 +72,8 @@ func (v *Validater) Validate(
 
 func createInlineValidationRule(expression string, targetGroup string, targetVersion string, targetKind string, targetName string, targetNamespace string, targetLabelSelector string, targetAnnotationSelector string) apiv1.ValidationRules {
 	var target *apiv1.TargetSelector
-	if targetGroup != "" || targetVersion != "" || targetKind != "" || targetName != "" || 
-	   targetNamespace != "" || targetLabelSelector != "" || targetAnnotationSelector != "" {
+	if targetGroup != "" || targetVersion != "" || targetKind != "" || targetName != "" ||
+		targetNamespace != "" || targetLabelSelector != "" || targetAnnotationSelector != "" {
 		target = &apiv1.TargetSelector{
 			Group:              targetGroup,
 			Version:            targetVersion,
@@ -84,7 +84,7 @@ func createInlineValidationRule(expression string, targetGroup string, targetVer
 			AnnotationSelector: targetAnnotationSelector,
 		}
 	}
-	
+
 	rule := apiv1.ValidationRules{
 		Filename: "<inline>",
 		ObjectMeta: metav1.ObjectMeta{

@@ -20,7 +20,7 @@ func TestNew(t *testing.T) {
 func TestNewWithKubectl(t *testing.T) {
 	fake := kubectl.NewFake("", "", nil)
 	tools := NewWithKubectl(fake)
-	
+
 	assert.NotNil(t, tools)
 	assert.Equal(t, fake, tools.kubectl)
 }
@@ -164,7 +164,7 @@ func TestToolsRunKubectl(t *testing.T) {
 
 			assert.Equal(t, tt.expectedStdout, stdout)
 			assert.Equal(t, tt.expectedStderr, stderr)
-			
+
 			if tt.expectedError != nil {
 				require.Error(t, err)
 				assert.Equal(t, tt.expectedError.Error(), err.Error())
@@ -315,7 +315,7 @@ func TestToolsFormatOutput(t *testing.T) {
 				require.NotNil(t, result)
 				assert.Equal(t, tt.expectedResult.IsError, result.IsError)
 				assert.Equal(t, len(tt.expectedResult.Content), len(result.Content))
-				
+
 				for i, expectedContent := range tt.expectedResult.Content {
 					if textContent, ok := expectedContent.(mcp.TextContent); ok {
 						actualContent, ok := result.Content[i].(mcp.TextContent)
@@ -341,9 +341,9 @@ func TestToolsIntegration(t *testing.T) {
 	t.Run("with fake kubectl", func(t *testing.T) {
 		fake := kubectl.NewFake("test output", "", nil)
 		tools := NewWithKubectl(fake)
-		
+
 		stdout, stderr, err := tools.runKubectl(context.Background(), "test", "command")
-		
+
 		assert.NoError(t, err)
 		assert.Equal(t, "test output", stdout)
 		assert.Empty(t, stderr)
@@ -354,15 +354,15 @@ func TestToolsIntegration(t *testing.T) {
 	t.Run("formatOutput after runKubectl success", func(t *testing.T) {
 		fake := kubectl.NewFake("pods list", "", nil)
 		tools := NewWithKubectl(fake)
-		
+
 		stdout, stderr, err := tools.runKubectl(context.Background(), "get", "pods")
 		result, formatErr := tools.formatOutput(stdout, stderr, err)
-		
+
 		assert.NoError(t, formatErr)
 		assert.NotNil(t, result)
 		assert.False(t, result.IsError)
 		assert.Len(t, result.Content, 1)
-		
+
 		content, ok := result.Content[0].(mcp.TextContent)
 		require.True(t, ok)
 		assert.Equal(t, "pods list", content.Text)
@@ -371,15 +371,15 @@ func TestToolsIntegration(t *testing.T) {
 	t.Run("formatOutput after runKubectl error", func(t *testing.T) {
 		fake := kubectl.NewFake("", "not found", fmt.Errorf("resource not found"))
 		tools := NewWithKubectl(fake)
-		
+
 		stdout, stderr, err := tools.runKubectl(context.Background(), "get", "invalid")
 		result, formatErr := tools.formatOutput(stdout, stderr, err)
-		
+
 		assert.NoError(t, formatErr)
 		assert.NotNil(t, result)
 		assert.True(t, result.IsError)
 		assert.Len(t, result.Content, 1)
-		
+
 		content, ok := result.Content[0].(mcp.TextContent)
 		require.True(t, ok)
 		assert.Contains(t, content.Text, "kubectl command failed: resource not found")

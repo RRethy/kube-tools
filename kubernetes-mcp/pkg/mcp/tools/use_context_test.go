@@ -28,12 +28,12 @@ func TestToolsCreateUseContextTool(t *testing.T) {
 
 func TestToolsHandleUseContext(t *testing.T) {
 	tests := []struct {
-		name           string
-		args           interface{}
-		expectedArgs   []string
-		expectedError  string
-		kubectlOutput  string
-		kubectlError   error
+		name          string
+		args          interface{}
+		expectedArgs  []string
+		expectedError string
+		kubectlOutput string
+		kubectlError  error
 	}{
 		{
 			name:          "nil arguments",

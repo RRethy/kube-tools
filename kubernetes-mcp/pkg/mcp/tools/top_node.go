@@ -58,7 +58,7 @@ func (t *Tools) HandleTopNode(ctx context.Context, req mcp.CallToolRequest) (*mc
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
-	
+
 	if err == nil && stdout != "" {
 		paginationParams := GetPaginationParams(args)
 		result := ApplyPagination(stdout, paginationParams)
@@ -67,6 +67,6 @@ func (t *Tools) HandleTopNode(ctx context.Context, req mcp.CallToolRequest) (*mc
 			stdout += result.PaginationInfo
 		}
 	}
-	
+
 	return t.formatOutput(stdout, stderr, err)
 }

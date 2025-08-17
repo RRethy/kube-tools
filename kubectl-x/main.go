@@ -12,7 +12,7 @@ import (
 
 func main() {
 	defer klog.Flush()
-	
+
 	if err := fang.Execute(context.Background(), cmd.GetRootCmd()); err != nil {
 		os.Exit(1)
 	}

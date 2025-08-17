@@ -21,7 +21,7 @@ type FilterParams struct {
 // GetFilterParams extracts filter parameters from request arguments
 func GetFilterParams(args map[string]any) FilterParams {
 	params := FilterParams{}
-	
+
 	if val, ok := args["grep"].(string); ok && val != "" {
 		params.Grep = val
 	}
@@ -31,7 +31,7 @@ func GetFilterParams(args map[string]any) FilterParams {
 	if val, ok := args["yq"].(string); ok && val != "" {
 		params.YQ = val
 	}
-	
+
 	return params
 }
 
@@ -40,7 +40,7 @@ func ApplyFilter(output string, params FilterParams, outputFormat string) (strin
 	if output == "" {
 		return output, nil
 	}
-	
+
 	if params.Grep != "" {
 		filtered, err := applyGrepFilter(output, params.Grep)
 		if err != nil {
@@ -48,7 +48,7 @@ func ApplyFilter(output string, params FilterParams, outputFormat string) (strin
 		}
 		output = filtered
 	}
-	
+
 	if params.JQ != "" && outputFormat == "json" {
 		filtered, err := applyJQFilter(output, params.JQ)
 		if err != nil {
@@ -56,7 +56,7 @@ func ApplyFilter(output string, params FilterParams, outputFormat string) (strin
 		}
 		output = filtered
 	}
-	
+
 	if params.YQ != "" && outputFormat == "yaml" {
 		filtered, err := applyYQFilter(output, params.YQ)
 		if err != nil {
@@ -64,7 +64,7 @@ func ApplyFilter(output string, params FilterParams, outputFormat string) (strin
 		}
 		output = filtered
 	}
-	
+
 	return output, nil
 }
 
@@ -74,16 +74,16 @@ func applyGrepFilter(output, pattern string) (string, error) {
 	if err != nil {
 		return applyLiteralGrepFilter(output, pattern), nil
 	}
-	
+
 	lines := strings.Split(output, "\n")
 	var filtered []string
-	
+
 	for _, line := range lines {
 		if re.MatchString(line) {
 			filtered = append(filtered, line)
 		}
 	}
-	
+
 	return strings.Join(filtered, "\n"), nil
 }
 
@@ -91,13 +91,13 @@ func applyGrepFilter(output, pattern string) (string, error) {
 func applyLiteralGrepFilter(output, pattern string) string {
 	lines := strings.Split(output, "\n")
 	var filtered []string
-	
+
 	for _, line := range lines {
 		if strings.Contains(line, pattern) {
 			filtered = append(filtered, line)
 		}
 	}
-	
+
 	return strings.Join(filtered, "\n")
 }
 
@@ -107,22 +107,22 @@ func applyJQFilter(output, filter string) (string, error) {
 	if err := json.Unmarshal([]byte(output), &jsonData); err != nil {
 		return "", fmt.Errorf("invalid JSON input: %w", err)
 	}
-	
+
 	if _, err := exec.LookPath("jq"); err != nil {
 		return applySimpleJSONFilter(output, filter)
 	}
-	
+
 	cmd := exec.Command("jq", filter)
 	cmd.Stdin = strings.NewReader(output)
-	
+
 	var outBuf, errBuf bytes.Buffer
 	cmd.Stdout = &outBuf
 	cmd.Stderr = &errBuf
-	
+
 	if err := cmd.Run(); err != nil {
 		return "", fmt.Errorf("jq execution failed: %s", errBuf.String())
 	}
-	
+
 	return outBuf.String(), nil
 }
 
@@ -132,22 +132,22 @@ func applyYQFilter(output, filter string) (string, error) {
 	if err := yaml.Unmarshal([]byte(output), &yamlData); err != nil {
 		return "", fmt.Errorf("invalid YAML input: %w", err)
 	}
-	
+
 	if _, err := exec.LookPath("yq"); err != nil {
 		return applySimpleYAMLFilter(output, filter)
 	}
-	
+
 	cmd := exec.Command("yq", filter)
 	cmd.Stdin = strings.NewReader(output)
-	
+
 	var outBuf, errBuf bytes.Buffer
 	cmd.Stdout = &outBuf
 	cmd.Stderr = &errBuf
-	
+
 	if err := cmd.Run(); err != nil {
 		return "", fmt.Errorf("yq execution failed: %s", errBuf.String())
 	}
-	
+
 	return outBuf.String(), nil
 }
 
@@ -156,20 +156,20 @@ func applySimpleJSONFilter(output, filter string) (string, error) {
 	if !strings.HasPrefix(filter, ".") {
 		return "", fmt.Errorf("filter must start with '.'")
 	}
-	
+
 	var data interface{}
 	if err := json.Unmarshal([]byte(output), &data); err != nil {
 		return "", err
 	}
-	
+
 	parts := strings.Split(strings.TrimPrefix(filter, "."), ".")
 	result := data
-	
+
 	for _, part := range parts {
 		if part == "" {
 			continue
 		}
-		
+
 		switch v := result.(type) {
 		case map[string]interface{}:
 			var ok bool
@@ -190,12 +190,12 @@ func applySimpleJSONFilter(output, filter string) (string, error) {
 			return "null", nil
 		}
 	}
-	
+
 	jsonBytes, err := json.MarshalIndent(result, "", "  ")
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(jsonBytes), nil
 }
 
@@ -204,20 +204,20 @@ func applySimpleYAMLFilter(output, filter string) (string, error) {
 	if !strings.HasPrefix(filter, ".") {
 		return "", fmt.Errorf("filter must start with '.'")
 	}
-	
+
 	var data interface{}
 	if err := yaml.Unmarshal([]byte(output), &data); err != nil {
 		return "", err
 	}
-	
+
 	parts := strings.Split(strings.TrimPrefix(filter, "."), ".")
 	result := data
-	
+
 	for _, part := range parts {
 		if part == "" {
 			continue
 		}
-		
+
 		switch v := result.(type) {
 		case map[string]interface{}:
 			var ok bool
@@ -238,11 +238,11 @@ func applySimpleYAMLFilter(output, filter string) (string, error) {
 			return "null", nil
 		}
 	}
-	
+
 	yamlBytes, err := yaml.Marshal(result)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(yamlBytes), nil
 }

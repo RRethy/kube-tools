@@ -14,14 +14,14 @@ import (
 
 func TestValidaterValidate(t *testing.T) {
 	tests := []struct {
-		name             string
-		files            []string
-		celExpression    string
-		ruleFiles        []string
-		verbose          bool
-		targetKind       string
-		expectError      bool
-		expectInOutput   []string
+		name              string
+		files             []string
+		celExpression     string
+		ruleFiles         []string
+		verbose           bool
+		targetKind        string
+		expectError       bool
+		expectInOutput    []string
 		notExpectInOutput []string
 	}{
 		{
@@ -100,9 +100,9 @@ func TestValidaterValidate(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name:          "no expression or rule file",
-			files:         []string{"test.yaml"},
-			expectError:   true,
+			name:        "no expression or rule file",
+			files:       []string{"test.yaml"},
+			expectError: true,
 		},
 	}
 
@@ -111,7 +111,7 @@ func TestValidaterValidate(t *testing.T) {
 			// Create IOStreams with buffers to capture output
 			out := &bytes.Buffer{}
 			errOut := &bytes.Buffer{}
-			
+
 			v := &Validater{
 				IOStreams: genericiooptions.IOStreams{
 					In:     strings.NewReader(""),
@@ -129,10 +129,10 @@ func TestValidaterValidate(t *testing.T) {
 				"",  // targetGroup
 				"",  // targetVersion
 				tt.targetKind,
-				"",  // targetName
-				"",  // targetNamespace
-				"",  // targetLabelSelector
-				"",  // targetAnnotationSelector
+				"", // targetName
+				"", // targetNamespace
+				"", // targetLabelSelector
+				"", // targetAnnotationSelector
 			)
 
 			if tt.expectError {
@@ -150,12 +150,12 @@ func TestValidaterValidate(t *testing.T) {
 			}
 
 			output := out.String()
-			
+
 			// Check expected output
 			for _, expected := range tt.expectInOutput {
 				assert.Contains(t, output, expected, "expected to find '%s' in output", expected)
 			}
-			
+
 			// Check not expected output
 			for _, notExpected := range tt.notExpectInOutput {
 				assert.NotContains(t, output, notExpected, "did not expect to find '%s' in output", notExpected)
@@ -244,10 +244,10 @@ func TestDisplayResults(t *testing.T) {
 			},
 		},
 		{
-			name:        "no results",
-			results:     []validator.ValidationResult{},
-			verbose:     false,
-			expectError: false,
+			name:           "no results",
+			results:        []validator.ValidationResult{},
+			verbose:        false,
+			expectError:    false,
 			expectInOutput: []string{},
 		},
 	}
@@ -290,24 +290,24 @@ func TestDisplayResults(t *testing.T) {
 func TestCreateInlineValidationRule(t *testing.T) {
 	rule := createInlineValidationRule(
 		"object.spec.replicas >= 3",
-		"apps",           // targetGroup
-		"v1",             // targetVersion
-		"Deployment",     // targetKind
-		"test-deploy",    // targetName
-		"production",     // targetNamespace
-		"app=test",       // targetLabelSelector
-		"critical=true",  // targetAnnotationSelector
+		"apps",          // targetGroup
+		"v1",            // targetVersion
+		"Deployment",    // targetKind
+		"test-deploy",   // targetName
+		"production",    // targetNamespace
+		"app=test",      // targetLabelSelector
+		"critical=true", // targetAnnotationSelector
 	)
 
 	assert.Equal(t, "<inline>", rule.Filename)
 	assert.Equal(t, "inline-expression", rule.Name)
 	assert.Len(t, rule.Spec.Rules, 1)
-	
+
 	r := rule.Spec.Rules[0]
 	assert.Equal(t, "inline", r.Name)
 	assert.Equal(t, "object.spec.replicas >= 3", r.Expression)
 	assert.Equal(t, "Validation failed", r.Message)
-	
+
 	assert.NotNil(t, r.Target)
 	assert.Equal(t, "apps", r.Target.Group)
 	assert.Equal(t, "v1", r.Target.Version)
@@ -336,7 +336,7 @@ func TestValidaterGlobExpansion(t *testing.T) {
 		128,
 		"", "", "", "", "", "", "",
 	)
-	
+
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "loading validation rules")
 }
@@ -384,17 +384,17 @@ func TestValidaterSortedOutput(t *testing.T) {
 	require.Error(t, err) // Should error because there are failures
 
 	output := out.String()
-	
+
 	// Verify files are sorted (a.yaml should come before b.yaml)
 	aIndex := strings.Index(output, "a.yaml")
 	bIndex := strings.Index(output, "b.yaml")
 	assert.True(t, aIndex < bIndex, "a.yaml should appear before b.yaml in output")
-	
+
 	// Verify rule files are sorted within each input file
 	lines := strings.Split(output, "\n")
 	var currentFile string
 	var ruleFiles []string
-	
+
 	for _, line := range lines {
 		if strings.HasSuffix(line, ".yaml:") {
 			currentFile = line
@@ -404,7 +404,7 @@ func TestValidaterSortedOutput(t *testing.T) {
 			ruleFile = strings.TrimSuffix(ruleFile, ":")
 			if len(ruleFiles) > 0 {
 				// Check that this rule file comes after the previous one alphabetically
-				assert.True(t, ruleFile >= ruleFiles[len(ruleFiles)-1], 
+				assert.True(t, ruleFile >= ruleFiles[len(ruleFiles)-1],
 					"rule files should be sorted within %s", currentFile)
 			}
 			ruleFiles = append(ruleFiles, ruleFile)

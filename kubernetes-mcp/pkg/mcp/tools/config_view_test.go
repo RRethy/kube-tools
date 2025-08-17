@@ -180,7 +180,7 @@ kind: Config`,
 				"output":  "json",
 			},
 			kubectlStdout: `{"apiVersion":"v1","clusters":[{"cluster":{"certificate-authority-data":"REDACTED"}}]}`,
-			wantArgs: []string{"config", "view", "--minify", "--flatten", "-o", "json"}, // raw is not included
+			wantArgs:      []string{"config", "view", "--minify", "--flatten", "-o", "json"}, // raw is not included
 		},
 		{
 			name: "false boolean flags are ignored",

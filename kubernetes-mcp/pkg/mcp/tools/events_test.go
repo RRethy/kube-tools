@@ -54,8 +54,8 @@ func TestToolsHandleEvents(t *testing.T) {
 		checkResult   func(*testing.T, *mcp.CallToolResult)
 	}{
 		{
-			name:          "basic events without arguments",
-			args:          map[string]any{},
+			name: "basic events without arguments",
+			args: map[string]any{},
 			kubectlStdout: `LAST SEEN   TYPE     REASON              OBJECT                MESSAGE
 5m          Normal   Scheduled           pod/nginx             Successfully assigned default/nginx to minikube
 5m          Normal   Pulling             pod/nginx             Pulling image "nginx:latest"
@@ -325,7 +325,7 @@ production  1h          Normal   Scheduled  pod/web-app      Successfully assign
 			},
 			kubectlStdout: `apiVersion: v1
 kind: EventList`,
-			wantArgs:      []string{"get", "events", "--sort-by=.lastTimestamp", "-o", "yaml"},
+			wantArgs: []string{"get", "events", "--sort-by=.lastTimestamp", "-o", "yaml"},
 		},
 		{
 			name: "with wide output",

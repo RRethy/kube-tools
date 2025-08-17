@@ -49,7 +49,7 @@ and provides a streamlined interface for common Kubernetes operations.`,
 func init() {
 	cobra.OnInitialize(initConfig)
 	configFlags.AddFlags(rootCmd.PersistentFlags())
-	
+
 	klogFlags := flag.NewFlagSet("klog", flag.ExitOnError)
 	klog.InitFlags(klogFlags)
 	rootCmd.PersistentFlags().AddGoFlag(klogFlags.Lookup("v"))

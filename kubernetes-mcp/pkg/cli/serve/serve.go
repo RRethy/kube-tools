@@ -10,7 +10,7 @@ import (
 // Serve initializes and starts the MCP server
 func Serve(ctx context.Context) error {
 	mcpServer := mcpserver.NewMCPServer("kubernetes-mcp", "1.0.0")
-	
+
 	s := &Server{
 		MCPServer: mcpServer,
 	}

@@ -5,8 +5,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/fatih/color"
 	"github.com/RRethy/kubectl-x/pkg/kubeconfig"
+	"github.com/fatih/color"
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 	"k8s.io/klog/v2"
 )
@@ -33,7 +33,7 @@ func (c Curer) Cur(ctx context.Context) error {
 // CurWithPrompt displays the current context and namespace with optional prompt format
 func (c Curer) CurWithPrompt(ctx context.Context, promptFormat bool) error {
 	klog.V(4).Infof("Retrieving current context and namespace, promptFormat=%t", promptFormat)
-	
+
 	currentContext, err := c.KubeConfig.GetCurrentContext()
 	if err != nil {
 		return fmt.Errorf("getting current context: %w", err)
@@ -65,7 +65,7 @@ func (c Curer) CurWithPrompt(ctx context.Context, promptFormat bool) error {
 		flagColor.Fprint(c.IoStreams.Out, " --namespace ")
 		namespaceColor.Fprintf(c.IoStreams.Out, "%s\n", currentNamespace)
 	}
-	
+
 	klog.V(2).Infof("Successfully displayed current status: context=%s namespace=%s", currentContext, currentNamespace)
 	return nil
 }

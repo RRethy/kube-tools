@@ -76,7 +76,7 @@ func (m *mcpServer) Serve(opts ...ServerOption) error {
 			server.ServerTool{Tool: t.CreateCurrentNamespaceTool(), Handler: t.HandleCurrentNamespace},
 			server.ServerTool{Tool: t.CreateUseContextTool(), Handler: t.HandleUseContext},
 		)
-		
+
 		// Add prompts
 		p := prompts.New()
 		s.AddPrompts(

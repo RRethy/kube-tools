@@ -24,10 +24,10 @@ func (m *mockKubectlWithLines) Execute(ctx context.Context, args ...string) (str
 
 func TestHandleGetWithPagination(t *testing.T) {
 	tests := []struct {
-		name            string
-		totalLines      int
-		args            map[string]any
-		expectedLines   int
+		name              string
+		totalLines        int
+		args              map[string]any
+		expectedLines     int
 		hasPaginationInfo bool
 	}{
 		{
@@ -36,7 +36,7 @@ func TestHandleGetWithPagination(t *testing.T) {
 			args: map[string]any{
 				"resource-type": "pods",
 			},
-			expectedLines: 51, // 50 data lines + 1 pagination info
+			expectedLines:     51, // 50 data lines + 1 pagination info
 			hasPaginationInfo: true,
 		},
 		{
@@ -46,7 +46,7 @@ func TestHandleGetWithPagination(t *testing.T) {
 				"resource-type": "pods",
 				"head_limit":    float64(20),
 			},
-			expectedLines: 21, // 20 data lines + 1 pagination info
+			expectedLines:     21, // 20 data lines + 1 pagination info
 			hasPaginationInfo: true,
 		},
 		{
@@ -57,7 +57,7 @@ func TestHandleGetWithPagination(t *testing.T) {
 				"head_limit":    float64(10),
 				"head_offset":   float64(5),
 			},
-			expectedLines: 11, // 10 data lines + 1 pagination info
+			expectedLines:     11, // 10 data lines + 1 pagination info
 			hasPaginationInfo: true,
 		},
 		{
@@ -67,7 +67,7 @@ func TestHandleGetWithPagination(t *testing.T) {
 				"resource-type": "pods",
 				"tail_limit":    float64(15),
 			},
-			expectedLines: 16, // 15 data lines + 1 pagination info
+			expectedLines:     16, // 15 data lines + 1 pagination info
 			hasPaginationInfo: true,
 		},
 		{
@@ -77,7 +77,7 @@ func TestHandleGetWithPagination(t *testing.T) {
 				"resource-type": "pods",
 				"head_limit":    float64(0),
 			},
-			expectedLines: 100, // All lines, no pagination info
+			expectedLines:     100, // All lines, no pagination info
 			hasPaginationInfo: false,
 		},
 		{
@@ -86,7 +86,7 @@ func TestHandleGetWithPagination(t *testing.T) {
 			args: map[string]any{
 				"resource-type": "pods",
 			},
-			expectedLines: 20, // All lines shown, no pagination info
+			expectedLines:     20, // All lines shown, no pagination info
 			hasPaginationInfo: false,
 		},
 	}
@@ -118,11 +118,11 @@ func TestHandleGetWithPagination(t *testing.T) {
 
 			content := result.Content[0].(mcp.TextContent).Text
 			lines := strings.Split(strings.TrimSpace(content), "\n")
-			
+
 			if len(lines) != tt.expectedLines {
 				t.Errorf("HandleGet() returned %d lines, want %d", len(lines), tt.expectedLines)
 			}
-			
+
 			// Check if pagination info is present when expected
 			if tt.hasPaginationInfo {
 				lastLine := lines[len(lines)-1]
@@ -145,8 +145,8 @@ func TestHandleEventsWithPagination(t *testing.T) {
 		expectedLines int
 	}{
 		{
-			name: "Default pagination",
-			args: map[string]any{},
+			name:          "Default pagination",
+			args:          map[string]any{},
 			expectedLines: 51, // 50 + pagination info
 		},
 		{
@@ -185,7 +185,7 @@ func TestHandleEventsWithPagination(t *testing.T) {
 
 			content := result.Content[0].(mcp.TextContent).Text
 			lines := strings.Split(strings.TrimSpace(content), "\n")
-			
+
 			if len(lines) != tt.expectedLines {
 				t.Errorf("HandleEvents() returned %d lines, want %d", len(lines), tt.expectedLines)
 			}
@@ -244,7 +244,7 @@ func TestHandleAPIResourcesWithPagination(t *testing.T) {
 
 			content := result.Content[0].(mcp.TextContent).Text
 			lines := strings.Split(strings.TrimSpace(content), "\n")
-			
+
 			if len(lines) != tt.expectedLines {
 				t.Errorf("HandleAPIResources() returned %d lines, want %d", len(lines), tt.expectedLines)
 			}
@@ -303,7 +303,7 @@ func TestHandleConfigGetContextsWithPagination(t *testing.T) {
 
 			content := result.Content[0].(mcp.TextContent).Text
 			lines := strings.Split(strings.TrimSpace(content), "\n")
-			
+
 			if len(lines) != tt.expectedLines {
 				t.Errorf("HandleConfigGetContexts() returned %d lines, want %d", len(lines), tt.expectedLines)
 			}
@@ -363,7 +363,7 @@ func TestHandleTopPodWithPagination(t *testing.T) {
 
 			content := result.Content[0].(mcp.TextContent).Text
 			lines := strings.Split(strings.TrimSpace(content), "\n")
-			
+
 			if len(lines) != tt.expectedLines {
 				t.Errorf("HandleTopPod() returned %d lines, want %d", len(lines), tt.expectedLines)
 			}
@@ -422,7 +422,7 @@ func TestHandleTopNodeWithPagination(t *testing.T) {
 
 			content := result.Content[0].(mcp.TextContent).Text
 			lines := strings.Split(strings.TrimSpace(content), "\n")
-			
+
 			if len(lines) != tt.expectedLines {
 				t.Errorf("HandleTopNode() returned %d lines, want %d", len(lines), tt.expectedLines)
 			}
@@ -486,7 +486,7 @@ func TestHandleLogsWithPagination(t *testing.T) {
 
 			content := result.Content[0].(mcp.TextContent).Text
 			lines := strings.Split(strings.TrimSpace(content), "\n")
-			
+
 			if len(lines) != tt.expectedLines {
 				t.Errorf("HandleLogs() returned %d lines, want %d", len(lines), tt.expectedLines)
 			}

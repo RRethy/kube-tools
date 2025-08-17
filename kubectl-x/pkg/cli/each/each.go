@@ -32,4 +32,3 @@ func Each(ctx context.Context, configFlags *genericclioptions.ConfigFlags, resou
 		Fzf:        fzf,
 	}).Each(ctx, contextPattern, outputFormat, interactive, commandArgs)
 }
-

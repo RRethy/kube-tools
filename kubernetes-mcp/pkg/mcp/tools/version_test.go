@@ -30,12 +30,12 @@ func TestToolsCreateVersionTool(t *testing.T) {
 
 func TestToolsHandleVersion(t *testing.T) {
 	tests := []struct {
-		name           string
-		args           interface{}
-		expectedArgs   []string
-		expectedError  string
-		kubectlOutput  string
-		kubectlError   error
+		name          string
+		args          interface{}
+		expectedArgs  []string
+		expectedError string
+		kubectlOutput string
+		kubectlError  error
 	}{
 		{
 			name:          "nil arguments",

@@ -41,12 +41,12 @@ func TestToolsCreateLogsTool(t *testing.T) {
 
 func TestToolsHandleLogs(t *testing.T) {
 	tests := []struct {
-		name           string
-		args           interface{}
-		expectedArgs   []string
-		expectedError  string
-		kubectlOutput  string
-		kubectlError   error
+		name          string
+		args          interface{}
+		expectedArgs  []string
+		expectedError string
+		kubectlOutput string
+		kubectlError  error
 	}{
 		{
 			name:          "nil arguments",

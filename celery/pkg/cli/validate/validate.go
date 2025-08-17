@@ -27,7 +27,7 @@ func Validate(
 		Out:    os.Stdout,
 		ErrOut: os.Stderr,
 	}
-	
+
 	v := &Validater{
 		IOStreams: ioStreams,
 	}

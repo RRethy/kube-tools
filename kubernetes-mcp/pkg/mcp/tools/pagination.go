@@ -52,9 +52,9 @@ func GetPaginationParams(args map[string]any) PaginationParams {
 
 // PaginationResult contains the paginated output and information about what was paginated
 type PaginationResult struct {
-	Output       string
-	OriginalLines int
-	ReturnedLines int
+	Output         string
+	OriginalLines  int
+	ReturnedLines  int
 	PaginationInfo string
 }
 
@@ -107,16 +107,16 @@ func ApplyPagination(output string, params PaginationParams) PaginationResult {
 		}
 	} else if params.HeadLimit == 0 && params.TailLimit == 0 {
 		return PaginationResult{
-			Output: output,
+			Output:        output,
 			OriginalLines: originalCount,
 			ReturnedLines: originalCount,
 		}
 	}
 
 	return PaginationResult{
-		Output: strings.Join(lines, "\n"),
-		OriginalLines: originalCount,
-		ReturnedLines: len(lines),
+		Output:         strings.Join(lines, "\n"),
+		OriginalLines:  originalCount,
+		ReturnedLines:  len(lines),
 		PaginationInfo: paginationInfo,
 	}
 }

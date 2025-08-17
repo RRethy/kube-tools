@@ -41,4 +41,3 @@ type TargetSelector struct {
 	LabelSelector      string `yaml:"labelSelector,omitempty"`
 	AnnotationSelector string `yaml:"annotationSelector,omitempty"`
 }
-

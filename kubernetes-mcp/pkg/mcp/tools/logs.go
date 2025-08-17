@@ -47,7 +47,7 @@ func (t *Tools) HandleLogs(ctx context.Context, req mcp.CallToolRequest) (*mcp.C
 	}
 
 	var cmdArgs []string
-	
+
 	if selector, ok := args["selector"].(string); ok && selector != "" {
 		cmdArgs = []string{"logs", "-l", selector}
 	} else {
@@ -107,7 +107,7 @@ func (t *Tools) HandleLogs(ctx context.Context, req mcp.CallToolRequest) (*mcp.C
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
-	
+
 	if err == nil && stdout != "" {
 		filterParams := GetFilterParams(args)
 		filteredOutput, filterErr := ApplyFilter(stdout, filterParams, "")
@@ -116,7 +116,7 @@ func (t *Tools) HandleLogs(ctx context.Context, req mcp.CallToolRequest) (*mcp.C
 		} else {
 			stdout = filteredOutput
 		}
-		
+
 		paginationParams := GetPaginationParams(args)
 		result := ApplyPagination(stdout, paginationParams)
 		stdout = result.Output
@@ -124,6 +124,6 @@ func (t *Tools) HandleLogs(ctx context.Context, req mcp.CallToolRequest) (*mcp.C
 			stdout += result.PaginationInfo
 		}
 	}
-	
+
 	return t.formatOutput(stdout, stderr, err)
 }

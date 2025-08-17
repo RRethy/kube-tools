@@ -43,12 +43,12 @@ func (p *Prompts) getCurrentNamespace(ctx context.Context, contextName string) (
 	if contextName != "" {
 		args = append([]string{"--context", contextName}, args...)
 	}
-	
+
 	stdout, _, err := p.kubectl.Execute(ctx, args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to get current namespace: %w", err)
 	}
-	
+
 	ns := strings.TrimSpace(stdout)
 	if ns == "" {
 		return "default", nil

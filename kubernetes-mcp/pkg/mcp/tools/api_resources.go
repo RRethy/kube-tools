@@ -68,7 +68,7 @@ func (t *Tools) HandleAPIResources(ctx context.Context, req mcp.CallToolRequest)
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
-	
+
 	if err == nil && stdout != "" {
 		filterParams := GetFilterParams(args)
 		filteredOutput, filterErr := ApplyFilter(stdout, filterParams, outputFormat)
@@ -77,7 +77,7 @@ func (t *Tools) HandleAPIResources(ctx context.Context, req mcp.CallToolRequest)
 		} else {
 			stdout = filteredOutput
 		}
-		
+
 		paginationParams := GetPaginationParams(args)
 		result := ApplyPagination(stdout, paginationParams)
 		stdout = result.Output
@@ -85,6 +85,6 @@ func (t *Tools) HandleAPIResources(ctx context.Context, req mcp.CallToolRequest)
 			stdout += result.PaginationInfo
 		}
 	}
-	
+
 	return t.formatOutput(stdout, stderr, err)
 }

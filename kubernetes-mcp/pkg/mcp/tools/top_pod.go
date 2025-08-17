@@ -76,7 +76,7 @@ func (t *Tools) HandleTopPod(ctx context.Context, req mcp.CallToolRequest) (*mcp
 	}
 
 	stdout, stderr, err := t.runKubectl(ctx, cmdArgs...)
-	
+
 	if err == nil && stdout != "" {
 		paginationParams := GetPaginationParams(args)
 		result := ApplyPagination(stdout, paginationParams)
@@ -85,6 +85,6 @@ func (t *Tools) HandleTopPod(ctx context.Context, req mcp.CallToolRequest) (*mcp
 			stdout += result.PaginationInfo
 		}
 	}
-	
+
 	return t.formatOutput(stdout, stderr, err)
 }

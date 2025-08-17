@@ -4,12 +4,12 @@
 INSTALL_DIR := /usr/local/bin
 
 # Default target that runs the full development cycle
-all: build test lint-fix
+all: fmt build test lint-fix
 
 # Default target
 help:
 	@echo "Available targets:"
-	@echo "  all                  - Build, test, and lint-fix (full development cycle)"
+	@echo "  all                  - Format, build, test, and lint-fix (full development cycle)"
 	@echo "  test                 - Run all tests"
 	@echo "  lint                 - Run golangci-lint"
 	@echo "  lint-fix             - Run golangci-lint with auto-fix"

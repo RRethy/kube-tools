@@ -17,9 +17,9 @@ import (
 
 func TestNewFzf(t *testing.T) {
 	tests := []struct {
-		name        string
-		options     []Option
-		verifyFunc  func(t *testing.T, f Interface)
+		name       string
+		options    []Option
+		verifyFunc func(t *testing.T, f Interface)
 	}{
 		{
 			name:    "default initialization",
@@ -97,10 +97,10 @@ func TestNewFzf(t *testing.T) {
 
 func TestConfig_BuildArgs(t *testing.T) {
 	tests := []struct {
-		name           string
-		config         Config
-		expectedArgs   []string
-		shouldContain  []string
+		name             string
+		config           Config
+		expectedArgs     []string
+		shouldContain    []string
 		shouldNotContain []string
 	}{
 		{
@@ -122,7 +122,7 @@ func TestConfig_BuildArgs(t *testing.T) {
 				ExactMatch: true,
 			},
 			shouldContain: []string{
-				"--height", "30%", "--ansi", "--select-1", 
+				"--height", "30%", "--ansi", "--select-1",
 				"--exit-0", "--color=dark", "--layout=reverse",
 				"--exact",
 			},
@@ -217,15 +217,15 @@ func TestConfig_BuildArgs(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			args := tt.config.buildArgs()
-			
+
 			if tt.expectedArgs != nil {
 				assert.Equal(t, tt.expectedArgs, args)
 			}
-			
+
 			for _, expected := range tt.shouldContain {
 				assert.Contains(t, args, expected, "Expected args to contain %s", expected)
 			}
-			
+
 			for _, unexpected := range tt.shouldNotContain {
 				assert.NotContains(t, args, unexpected, "Expected args not to contain %s", unexpected)
 			}
@@ -457,7 +457,7 @@ func TestFzf_Run(t *testing.T) {
 			expectedError: "no item selected",
 		},
 		{
-			name: "verify all config options passed to fzf",
+			name:  "verify all config options passed to fzf",
 			items: []string{"ctx1", "ctx2", "ctx3"},
 			config: Config{
 				ExactMatch: true,
@@ -475,7 +475,7 @@ func TestFzf_Run(t *testing.T) {
 							assert.Contains(t, args, "--multi")
 							assert.Contains(t, args, "--prompt")
 							assert.Contains(t, args, "--query")
-							
+
 							// Find the values for prompt and query
 							for i, arg := range args {
 								if arg == "--prompt" && i+1 < len(args) {
@@ -485,7 +485,7 @@ func TestFzf_Run(t *testing.T) {
 									assert.Equal(t, "ctx", args[i+1])
 								}
 							}
-							
+
 							return &testingexec.FakeCmd{
 								RunScript: []testingexec.FakeAction{
 									func() ([]byte, []byte, error) {
@@ -606,7 +606,7 @@ func TestFzf_Run_Sorting(t *testing.T) {
 
 			fzf := NewFzf(WithExec(mockExec))
 			cfg := Config{Sorted: tt.sorted}
-			
+
 			result, err := fzf.Run(context.Background(), tt.items, cfg)
 			require.NoError(t, err)
 			assert.Equal(t, []string{tt.expectedResult}, result)
@@ -678,9 +678,9 @@ func TestFzf_Run_ContextCancellation(t *testing.T) {
 
 			mockExec := tt.setupMock()
 			fzf := NewFzf(WithExec(mockExec))
-			
+
 			result, err := fzf.Run(ctx, []string{"item1"}, Config{})
-			
+
 			assert.Error(t, err)
 			assert.Contains(t, err.Error(), tt.expectedError)
 			assert.Nil(t, result)
@@ -741,15 +741,15 @@ func TestFzf_Run_StderrOutput(t *testing.T) {
 				WithExec(mockExec),
 				WithIOStreams(genericiooptions.IOStreams{ErrOut: errBuf}),
 			)
-			
+
 			_, err := fzf.Run(context.Background(), []string{"item1"}, Config{})
-			
+
 			if tt.expectedError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
 			}
-			
+
 			assert.Contains(t, errBuf.String(), tt.expectedStderr)
 		})
 	}
@@ -785,9 +785,9 @@ func TestFzf_Run_LargeItemList(t *testing.T) {
 			for i := range items {
 				items[i] = fmt.Sprintf("item-%d", i)
 			}
-			
+
 			expectedSelection := fmt.Sprintf("item-%d", tt.selectedIndex)
-			
+
 			mockExec := &testingexec.FakeExec{
 				CommandScript: []testingexec.FakeCommandAction{
 					func(cmd string, args ...string) kexec.Cmd {
@@ -804,13 +804,12 @@ func TestFzf_Run_LargeItemList(t *testing.T) {
 
 			fzf := NewFzf(WithExec(mockExec))
 			result, err := fzf.Run(context.Background(), items, Config{})
-			
+
 			require.NoError(t, err)
 			assert.Equal(t, []string{expectedSelection}, result)
 		})
 	}
 }
-
 
 // Additional test for option functions
 func TestWithOptions(t *testing.T) {
@@ -820,7 +819,7 @@ func TestWithOptions(t *testing.T) {
 		verifyFunc func(t *testing.T, f *Fzf)
 	}{
 		{
-			name: "WithExec sets exec interface",
+			name:   "WithExec sets exec interface",
 			option: WithExec(&testingexec.FakeExec{}),
 			verifyFunc: func(t *testing.T, f *Fzf) {
 				assert.NotNil(t, f.exec)

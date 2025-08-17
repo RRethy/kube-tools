@@ -108,4 +108,3 @@ func ParseYAMLFileToValidationRules(file string) ([]apiv1.ValidationRules, error
 
 	return ParseYAMLToValidationRules(data, file)
 }
-
