@@ -222,4 +222,6 @@ When writing CEL expressions, you have access to:
 
 ## License
 
-See individual module directories for license information.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+Copyright © 2024 Adam Regasz-Rethy (adam.regaszrethy@gmail.com)
