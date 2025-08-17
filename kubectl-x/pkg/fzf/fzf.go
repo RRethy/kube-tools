@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"k8s.io/cli-runtime/pkg/genericiooptions"
+	"k8s.io/klog/v2"
 	kexec "k8s.io/utils/exec"
 )
 
@@ -57,6 +58,7 @@ func NewFzf(opts ...Option) Interface {
 }
 
 func (f *Fzf) Run(ctx context.Context, items []string, cfg Config) ([]string, error) {
+	klog.V(5).Infof("Running fzf with %d items, prompt=%s, query=%s", len(items), cfg.Prompt, cfg.Query)
 	args := cfg.buildArgs()
 	cmd := f.exec.CommandContext(ctx, binaryName, args...)
 	pipeReader, pipeWriter := io.Pipe()
@@ -94,5 +96,7 @@ func (f *Fzf) Run(ctx context.Context, items []string, cfg Config) ([]string, er
 		return nil, fmt.Errorf("no item selected")
 	}
 
-	return strings.Split(output, "\n"), nil
+	results := strings.Split(output, "\n")
+	klog.V(5).Infof("Fzf completed successfully, selected %d items", len(results))
+	return results, nil
 }

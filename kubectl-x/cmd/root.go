@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"fmt"
+	"flag"
 	"os"
 
-	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/klog/v2"
 )
 
 var (
@@ -49,8 +49,13 @@ and provides a streamlined interface for common Kubernetes operations.`,
 func init() {
 	cobra.OnInitialize(initConfig)
 	configFlags.AddFlags(rootCmd.PersistentFlags())
+	
+	klogFlags := flag.NewFlagSet("klog", flag.ExitOnError)
+	klog.InitFlags(klogFlags)
+	rootCmd.PersistentFlags().AddGoFlag(klogFlags.Lookup("v"))
 }
 
+// Execute runs the root command and handles any execution errors
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -58,6 +63,7 @@ func Execute() {
 	}
 }
 
+// GetRootCmd returns the root cobra command for kubectl-x
 func GetRootCmd() *cobra.Command {
 	return rootCmd
 }
@@ -67,7 +73,7 @@ func initConfig() {
 
 func checkErr(err error) {
 	if err != nil {
-		fmt.Fprintln(os.Stderr, color.RedString("Error:"), err)
+		klog.Errorf("kubectl-x error: %v", err)
 		os.Exit(1)
 	}
 }

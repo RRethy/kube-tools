@@ -14,6 +14,14 @@ kubectl x cur                    # Show current context and namespace
 kubectl x ctx -                  # Switch to previous context/namespace
 kubectl x shell my-pod          # Shell into a pod
 kubectl x shell deploy/nginx    # Shell into a pod from deployment
+
+# Verbose logging examples
+kubectl x ctx -v=0              # Only errors and warnings (default)
+kubectl x ctx -v=1              # Basic information
+kubectl x ctx -v=2              # Useful steady state information  
+kubectl x ctx -v=4              # Debug level verbosity
+kubectl x ctx -v=6              # Show requested resources
+kubectl x ctx -v=8              # Show HTTP request contents
 ```
 
 ## Module Commands
@@ -169,6 +177,39 @@ k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0 // Kubernetes utilities
 - Use `k8s.io/utils/exec/testing` for mock exec implementations in tests
 - Leverage existing k8s.io utilities when they provide better abstraction or testability
 
+
+## Logging System
+
+kubectl-x uses klog (k8s.io/klog/v2) for logging, following kubectl's standard practices:
+
+### Verbosity Levels (kubectl standard)
+- `--v=0`: Only errors and warnings (default)
+- `--v=1`: Basic information about operations
+- `--v=2`: Useful steady state information and important log messages
+- `--v=3`: Extended information about changes
+- `--v=4`: Debug level verbosity
+- `--v=5`: Trace level verbosity
+- `--v=6`: Show requested resources
+- `--v=7`: Show HTTP request headers
+- `--v=8`: Show HTTP request contents
+- `--v=9`: Show HTTP request contents without truncation
+
+### Usage in Code
+```go
+import "k8s.io/klog/v2"
+
+klog.V(1).Infof("Setting Kubernetes context: %s", contextName)
+klog.V(4).Infof("Running fzf for selection: query=%s", query)
+klog.Errorf("Failed to set context %s: %v", contextName, err)
+klog.Warningf("Failed to write history: %v", err)
+klog.V(6).Infof("Listing resources: type=%s namespace=%s", resourceType, namespace)
+```
+
+### Log Configuration
+- Logs written to both stderr and `/tmp/kubectl-x.log`
+- Use `-v` flag to control verbosity following kubectl standards
+- Start debugging with `-v=6` to see API requests
+- Use `-v=8` or `-v=9` for deep troubleshooting
 
 ## Code Style Guidelines
 

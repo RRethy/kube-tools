@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"k8s.io/cli-runtime/pkg/genericiooptions"
+	"k8s.io/klog/v2"
 
 	"github.com/RRethy/kubectl-x/pkg/cli/ns"
 	"github.com/RRethy/kubectl-x/pkg/fzf"
@@ -36,10 +37,13 @@ func NewCtxer(kubeConfig kubeconfig.Interface, ioStreams genericiooptions.IOStre
 
 // Ctx switches to a context matching the given substring and optionally sets namespace
 func (c Ctxer) Ctx(ctx context.Context, contextSubstring, namespaceSubstring string, exactMatch bool) error {
+	klog.V(2).Infof("Context switching operation started: contextSubstring=%s namespaceSubstring=%s exactMatch=%t", contextSubstring, namespaceSubstring, exactMatch)
+
 	var selectedContext string
 	var selectedNamespace string
 	var err error
 	if contextSubstring == "-" {
+		klog.V(4).Info("Using previous context from history")
 		selectedContext, err = c.History.Get("context", 1)
 		if err != nil {
 			return fmt.Errorf("getting context from history: %s", err)
@@ -50,8 +54,10 @@ func (c Ctxer) Ctx(ctx context.Context, contextSubstring, namespaceSubstring str
 			return fmt.Errorf("getting namespace for context: %s", err)
 		}
 	} else {
+		klog.V(4).Infof("Running fzf for context selection: query=%s", contextSubstring)
 		fzfCfg := fzf.Config{ExactMatch: exactMatch, Sorted: true, Multi: false, Prompt: "Select context", Query: contextSubstring}
-		results, err := c.Fzf.Run(context.Background(), c.KubeConfig.Contexts(), fzfCfg)
+		var results []string
+		results, err = c.Fzf.Run(context.Background(), c.KubeConfig.Contexts(), fzfCfg)
 		if err != nil {
 			return fmt.Errorf("selecting context: %s", err)
 		}
@@ -63,6 +69,7 @@ func (c Ctxer) Ctx(ctx context.Context, contextSubstring, namespaceSubstring str
 
 	c.History.Add("context", selectedContext)
 
+	klog.V(1).Infof("Setting Kubernetes context: %s", selectedContext)
 	err = c.KubeConfig.SetContext(selectedContext)
 	if err != nil {
 		return fmt.Errorf("setting context: %w", err)
@@ -70,6 +77,7 @@ func (c Ctxer) Ctx(ctx context.Context, contextSubstring, namespaceSubstring str
 
 	err = c.History.Write()
 	if err != nil {
+		klog.Warningf("Failed to write history: %v", err)
 		fmt.Fprintf(c.IoStreams.ErrOut, "writing history: %s\n", err)
 	}
 
@@ -78,6 +86,7 @@ func (c Ctxer) Ctx(ctx context.Context, contextSubstring, namespaceSubstring str
 		return fmt.Errorf("writing kubeconfig: %w", err)
 	}
 
+	klog.V(1).Infof("Successfully switched context: %s", selectedContext)
 	fmt.Fprintf(c.IoStreams.Out, "Switched to context \"%s\".\n", selectedContext)
 
 	if selectedNamespace == "" {

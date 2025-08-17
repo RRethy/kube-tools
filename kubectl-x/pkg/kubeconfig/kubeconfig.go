@@ -7,6 +7,7 @@ import (
 
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
+	"k8s.io/klog/v2"
 )
 
 // Interface defines methods for interacting with kubeconfig files
@@ -53,6 +54,7 @@ func (kubeConfig KubeConfig) Contexts() []string {
 }
 
 func (kubeConfig KubeConfig) SetContext(context string) error {
+	klog.V(4).Infof("Setting kubeconfig context: %s", context)
 	if len(context) == 0 {
 		return errors.New("context cannot be empty")
 	}
@@ -70,6 +72,7 @@ func (kubeConfig KubeConfig) SetContext(context string) error {
 }
 
 func (kubeConfig KubeConfig) SetNamespace(namespace string) error {
+	klog.V(4).Infof("Setting kubeconfig namespace: %s", namespace)
 	if len(namespace) == 0 {
 		return errors.New("namespace cannot be empty")
 	}
@@ -107,5 +110,6 @@ func (kubeConfig KubeConfig) GetNamespaceForContext(context string) (string, err
 }
 
 func (kubeConfig KubeConfig) Write() error {
+	klog.V(4).Info("Writing kubeconfig changes to disk")
 	return clientcmd.ModifyConfig(kubeConfig.configAccess, *kubeConfig.apiConfig, true)
 }

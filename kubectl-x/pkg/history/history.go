@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/goccy/go-yaml"
+	"k8s.io/klog/v2"
 )
 
 const (
@@ -104,6 +105,7 @@ func (h *History) Add(group, item string) {
 }
 
 func (h *History) Write() error {
+	klog.V(4).Infof("Writing history to file: %s", h.path)
 	contents, err := yaml.Marshal(h)
 	if err != nil {
 		return fmt.Errorf("marshalling history: %s", err)
