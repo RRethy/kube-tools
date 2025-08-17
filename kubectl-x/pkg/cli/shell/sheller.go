@@ -20,6 +20,7 @@ import (
 	"github.com/RRethy/kubectl-x/pkg/shortname"
 )
 
+// Sheller handles shell command execution in Kubernetes pods
 type Sheller struct {
 	IOStreams  genericclioptions.IOStreams
 	Kubeconfig kubeconfig.Interface
@@ -30,6 +31,7 @@ type Sheller struct {
 	Exec       kexec.Interface
 }
 
+// Shell executes a shell command in the resolved pod
 func (s *Sheller) Shell(ctx context.Context, target string, container string, command string) error {
 	pod, err := s.resolvePod(ctx, target)
 	if err != nil {

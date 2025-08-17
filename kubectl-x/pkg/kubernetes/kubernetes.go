@@ -14,7 +14,7 @@ func List[T metav1.Object](ctx context.Context, client Interface) ([]T, error) {
 	return ListInNamespace[T](ctx, client, "")
 }
 
-// ListInNamespace retrieves and type-asserts Kubernetes resources of type T in the given namespace
+// ListInNamespace retrieves and type-asserts resources of type T in the given namespace
 func ListInNamespace[T metav1.Object](ctx context.Context, client Interface, namespace string) ([]T, error) {
 	var obj T
 	kind := reflect.TypeOf(obj).Elem().Name()

@@ -33,7 +33,6 @@ func TestSheller_Shell(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Setup mocks
 			k8sClient := kubernetestesting.NewFakeClient(map[string][]any{
 				"pod": {},
 			})
@@ -203,7 +202,6 @@ func TestSheller_ResolvePod(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Setup mocks
 			resources := map[string][]any{
 				"pod": podListToAny(tt.pods),
 			}

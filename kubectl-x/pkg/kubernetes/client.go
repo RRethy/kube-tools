@@ -13,7 +13,7 @@ import (
 type Interface interface {
 	// List retrieves all resources of the specified type
 	List(ctx context.Context, resourceType string) ([]any, error)
-	// ListInNamespace retrieves all resources of the specified type in the given namespace
+	// ListInNamespace retrieves resources of the specified type in the given namespace
 	ListInNamespace(ctx context.Context, resourceType, namespace string) ([]any, error)
 }
 
@@ -32,6 +32,7 @@ func (c *Client) List(ctx context.Context, resourceType string) ([]any, error) {
 	return c.list(ctx, resourceType, "")
 }
 
+// ListInNamespace retrieves resources of the specified type in the given namespace
 func (c *Client) ListInNamespace(ctx context.Context, resourceType, namespace string) ([]any, error) {
 	return c.list(ctx, resourceType, namespace)
 }

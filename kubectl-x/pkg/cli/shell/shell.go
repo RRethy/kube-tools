@@ -15,6 +15,7 @@ import (
 	"github.com/RRethy/kubectl-x/pkg/namespace"
 )
 
+// Shell executes a shell command in a Kubernetes pod resolved from the given target
 func Shell(ctx context.Context, configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags *genericclioptions.ResourceBuilderFlags, target string, container string, command string) error {
 	kubeConfig, err := kubeconfig.NewKubeConfig()
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/fatih/color"
 	"github.com/RRethy/kubectl-x/pkg/kubeconfig"
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 )
@@ -43,10 +44,19 @@ func (c Curer) CurWithPrompt(ctx context.Context, promptFormat bool) error {
 		currentNamespace = "default"
 	}
 
+	contextColor := color.New(color.FgBlue)
+	namespaceColor := color.New(color.FgGreen)
+	flagColor := color.New(color.FgWhite)
+
 	if promptFormat {
-		fmt.Fprintf(c.IoStreams.Out, "%s/%s\n", currentContext, currentNamespace)
+		contextColor.Fprint(c.IoStreams.Out, currentContext)
+		fmt.Fprint(c.IoStreams.Out, "/")
+		namespaceColor.Fprintf(c.IoStreams.Out, "%s\n", currentNamespace)
 	} else {
-		fmt.Fprintf(c.IoStreams.Out, "--context %s --namespace %s\n", currentContext, currentNamespace)
+		flagColor.Fprint(c.IoStreams.Out, "--context ")
+		contextColor.Fprint(c.IoStreams.Out, currentContext)
+		flagColor.Fprint(c.IoStreams.Out, " --namespace ")
+		namespaceColor.Fprintf(c.IoStreams.Out, "%s\n", currentNamespace)
 	}
 
 	return nil
