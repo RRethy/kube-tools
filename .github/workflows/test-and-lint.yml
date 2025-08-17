@@ -34,7 +34,7 @@ jobs:
     - name: Create bin directory
       run: mkdir -p bin
     
-    - name: Build (includes formatting)
+    - name: Build (includes tidy and formatting)
       run: make build
     
     - name: Run tests
@@ -43,22 +43,13 @@ jobs:
     - name: Run linter
       run: make lint
     
-    - name: Check formatting
+    - name: Check formatting and tidy
       run: |
         if [ -n "$(git diff --name-only)" ]; then
-          echo "Code is not formatted. Please run 'make build' or 'make fmt'"
+          echo "Code is not formatted or dependencies not tidy. Please run 'make build'"
           git diff
           exit 1
         fi
     
     - name: Run go vet
       run: make vet
-    
-    - name: Verify go mod tidy
-      run: |
-        make tidy
-        if [ -n "$(git diff --name-only)" ]; then
-          echo "go.mod or go.sum is not tidy. Please run 'make tidy'"
-          git diff
-          exit 1
-        fi

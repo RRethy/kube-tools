@@ -13,7 +13,7 @@ help:
 	@echo "  test                 - Run all tests"
 	@echo "  lint                 - Run golangci-lint"
 	@echo "  lint-fix             - Run golangci-lint with auto-fix"
-	@echo "  build                - Format and build all binaries"
+	@echo "  build                - Tidy, format, and build all binaries"
 	@echo "  build-kubectl-x      - Build the kubectl-x binary"
 	@echo "  build-kubernetes-mcp - Build the kubernetes-mcp binary"
 	@echo "  build-celery         - Build the celery binary"
@@ -47,7 +47,7 @@ lint-fix:
 	cd kustomizelite && go run github.com/golangci/golangci-lint/cmd/golangci-lint run --fix --timeout 10m
 
 # Build all binaries
-build: fmt build-kubectl-x build-kubernetes-mcp build-celery build-kustomizelite
+build: tidy fmt build-kubectl-x build-kubernetes-mcp build-celery build-kustomizelite
 
 # Build the kubectl-x binary
 build-kubectl-x:
