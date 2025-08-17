@@ -127,3 +127,12 @@ func TestKubeConfig_CurrentNamespace(t *testing.T) {
 	require.Nil(t, err)
 	assert.Equal(t, "namespace1", namespace)
 }
+
+func TestNewKubeConfig_UsesKUBECONFIG(t *testing.T) {
+	t.Setenv("KUBECONFIG", "/tmp/test-kubeconfig:/tmp/test-kubeconfig2")
+
+	kubeConfig, err := NewKubeConfig()
+
+	require.NotNil(t, kubeConfig)
+	require.Nil(t, err)
+}

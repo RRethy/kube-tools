@@ -181,6 +181,29 @@ kubectl x ns --exact default
 
 kubectl-x uses your existing kubectl configuration from `~/.kube/config` or the path specified by the `KUBECONFIG` environment variable.
 
+### KUBECONFIG Support
+
+kubectl-x fully supports the `KUBECONFIG` environment variable, following the same rules as kubectl:
+
+```bash
+# Use a specific kubeconfig file
+export KUBECONFIG=/path/to/my-kubeconfig
+kubectl x ctx
+
+# Use multiple kubeconfig files (merged)
+export KUBECONFIG=/path/to/config1:/path/to/config2:/path/to/config3
+kubectl x ctx
+
+# Temporarily use a different kubeconfig
+KUBECONFIG=/path/to/staging-config kubectl x ctx staging-cluster
+```
+
+The `KUBECONFIG` variable supports:
+- Single file paths
+- Multiple file paths separated by colons (Linux/macOS) or semicolons (Windows)
+- Relative and absolute paths
+- Files are merged in the order they appear
+
 ## Development
 
 ```bash
