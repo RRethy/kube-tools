@@ -34,6 +34,9 @@ jobs:
     - name: Create bin directory
       run: mkdir -p bin
     
+    - name: Build (includes formatting)
+      run: make build
+    
     - name: Run tests
       run: make test
     
@@ -42,9 +45,8 @@ jobs:
     
     - name: Check formatting
       run: |
-        make fmt
         if [ -n "$(git diff --name-only)" ]; then
-          echo "Code is not formatted. Please run 'make fmt'"
+          echo "Code is not formatted. Please run 'make build' or 'make fmt'"
           git diff
           exit 1
         fi
