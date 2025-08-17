@@ -1,11 +1,15 @@
-.PHONY: test lint lint-fix build build-kubectl-x build-kubernetes-mcp build-celery build-kustomizelite fmt vet tidy install uninstall clean help
+.PHONY: all test lint lint-fix build build-kubectl-x build-kubernetes-mcp build-celery build-kustomizelite fmt vet tidy install uninstall clean help
 
 # Installation directory
 INSTALL_DIR := /usr/local/bin
 
+# Default target that runs the full development cycle
+all: build test lint-fix
+
 # Default target
 help:
 	@echo "Available targets:"
+	@echo "  all                  - Build, test, and lint-fix (full development cycle)"
 	@echo "  test                 - Run all tests"
 	@echo "  lint                 - Run golangci-lint"
 	@echo "  lint-fix             - Run golangci-lint with auto-fix"
