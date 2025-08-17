@@ -16,9 +16,7 @@ import (
 	kexec "k8s.io/utils/exec"
 	fakeexec "k8s.io/utils/exec/testing"
 
-	"github.com/RRethy/kubectl-x/pkg/fzf"
 	fzftesting "github.com/RRethy/kubectl-x/pkg/fzf/testing"
-	"github.com/RRethy/kubectl-x/pkg/kubernetes"
 	kubernetestesting "github.com/RRethy/kubectl-x/pkg/kubernetes/testing"
 )
 
@@ -242,13 +240,13 @@ func TestSheller_ResolvePod(t *testing.T) {
 
 func TestSheller_GetResourceSelector(t *testing.T) {
 	tests := []struct {
-		name         string
-		resourceKind string
-		resourceName string
-		resources    map[string][]any
-		fzfSelection []string
+		name             string
+		resourceKind     string
+		resourceName     string
+		resources        map[string][]any
+		fzfSelection     []string
 		expectedSelector map[string]string
-		expectError  bool
+		expectError      bool
 	}{
 		{
 			name:         "deployment selector",
@@ -631,7 +629,7 @@ func TestSheller_ResolvePod_EdgeCases(t *testing.T) {
 
 func TestShell_PublicFunction(t *testing.T) {
 	// This test would be more comprehensive in a real scenario
-	// but we can't easily test the public Shell function without 
+	// but we can't easily test the public Shell function without
 	// significant mocking of kubeconfig, context resolution, etc.
 	// This serves as a placeholder for integration tests
 	t.Skip("Integration test for public Shell function - requires kubeconfig setup")
@@ -757,23 +755,6 @@ func deploymentListToAny(deployments []*appsv1.Deployment) []any {
 		result[i] = deployment
 	}
 	return result
-}
-
-
-// createTestSheller creates a standard Sheller instance for testing
-func createTestSheller(k8sClient kubernetes.Interface, fzfInterface fzf.Interface, execInterface kexec.Interface) *Sheller {
-	return &Sheller{
-		IOStreams: genericclioptions.IOStreams{
-			In:     &bytes.Buffer{},
-			Out:    &bytes.Buffer{},
-			ErrOut: &bytes.Buffer{},
-		},
-		Context:   "test-context",
-		Namespace: "test-namespace",
-		K8sClient: k8sClient,
-		Fzf:       fzfInterface,
-		Exec:      execInterface,
-	}
 }
 
 func TestSheller_Shell(t *testing.T) {
@@ -906,19 +887,17 @@ func TestSheller_Shell(t *testing.T) {
 	}
 }
 
-
-
 func TestSheller_Shell_CommandArguments(t *testing.T) {
 	tests := []struct {
-		name           string
-		target         string
-		container      string
-		command        string
-		debug          bool
-		image          string
-		expectedCmd    string
-		expectedArgs   []string
-		verifyArgs     func(t *testing.T, cmd string, args []string)
+		name         string
+		target       string
+		container    string
+		command      string
+		debug        bool
+		image        string
+		expectedCmd  string
+		expectedArgs []string
+		verifyArgs   func(t *testing.T, cmd string, args []string)
 	}{
 		{
 			name:        "debug mode with image and container",
@@ -1106,4 +1085,3 @@ func TestSheller_Shell_ExecFailure(t *testing.T) {
 		})
 	}
 }
-
