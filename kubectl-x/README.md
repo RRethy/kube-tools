@@ -82,7 +82,9 @@ kubectl x cur
 kubectl x kubeconfig copy
 
 # Use in shell scripts to isolate kubeconfig
-export KUBECONFIG=$(kubectl x kubeconfig copy)
+function klocal {
+    export KUBECONFIG=$(kubectl x kubeconfig copy)
+}
 
 # Merges all contexts from multiple KUBECONFIG files into a single file
 # Preserves the current context setting
