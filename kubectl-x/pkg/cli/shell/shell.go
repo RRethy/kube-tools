@@ -13,6 +13,7 @@ import (
 	"github.com/RRethy/kubectl-x/pkg/kubeconfig"
 	"github.com/RRethy/kubectl-x/pkg/kubernetes"
 	"github.com/RRethy/kubectl-x/pkg/namespace"
+	"github.com/RRethy/kubectl-x/pkg/resolver"
 )
 
 // Shell executes either a shell command in a pod or a debug container
@@ -27,16 +28,16 @@ func Shell(ctx context.Context, configFlags *genericclioptions.ConfigFlags, reso
 
 	ioStreams := genericclioptions.IOStreams{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr}
 	k8sClient := kubernetes.NewClient(configFlags, resourceBuilderFlags)
-	fzf := fzf.NewFzf(fzf.WithIOStreams(ioStreams))
+	fzfClient := fzf.NewFzf(fzf.WithIOStreams(ioStreams))
 	exec := kexec.New()
+	podResolver := resolver.New(k8sClient, fzfClient)
 
 	return (&Sheller{
 		IOStreams:  ioStreams,
 		Kubeconfig: kubeConfig,
 		Context:    currentContext,
 		Namespace:  namespace,
-		K8sClient:  k8sClient,
-		Fzf:        fzf,
+		Resolver:   podResolver,
 		Exec:       exec,
 	}).Shell(ctx, target, container, command, debug, image)
 }
