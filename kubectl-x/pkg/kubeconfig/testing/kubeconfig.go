@@ -17,6 +17,7 @@ type FakeKubeConfig struct {
 	currentContext   string
 	currentNamespace string
 	kubeconfigPath   string
+	writeError       error
 }
 
 // NewFakeKubeConfig creates a new fake kubeconfig with the given contexts and current settings
@@ -83,6 +84,9 @@ func (fake *FakeKubeConfig) GetKubeconfigPath() string {
 }
 
 func (fake *FakeKubeConfig) WriteToFile(path string) error {
+	if fake.writeError != nil {
+		return fake.writeError
+	}
 	content := []byte(`apiVersion: v1
 kind: Config
 current-context: ` + fake.currentContext + `
@@ -97,5 +101,11 @@ contexts:
 // WithKubeconfigPath sets the kubeconfig path for testing
 func (fake *FakeKubeConfig) WithKubeconfigPath(path string) *FakeKubeConfig {
 	fake.kubeconfigPath = path
+	return fake
+}
+
+// WithWriteError sets an error to be returned by WriteToFile
+func (fake *FakeKubeConfig) WithWriteError(err error) *FakeKubeConfig {
+	fake.writeError = err
 	return fake
 }

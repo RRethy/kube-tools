@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/RRethy/kubectl-x/pkg/xdg"
 	"github.com/goccy/go-yaml"
 	"k8s.io/klog/v2"
 )
@@ -16,8 +17,6 @@ const (
 
 var (
 	_ Interface = &History{}
-
-	defaultHistoryPath = filepath.Join(os.ExpandEnv("$HOME"), ".local", "share", "kubectl-x", "history.yaml")
 )
 
 // Interface defines methods for managing command history
@@ -47,9 +46,16 @@ type Config struct {
 
 // NewConfig creates a new configuration with the given options
 func NewConfig(options ...ConfigOption) *Config {
-	config := &Config{historyPath: defaultHistoryPath}
+	config := &Config{}
 	for _, option := range options {
 		option(config)
+	}
+	// Set default path if not provided
+	if config.historyPath == "" {
+		xdgInstance := xdg.New()
+		if dataHome, err := xdgInstance.DataHome(); err == nil {
+			config.historyPath = filepath.Join(dataHome, "kubectl-x", "history.yaml")
+		}
 	}
 	return config
 }
