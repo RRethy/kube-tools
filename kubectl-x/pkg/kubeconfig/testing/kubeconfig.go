@@ -15,14 +15,16 @@ type FakeKubeConfig struct {
 	contexts         map[string]*api.Context
 	currentContext   string
 	currentNamespace string
+	kubeconfigPath   string
 }
 
 // NewFakeKubeConfig creates a new fake kubeconfig with the given contexts and current settings
 func NewFakeKubeConfig(contexts map[string]*api.Context, currentContext, currentNamespace string) *FakeKubeConfig {
 	return &FakeKubeConfig{
-		contexts,
-		currentContext,
-		currentNamespace,
+		contexts:         contexts,
+		currentContext:   currentContext,
+		currentNamespace: currentNamespace,
+		kubeconfigPath:   "/fake/path/to/kubeconfig",
 	}
 }
 
@@ -70,4 +72,17 @@ func (fake *FakeKubeConfig) GetNamespaceForContext(context string) (string, erro
 
 func (fake *FakeKubeConfig) Write() error {
 	return nil
+}
+
+func (fake *FakeKubeConfig) GetKubeconfigPath() string {
+	if fake.kubeconfigPath == "" {
+		return "/fake/path/to/kubeconfig"
+	}
+	return fake.kubeconfigPath
+}
+
+// WithKubeconfigPath sets the kubeconfig path for testing
+func (fake *FakeKubeConfig) WithKubeconfigPath(path string) *FakeKubeConfig {
+	fake.kubeconfigPath = path
+	return fake
 }

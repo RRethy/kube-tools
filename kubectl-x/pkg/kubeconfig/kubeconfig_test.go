@@ -1,6 +1,7 @@
 package kubeconfig
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -129,7 +130,24 @@ func TestKubeConfig_CurrentNamespace(t *testing.T) {
 }
 
 func TestNewKubeConfig_UsesKUBECONFIG(t *testing.T) {
-	t.Setenv("KUBECONFIG", "/tmp/test-kubeconfig:/tmp/test-kubeconfig2")
+	// Create a temporary kubeconfig file
+	tmpFile, err := os.CreateTemp("", "test-kubeconfig-*")
+	require.NoError(t, err)
+	defer os.Remove(tmpFile.Name())
+
+	// Write minimal valid kubeconfig
+	validConfig := `apiVersion: v1
+kind: Config
+clusters: []
+contexts: []
+users: []
+current-context: ""
+`
+	_, err = tmpFile.WriteString(validConfig)
+	require.NoError(t, err)
+	tmpFile.Close()
+
+	t.Setenv("KUBECONFIG", tmpFile.Name())
 
 	kubeConfig, err := NewKubeConfig()
 

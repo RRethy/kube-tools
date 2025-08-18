@@ -6,17 +6,18 @@ import (
 	"os"
 
 	"github.com/RRethy/kubectl-x/pkg/kubeconfig"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 )
 
 // Cur displays the current Kubernetes context and namespace
-func Cur(ctx context.Context) error {
-	return CurWithPrompt(ctx, false)
+func Cur(ctx context.Context, configFlags *genericclioptions.ConfigFlags) error {
+	return CurWithPrompt(ctx, configFlags, false)
 }
 
 // CurWithPrompt displays the current context and namespace with optional prompt formatting
-func CurWithPrompt(ctx context.Context, promptFormat bool) error {
-	kubeConfig, err := kubeconfig.NewKubeConfig()
+func CurWithPrompt(ctx context.Context, configFlags *genericclioptions.ConfigFlags, promptFormat bool) error {
+	kubeConfig, err := kubeconfig.NewKubeConfig(kubeconfig.WithConfigFlags(configFlags))
 	if err != nil {
 		return err
 	}

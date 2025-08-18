@@ -15,7 +15,7 @@ import (
 
 // Each executes kubectl commands across multiple contexts matching the given pattern
 func Each(ctx context.Context, configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags *genericclioptions.ResourceBuilderFlags, contextPattern string, outputFormat string, interactive bool, commandArgs []string) error {
-	kubeConfig, err := kubeconfig.NewKubeConfig()
+	kubeConfig, err := kubeconfig.NewKubeConfig(kubeconfig.WithConfigFlags(configFlags))
 	if err != nil {
 		return fmt.Errorf("loading kubeconfig: %w", err)
 	}

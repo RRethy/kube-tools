@@ -15,6 +15,7 @@ kubectl x ctx -                  # Switch to previous context/namespace
 kubectl x shell my-pod          # Shell into a pod
 kubectl x shell deploy/nginx    # Shell into a pod from deployment
 kubectl x shell my-pod --debug  # Run debug container as sidecar
+kubectl x kubeconfig copy       # Copy kubeconfig to $XDG_DATA_HOME
 
 # Verbose logging examples
 kubectl x ctx -v=0              # Only errors and warnings (default)
@@ -41,6 +42,7 @@ go test ./...                # Run all module tests
 go test ./pkg/cli/ctx/
 go test ./pkg/cli/ns/
 go test ./pkg/cli/cur/
+go test ./pkg/cli/kubeconfig/copy/
 go test ./pkg/fzf/
 go test ./pkg/history/
 go test ./pkg/kubeconfig/
@@ -71,6 +73,8 @@ go mod download
 - `ns.go` - Namespace switching command definition  
 - `cur.go` - Current status display command definition
 - `shell.go` - Shell command definition for pod execution
+- `kubeconfig.go` - Parent command for kubeconfig operations
+- `kubeconfig_copy.go` - Copy kubeconfig to local directory
 
 ### Package Details
 
@@ -97,6 +101,13 @@ go mod download
 - `sheller.go` - Shell execution business logic
 - `sheller_test.go` - Comprehensive test suite for shell operations
 - **Key interfaces**: `Sheller` for pod shell execution
+
+#### `pkg/cli/kubeconfig/copy/`
+- `copy.go` - Entry point for copy command
+- `copier.go` - Business logic for copying kubeconfig files
+- `copier_test.go` - Comprehensive test suite including error cases
+- **Key interfaces**: `Copier` for kubeconfig copy operations
+- **Features**: Unique filenames with timestamps, XDG Base Directory support
 
 #### `pkg/fzf/`
 - `fzf.go` - Fuzzy finder integration with external fzf binary

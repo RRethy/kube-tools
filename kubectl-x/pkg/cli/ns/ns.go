@@ -15,7 +15,7 @@ import (
 
 // Ns switches Kubernetes namespace based on the provided substring
 func Ns(ctx context.Context, configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags *genericclioptions.ResourceBuilderFlags, namespace string, exactMatch bool) error {
-	kubeConfig, err := kubeconfig.NewKubeConfig()
+	kubeConfig, err := kubeconfig.NewKubeConfig(kubeconfig.WithConfigFlags(configFlags))
 	if err != nil {
 		return err
 	}

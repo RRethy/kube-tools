@@ -14,7 +14,7 @@ import (
 
 // Ctx switches Kubernetes context based on the provided substring with optional namespace selection
 func Ctx(ctx context.Context, configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags *genericclioptions.ResourceBuilderFlags, contextSubstring, namespaceSubstring string, exactMatch bool) error {
-	kubeConfig, err := kubeconfig.NewKubeConfig()
+	kubeConfig, err := kubeconfig.NewKubeConfig(kubeconfig.WithConfigFlags(configFlags))
 	if err != nil {
 		return err
 	}

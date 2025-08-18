@@ -11,6 +11,7 @@ Fast Kubernetes context and namespace switching with fuzzy search.
 - Command history tracking
 - Display current context and namespace
 - Shell into pods with resource resolution
+- Kubeconfig copy for isolated environments
 - Native kubectl plugin integration
 
 ## Installation
@@ -72,6 +73,19 @@ kubectl x ns -
 ```bash
 # Show current context and namespace
 kubectl x cur
+```
+
+### Kubeconfig Management
+
+```bash
+# Copy current kubeconfig to $XDG_DATA_HOME for isolated usage
+kubectl x kubeconfig copy
+
+# Use in shell scripts to isolate kubeconfig
+export KUBECONFIG=$(kubectl x kubeconfig copy)
+
+# Each copy has a unique filename with timestamp
+# Files are stored in $XDG_DATA_HOME/kubectl-x/ (default: ~/.local/share/kubectl-x/)
 ```
 
 ### Debugging and Logging

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 	"k8s.io/klog/v2"
@@ -26,6 +27,8 @@ type Interface interface {
 	GetNamespaceForContext(context string) (string, error)
 	// Write persists changes to the kubeconfig file
 	Write() error
+	// GetKubeconfigPath returns the path to the kubeconfig file being used
+	GetKubeconfigPath() string
 }
 
 // KubeConfig provides kubeconfig file operations
@@ -34,15 +37,43 @@ type KubeConfig struct {
 	apiConfig    *api.Config
 }
 
-// NewKubeConfig creates a kubeconfig manager using default paths
-func NewKubeConfig() (Interface, error) {
-	configAccess := clientcmd.NewDefaultPathOptions()
-	config, err := configAccess.GetStartingConfig()
+// Option configures a KubeConfig
+type Option func(*KubeConfig)
+
+// WithConfigFlags sets the config flags for kubeconfig
+func WithConfigFlags(configFlags *genericclioptions.ConfigFlags) Option {
+	return func(kc *KubeConfig) {
+		var kubeconfigPath string
+		if configFlags != nil && configFlags.KubeConfig != nil && *configFlags.KubeConfig != "" {
+			kubeconfigPath = *configFlags.KubeConfig
+		}
+
+		if kubeconfigPath != "" {
+			kc.configAccess = &clientcmd.PathOptions{
+				GlobalFile:   kubeconfigPath,
+				LoadingRules: &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
+			}
+		}
+	}
+}
+
+// NewKubeConfig creates a kubeconfig manager with options
+func NewKubeConfig(opts ...Option) (Interface, error) {
+	kc := &KubeConfig{
+		configAccess: clientcmd.NewDefaultPathOptions(),
+	}
+
+	for _, opt := range opts {
+		opt(kc)
+	}
+
+	config, err := kc.configAccess.GetStartingConfig()
 	if err != nil {
 		return KubeConfig{}, err
 	}
+	kc.apiConfig = config
 
-	return KubeConfig{configAccess: configAccess, apiConfig: config}, nil
+	return *kc, nil
 }
 
 func (kubeConfig KubeConfig) Contexts() []string {
@@ -112,4 +143,13 @@ func (kubeConfig KubeConfig) GetNamespaceForContext(context string) (string, err
 func (kubeConfig KubeConfig) Write() error {
 	klog.V(4).Info("Writing kubeconfig changes to disk")
 	return clientcmd.ModifyConfig(kubeConfig.configAccess, *kubeConfig.apiConfig, true)
+}
+
+func (kubeConfig KubeConfig) GetKubeconfigPath() string {
+	if kubeConfig.configAccess != nil {
+		if filename := kubeConfig.configAccess.GetDefaultFilename(); filename != "" {
+			return filename
+		}
+	}
+	return clientcmd.RecommendedHomeFile
 }

@@ -25,7 +25,7 @@ Use --prompt for a compact format suitable for shell prompts.`,
   kubectl x cur --prompt
   # Output: my-context/my-namespace`,
 	Run: func(cmd *cobra.Command, args []string) {
-		checkErr(cur.CurWithPrompt(context.Background(), curPrompt))
+		checkErr(cur.CurWithPrompt(context.Background(), configFlags, curPrompt))
 	},
 }
 

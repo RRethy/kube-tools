@@ -17,7 +17,7 @@ import (
 
 // Shell executes either a shell command in a pod or a debug container
 func Shell(ctx context.Context, configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags *genericclioptions.ResourceBuilderFlags, target string, container string, command string, debug bool, image string) error {
-	kubeConfig, err := kubeconfig.NewKubeConfig()
+	kubeConfig, err := kubeconfig.NewKubeConfig(kubeconfig.WithConfigFlags(configFlags))
 	if err != nil {
 		return fmt.Errorf("loading kubeconfig: %w", err)
 	}
