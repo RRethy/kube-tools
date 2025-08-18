@@ -78,12 +78,14 @@ kubectl x cur
 ### Kubeconfig Management
 
 ```bash
-# Copy current kubeconfig to $XDG_DATA_HOME for isolated usage
+# Write merged kubeconfig to $XDG_DATA_HOME for isolated usage
 kubectl x kubeconfig copy
 
 # Use in shell scripts to isolate kubeconfig
 export KUBECONFIG=$(kubectl x kubeconfig copy)
 
+# Merges all contexts from multiple KUBECONFIG files into a single file
+# Preserves the current context setting
 # Each copy has a unique filename with timestamp
 # Files are stored in $XDG_DATA_HOME/kubectl-x/ (default: ~/.local/share/kubectl-x/)
 ```

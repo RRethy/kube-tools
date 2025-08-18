@@ -11,7 +11,7 @@ import (
 
 func TestKubeConfig_Contexts(t *testing.T) {
 	kubeConfig := KubeConfig{
-		apiConfig: &api.Config{
+		APIConfig: &api.Config{
 			Contexts: map[string]*api.Context{
 				"context1": {},
 				"context2": {},
@@ -25,7 +25,7 @@ func TestKubeConfig_Contexts(t *testing.T) {
 
 func TestKubeConfig_UseContext(t *testing.T) {
 	kubeConfig := KubeConfig{
-		apiConfig: &api.Config{
+		APIConfig: &api.Config{
 			Contexts: map[string]*api.Context{
 				"context1": {},
 				"context2": {
@@ -37,18 +37,18 @@ func TestKubeConfig_UseContext(t *testing.T) {
 
 	err := kubeConfig.SetContext("context1")
 	require.Nil(t, err)
-	assert.Equal(t, "context1", kubeConfig.apiConfig.CurrentContext)
-	assert.Equal(t, "default", kubeConfig.apiConfig.Contexts["context1"].Namespace)
+	assert.Equal(t, "context1", kubeConfig.APIConfig.CurrentContext)
+	assert.Equal(t, "default", kubeConfig.APIConfig.Contexts["context1"].Namespace)
 
 	err = kubeConfig.SetContext("context2")
 	require.Nil(t, err)
-	assert.Equal(t, "context2", kubeConfig.apiConfig.CurrentContext)
-	assert.Equal(t, "namespace2", kubeConfig.apiConfig.Contexts["context2"].Namespace)
+	assert.Equal(t, "context2", kubeConfig.APIConfig.CurrentContext)
+	assert.Equal(t, "namespace2", kubeConfig.APIConfig.Contexts["context2"].Namespace)
 }
 
 func TestKubeConfig_UseNamespace(t *testing.T) {
 	kubeConfig := KubeConfig{
-		apiConfig: &api.Config{
+		APIConfig: &api.Config{
 			Contexts: map[string]*api.Context{
 				"context1": {},
 			},
@@ -59,20 +59,20 @@ func TestKubeConfig_UseNamespace(t *testing.T) {
 	require.Nil(t, err)
 	err = kubeConfig.SetNamespace("namespace1")
 	require.Nil(t, err)
-	assert.Equal(t, "namespace1", kubeConfig.apiConfig.Contexts["context1"].Namespace)
+	assert.Equal(t, "namespace1", kubeConfig.APIConfig.Contexts["context1"].Namespace)
 }
 
 func TestKubeConfig_CurrentContext(t *testing.T) {
 	tests := []struct {
 		name      string
-		apiConfig *api.Config
+		APIConfig *api.Config
 		expected  string
 		err       bool
 		errMsg    string
 	}{
 		{
 			name: "correct context when set",
-			apiConfig: &api.Config{
+			APIConfig: &api.Config{
 				CurrentContext: "context1",
 				Contexts: map[string]*api.Context{
 					"context1": {},
@@ -85,7 +85,7 @@ func TestKubeConfig_CurrentContext(t *testing.T) {
 		},
 		{
 			name: "error when context not set",
-			apiConfig: &api.Config{
+			APIConfig: &api.Config{
 				CurrentContext: "",
 				Contexts: map[string]*api.Context{
 					"context1": {},
@@ -100,7 +100,7 @@ func TestKubeConfig_CurrentContext(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			context, err := KubeConfig{apiConfig: test.apiConfig}.GetCurrentContext()
+			context, err := KubeConfig{APIConfig: test.APIConfig}.GetCurrentContext()
 			if test.err {
 				require.NotNil(t, err)
 				assert.Equal(t, test.errMsg, err.Error())
@@ -114,7 +114,7 @@ func TestKubeConfig_CurrentContext(t *testing.T) {
 
 func TestKubeConfig_CurrentNamespace(t *testing.T) {
 	kubeConfig := KubeConfig{
-		apiConfig: &api.Config{
+		APIConfig: &api.Config{
 			CurrentContext: "context1",
 			Contexts: map[string]*api.Context{
 				"context1": {

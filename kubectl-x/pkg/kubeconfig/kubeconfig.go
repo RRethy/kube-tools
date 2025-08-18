@@ -29,12 +29,14 @@ type Interface interface {
 	Write() error
 	// GetKubeconfigPath returns the path to the kubeconfig file being used
 	GetKubeconfigPath() string
+	// WriteToFile writes the kubeconfig to a specific file path
+	WriteToFile(path string) error
 }
 
 // KubeConfig provides kubeconfig file operations
 type KubeConfig struct {
 	configAccess clientcmd.ConfigAccess
-	apiConfig    *api.Config
+	APIConfig    *api.Config
 }
 
 // Option configures a KubeConfig
@@ -71,14 +73,14 @@ func NewKubeConfig(opts ...Option) (Interface, error) {
 	if err != nil {
 		return KubeConfig{}, err
 	}
-	kc.apiConfig = config
+	kc.APIConfig = config
 
 	return *kc, nil
 }
 
 func (kubeConfig KubeConfig) Contexts() []string {
-	contexts := make([]string, 0, len(kubeConfig.apiConfig.Contexts))
-	for context := range kubeConfig.apiConfig.Contexts {
+	contexts := make([]string, 0, len(kubeConfig.APIConfig.Contexts))
+	for context := range kubeConfig.APIConfig.Contexts {
 		contexts = append(contexts, context)
 	}
 	return contexts
@@ -90,12 +92,12 @@ func (kubeConfig KubeConfig) SetContext(context string) error {
 		return errors.New("context cannot be empty")
 	}
 
-	ctx, ok := kubeConfig.apiConfig.Contexts[context]
+	ctx, ok := kubeConfig.APIConfig.Contexts[context]
 	if !ok {
 		return fmt.Errorf("context '%s' not found", context)
 	}
 
-	kubeConfig.apiConfig.CurrentContext = context
+	kubeConfig.APIConfig.CurrentContext = context
 	if len(ctx.Namespace) > 0 {
 		return kubeConfig.SetNamespace(ctx.Namespace)
 	}
@@ -108,7 +110,7 @@ func (kubeConfig KubeConfig) SetNamespace(namespace string) error {
 		return errors.New("namespace cannot be empty")
 	}
 
-	ctx, ok := kubeConfig.apiConfig.Contexts[kubeConfig.apiConfig.CurrentContext]
+	ctx, ok := kubeConfig.APIConfig.Contexts[kubeConfig.APIConfig.CurrentContext]
 	if !ok {
 		return errors.New("current context not found")
 	}
@@ -118,14 +120,14 @@ func (kubeConfig KubeConfig) SetNamespace(namespace string) error {
 }
 
 func (kubeConfig KubeConfig) GetCurrentContext() (string, error) {
-	if len(kubeConfig.apiConfig.CurrentContext) == 0 {
+	if len(kubeConfig.APIConfig.CurrentContext) == 0 {
 		return "", errors.New("current context not set")
 	}
-	return kubeConfig.apiConfig.CurrentContext, nil
+	return kubeConfig.APIConfig.CurrentContext, nil
 }
 
 func (kubeConfig KubeConfig) GetCurrentNamespace() (string, error) {
-	ctx, ok := kubeConfig.apiConfig.Contexts[kubeConfig.apiConfig.CurrentContext]
+	ctx, ok := kubeConfig.APIConfig.Contexts[kubeConfig.APIConfig.CurrentContext]
 	if !ok {
 		return "", errors.New("current context not found")
 	}
@@ -133,7 +135,7 @@ func (kubeConfig KubeConfig) GetCurrentNamespace() (string, error) {
 }
 
 func (kubeConfig KubeConfig) GetNamespaceForContext(context string) (string, error) {
-	ctx, ok := kubeConfig.apiConfig.Contexts[context]
+	ctx, ok := kubeConfig.APIConfig.Contexts[context]
 	if !ok {
 		return "", fmt.Errorf("context '%s' not found", context)
 	}
@@ -142,7 +144,7 @@ func (kubeConfig KubeConfig) GetNamespaceForContext(context string) (string, err
 
 func (kubeConfig KubeConfig) Write() error {
 	klog.V(4).Info("Writing kubeconfig changes to disk")
-	return clientcmd.ModifyConfig(kubeConfig.configAccess, *kubeConfig.apiConfig, true)
+	return clientcmd.ModifyConfig(kubeConfig.configAccess, *kubeConfig.APIConfig, true)
 }
 
 func (kubeConfig KubeConfig) GetKubeconfigPath() string {
@@ -152,4 +154,8 @@ func (kubeConfig KubeConfig) GetKubeconfigPath() string {
 		}
 	}
 	return clientcmd.RecommendedHomeFile
+}
+
+func (kubeConfig KubeConfig) WriteToFile(path string) error {
+	return clientcmd.WriteToFile(*kubeConfig.APIConfig, path)
 }

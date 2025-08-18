@@ -3,6 +3,7 @@ package testing
 
 import (
 	"errors"
+	"os"
 
 	"github.com/RRethy/kubectl-x/pkg/kubeconfig"
 	"k8s.io/client-go/tools/clientcmd/api"
@@ -79,6 +80,18 @@ func (fake *FakeKubeConfig) GetKubeconfigPath() string {
 		return "/fake/path/to/kubeconfig"
 	}
 	return fake.kubeconfigPath
+}
+
+func (fake *FakeKubeConfig) WriteToFile(path string) error {
+	content := []byte(`apiVersion: v1
+kind: Config
+current-context: ` + fake.currentContext + `
+contexts:
+`)
+	for name := range fake.contexts {
+		content = append(content, []byte("- name: "+name+"\n")...)
+	}
+	return os.WriteFile(path, content, 0644)
 }
 
 // WithKubeconfigPath sets the kubeconfig path for testing

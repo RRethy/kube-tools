@@ -55,9 +55,8 @@ func TestCopier_Copy(t *testing.T) {
 		output := strings.TrimSpace(outputBuf.String())
 		assert.True(t, strings.HasPrefix(output, filepath.Join(xdgDataHome, "kubectl-x", "kubeconfig-")))
 
-		copiedContent, err := os.ReadFile(output)
+		_, err = os.Stat(output)
 		require.NoError(t, err)
-		assert.Equal(t, testContent, string(copiedContent))
 
 		filename := filepath.Base(output)
 		matched, err := regexp.MatchString(`^kubeconfig-\d{8}-\d{6}-\d{4}$`, filename)
@@ -103,9 +102,8 @@ func TestCopier_Copy(t *testing.T) {
 		expectedPrefix := filepath.Join(homeDir, ".local", "share", "kubectl-x", "kubeconfig-")
 		assert.True(t, strings.HasPrefix(output, expectedPrefix))
 
-		copiedContent, err := os.ReadFile(output)
+		_, err = os.Stat(output)
 		require.NoError(t, err)
-		assert.Equal(t, testContent, string(copiedContent))
 	})
 
 	t.Run("creates kubectl-x directory if it doesn't exist", func(t *testing.T) {
@@ -146,7 +144,13 @@ func TestCopier_Copy(t *testing.T) {
 		assert.True(t, info.IsDir())
 	})
 
-	t.Run("returns error when source kubeconfig doesn't exist", func(t *testing.T) {
+	t.Run("works even when source kubeconfig doesn't exist", func(t *testing.T) {
+		xdgDataHome, err := os.MkdirTemp("", "xdg-data-home-*")
+		require.NoError(t, err)
+		defer os.RemoveAll(xdgDataHome)
+
+		t.Setenv("XDG_DATA_HOME", xdgDataHome)
+
 		var outputBuf bytes.Buffer
 		fakeKubeConfig := kubeconfigtesting.NewFakeKubeConfig(
 			map[string]*api.Context{"test": {Cluster: "test"}},
@@ -161,9 +165,12 @@ func TestCopier_Copy(t *testing.T) {
 			},
 		}
 
-		err := copier.Copy(ctx)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "no such file or directory")
+		err = copier.Copy(ctx)
+		require.NoError(t, err)
+
+		output := strings.TrimSpace(outputBuf.String())
+		_, err = os.Stat(output)
+		require.NoError(t, err)
 	})
 
 	t.Run("generates unique filenames on multiple runs", func(t *testing.T) {
@@ -335,12 +342,7 @@ func TestCopier_Copy(t *testing.T) {
 		assert.Contains(t, err.Error(), "permission denied")
 	})
 
-	t.Run("handles empty kubeconfig file", func(t *testing.T) {
-		sourceFile, err := os.CreateTemp("", "kubeconfig-source-*")
-		require.NoError(t, err)
-		defer os.Remove(sourceFile.Name())
-		sourceFile.Close()
-
+	t.Run("writes valid merged kubeconfig", func(t *testing.T) {
 		xdgDataHome, err := os.MkdirTemp("", "xdg-data-home-*")
 		require.NoError(t, err)
 		defer os.RemoveAll(xdgDataHome)
@@ -349,10 +351,13 @@ func TestCopier_Copy(t *testing.T) {
 
 		var outputBuf bytes.Buffer
 		fakeKubeConfig := kubeconfigtesting.NewFakeKubeConfig(
-			map[string]*api.Context{"test": {Cluster: "test"}},
-			"test",
+			map[string]*api.Context{
+				"test1": {Cluster: "cluster1", AuthInfo: "user1"},
+				"test2": {Cluster: "cluster2", AuthInfo: "user2"},
+			},
+			"test1",
 			"default",
-		).WithKubeconfigPath(sourceFile.Name())
+		).WithKubeconfigPath("/fake/path")
 
 		copier := &Copier{
 			KubeConfig: fakeKubeConfig,
@@ -365,9 +370,12 @@ func TestCopier_Copy(t *testing.T) {
 		require.NoError(t, err)
 
 		output := strings.TrimSpace(outputBuf.String())
-		copiedContent, err := os.ReadFile(output)
+
+		writtenContent, err := os.ReadFile(output)
 		require.NoError(t, err)
-		assert.Empty(t, copiedContent)
+		assert.Contains(t, string(writtenContent), "apiVersion: v1")
+		assert.Contains(t, string(writtenContent), "kind: Config")
+		assert.Contains(t, string(writtenContent), "current-context: test1")
 	})
 }
 
