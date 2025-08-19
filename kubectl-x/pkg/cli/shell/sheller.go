@@ -8,6 +8,7 @@ import (
 	"k8s.io/klog/v2"
 	kexec "k8s.io/utils/exec"
 
+	"github.com/RRethy/kubectl-x/pkg/fzf"
 	"github.com/RRethy/kubectl-x/pkg/kubeconfig"
 	"github.com/RRethy/kubectl-x/pkg/resolver"
 )
@@ -18,7 +19,7 @@ type Sheller struct {
 	Kubeconfig kubeconfig.Interface
 	Context    string
 	Namespace  string
-	Resolver   resolver.Interface
+	Resolver   resolver.Resolver
 	Exec       kexec.Interface
 }
 
@@ -30,7 +31,14 @@ func (s *Sheller) Shell(ctx context.Context, target string, container string, co
 		klog.V(2).Infof("Shell operation started: target=%s container=%s command=%s", target, container, command)
 	}
 
-	pod, err := s.Resolver.ResolvePod(ctx, target, s.Namespace)
+	resourceKind, resourceName := s.Resolver.ResolveTarget(ctx, target)
+	if resourceKind == "" {
+		resourceKind = "pod"
+	}
+
+	pod, err := s.Resolver.ResolvePod(ctx, resourceKind, resourceName, s.Namespace, fzf.Config{
+		Sorted: true,
+	})
 	if err != nil {
 		return fmt.Errorf("resolving pod: %w", err)
 	}

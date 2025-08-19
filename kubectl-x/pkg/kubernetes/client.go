@@ -30,15 +30,15 @@ func NewClient(configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags 
 }
 
 func (c *Client) List(ctx context.Context, resourceType string) ([]any, error) {
-	return c.list(ctx, resourceType, "")
+	return c.list(resourceType, "")
 }
 
 // ListInNamespace retrieves resources of the specified type in the given namespace
 func (c *Client) ListInNamespace(ctx context.Context, resourceType, namespace string) ([]any, error) {
-	return c.list(ctx, resourceType, namespace)
+	return c.list(resourceType, namespace)
 }
 
-func (c *Client) list(ctx context.Context, resourceType, namespace string) ([]any, error) {
+func (c *Client) list(resourceType, namespace string) ([]any, error) {
 	klog.V(6).Infof("Listing Kubernetes resources: resourceType=%s namespace=%s", resourceType, namespace)
 
 	builder := resource.NewBuilder(c.configFlags).

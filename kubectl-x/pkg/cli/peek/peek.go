@@ -1,4 +1,4 @@
-package shell
+package peek
 
 import (
 	"context"
@@ -16,28 +16,29 @@ import (
 	"github.com/RRethy/kubectl-x/pkg/resolver"
 )
 
-// Shell executes either a shell command in a pod or a debug container
-func Shell(ctx context.Context, configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags *genericclioptions.ResourceBuilderFlags, target string, container string, command string, debug bool, image string) error {
+// Peek executes an interactive preview of logs or describe output
+func Peek(ctx context.Context, configFlags *genericclioptions.ConfigFlags, resourceBuilderFlags *genericclioptions.ResourceBuilderFlags, action string, resource string) error {
 	kubeConfig, err := kubeconfig.NewKubeConfig(kubeconfig.WithConfigFlags(configFlags))
 	if err != nil {
 		return fmt.Errorf("loading kubeconfig: %w", err)
 	}
 
 	currentContext := xcontext.NewResolver(kubeConfig, configFlags).Resolve()
-	namespace := namespace.NewResolver(kubeConfig, configFlags).Resolve(currentContext)
+	currentNamespace := namespace.NewResolver(kubeConfig, configFlags).Resolve(currentContext)
 
 	ioStreams := genericclioptions.IOStreams{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr}
 	k8sClient := kubernetes.NewClient(configFlags, resourceBuilderFlags)
 	fzfClient := fzf.NewFzf(fzf.WithIOStreams(ioStreams))
+	podResolver := resolver.New(k8sClient, fzfClient)
 	exec := kexec.New()
-	resolver := resolver.New(k8sClient, fzfClient)
 
-	return (&Sheller{
-		IOStreams:  ioStreams,
-		Kubeconfig: kubeConfig,
-		Context:    currentContext,
-		Namespace:  namespace,
-		Resolver:   resolver,
-		Exec:       exec,
-	}).Shell(ctx, target, container, command, debug, image)
+	return (&Peeker{
+		IOStreams: ioStreams,
+		Context:   currentContext,
+		Namespace: currentNamespace,
+		K8sClient: k8sClient,
+		Resolver:  podResolver,
+		Fzf:       fzfClient,
+		Exec:      exec,
+	}).Peek(ctx, action, resource)
 }
