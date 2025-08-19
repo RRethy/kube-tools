@@ -2,6 +2,7 @@ package testing
 
 import (
 	"context"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,11 +36,33 @@ func NewFakeResolver(pod *corev1.Pod, err error) *FakeResolver {
 
 func (f *FakeResolver) ResolveTarget(ctx context.Context, target string) (string, string) {
 	f.ResolveTargetCalled = true
-	// Simple parsing for testing
+	// Simple parsing for testing that mimics real resolver behavior
 	if target == "" {
 		return "pod", ""
 	}
-	return "pod", target
+
+	// Parse target similar to the real resolver
+	if idx := strings.IndexAny(target, "/ "); idx != -1 {
+		resourceKind := target[:idx]
+		resourceName := target[idx+1:]
+		// Expand shortnames
+		switch resourceKind {
+		case "deploy":
+			resourceKind = "deployment"
+		case "svc":
+			resourceKind = "service"
+		case "sts":
+			resourceKind = "statefulset"
+		case "ds":
+			resourceKind = "daemonset"
+		case "rs":
+			resourceKind = "replicaset"
+		}
+		return resourceKind, resourceName
+	}
+
+	// Just resource kind
+	return target, ""
 }
 
 func (f *FakeResolver) ResolvePod(ctx context.Context, resourceKind, resourceName, namespace string, fzfConfig fzf.Config) (*corev1.Pod, error) {

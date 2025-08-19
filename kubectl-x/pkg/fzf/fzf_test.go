@@ -212,6 +212,77 @@ func TestConfig_BuildArgs(t *testing.T) {
 				"--query", "test.*regex",
 			},
 		},
+		{
+			name: "with preview command",
+			config: Config{
+				Preview: "echo {}",
+			},
+			shouldContain: []string{
+				"--preview", "echo {}",
+			},
+		},
+		{
+			name: "empty preview",
+			config: Config{
+				Preview: "",
+			},
+			shouldNotContain: []string{"--preview"},
+		},
+		{
+			name: "complex preview command",
+			config: Config{
+				Preview: "kubectl describe context {} | head -20",
+			},
+			shouldContain: []string{
+				"--preview", "kubectl describe context {} | head -20",
+			},
+		},
+		{
+			name: "custom height percentage",
+			config: Config{
+				Height: "50%",
+			},
+			shouldContain: []string{
+				"--height", "50%",
+			},
+		},
+		{
+			name: "custom height absolute lines",
+			config: Config{
+				Height: "20",
+			},
+			shouldContain: []string{
+				"--height", "20",
+			},
+		},
+		{
+			name: "default height when empty",
+			config: Config{
+				Height: "",
+			},
+			shouldContain: []string{
+				"--height", "30%",
+			},
+		},
+		{
+			name: "all config options combined",
+			config: Config{
+				ExactMatch: true,
+				Sorted:     true,
+				Multi:      true,
+				Prompt:     "Select",
+				Query:      "search",
+				Preview:    "echo Preview: {}",
+				Height:     "75%",
+			},
+			shouldContain: []string{
+				"--exact", "--multi",
+				"--prompt", "Select> ",
+				"--query", "search",
+				"--preview", "echo Preview: {}",
+				"--height", "75%",
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -464,6 +535,8 @@ func TestFzf_Run(t *testing.T) {
 				Multi:      true,
 				Prompt:     "Select contexts",
 				Query:      "ctx",
+				Preview:    "echo Preview: {}",
+				Height:     "40%",
 			},
 			setupMock: func() *testingexec.FakeExec {
 				return &testingexec.FakeExec{
@@ -475,14 +548,22 @@ func TestFzf_Run(t *testing.T) {
 							assert.Contains(t, args, "--multi")
 							assert.Contains(t, args, "--prompt")
 							assert.Contains(t, args, "--query")
+							assert.Contains(t, args, "--preview")
+							assert.Contains(t, args, "--height")
 
-							// Find the values for prompt and query
+							// Find the values for prompt, query, preview, and height
 							for i, arg := range args {
 								if arg == "--prompt" && i+1 < len(args) {
 									assert.Equal(t, "Select contexts> ", args[i+1])
 								}
 								if arg == "--query" && i+1 < len(args) {
 									assert.Equal(t, "ctx", args[i+1])
+								}
+								if arg == "--preview" && i+1 < len(args) {
+									assert.Equal(t, "echo Preview: {}", args[i+1])
+								}
+								if arg == "--height" && i+1 < len(args) {
+									assert.Equal(t, "40%", args[i+1])
 								}
 							}
 
@@ -498,6 +579,64 @@ func TestFzf_Run(t *testing.T) {
 				}
 			},
 			expectedResult: []string{"ctx1", "ctx2"},
+		},
+		{
+			name:  "verify preview option in execution",
+			items: []string{"pod1", "pod2", "pod3"},
+			config: Config{
+				Preview: "kubectl describe pod {}",
+			},
+			setupMock: func() *testingexec.FakeExec {
+				return &testingexec.FakeExec{
+					CommandScript: []testingexec.FakeCommandAction{
+						func(cmd string, args ...string) kexec.Cmd {
+							assert.Contains(t, args, "--preview")
+							for i, arg := range args {
+								if arg == "--preview" && i+1 < len(args) {
+									assert.Equal(t, "kubectl describe pod {}", args[i+1])
+								}
+							}
+							return &testingexec.FakeCmd{
+								RunScript: []testingexec.FakeAction{
+									func() ([]byte, []byte, error) {
+										return []byte("pod2"), nil, nil
+									},
+								},
+							}
+						},
+					},
+				}
+			},
+			expectedResult: []string{"pod2"},
+		},
+		{
+			name:  "verify custom height in execution",
+			items: []string{"ns1", "ns2", "ns3"},
+			config: Config{
+				Height: "80%",
+			},
+			setupMock: func() *testingexec.FakeExec {
+				return &testingexec.FakeExec{
+					CommandScript: []testingexec.FakeCommandAction{
+						func(cmd string, args ...string) kexec.Cmd {
+							assert.Contains(t, args, "--height")
+							for i, arg := range args {
+								if arg == "--height" && i+1 < len(args) {
+									assert.Equal(t, "80%", args[i+1])
+								}
+							}
+							return &testingexec.FakeCmd{
+								RunScript: []testingexec.FakeAction{
+									func() ([]byte, []byte, error) {
+										return []byte("ns1"), nil, nil
+									},
+								},
+							}
+						},
+					},
+				}
+			},
+			expectedResult: []string{"ns1"},
 		},
 		{
 			name:   "trailing newline in output",
