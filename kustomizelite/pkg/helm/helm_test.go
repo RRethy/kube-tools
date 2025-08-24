@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
-	v1 "github.com/RRethy/k8s-tools/kustomizelite/api/v1"
+	v1 "github.com/RRethy/kube-tools/kustomizelite/api/v1"
 )
 
 func TestTemplate(t *testing.T) {

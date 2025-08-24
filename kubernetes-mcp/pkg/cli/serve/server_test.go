@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	mcpserver "github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/mcp/server"
+	mcpserver "github.com/RRethy/kube-tools/kubernetes-mcp/pkg/mcp/server"
 )
 
 func TestServer_Serve(t *testing.T) {

@@ -11,8 +11,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/exec"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/maputils"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/exec"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/maputils"
 )
 
 type Generator interface {

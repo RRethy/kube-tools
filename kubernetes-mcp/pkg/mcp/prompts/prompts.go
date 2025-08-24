@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/kubectl"
+	"github.com/RRethy/kube-tools/kubernetes-mcp/pkg/kubectl"
 )
 
 // Prompts holds the dependencies for prompt handlers

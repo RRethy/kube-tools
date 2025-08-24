@@ -1,7 +1,7 @@
 package helm
 
 import (
-	v1 "github.com/RRethy/k8s-tools/kustomizelite/api/v1"
+	v1 "github.com/RRethy/kube-tools/kustomizelite/api/v1"
 )
 
 // FakeTemplater is a fake implementation of Templater for testing.

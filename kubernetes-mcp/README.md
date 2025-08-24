@@ -42,7 +42,7 @@ go build -o kubernetes-mcp .
 ### Using go install
 
 ```bash
-go install github.com/RRethy/k8s-tools/kubernetes-mcp@latest
+go install github.com/RRethy/kube-tools/kubernetes-mcp@latest
 ```
 
 ## Usage

@@ -2,8 +2,8 @@
 package server
 
 import (
-	"github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/mcp/prompts"
-	"github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/mcp/tools"
+	"github.com/RRethy/kube-tools/kubernetes-mcp/pkg/mcp/prompts"
+	"github.com/RRethy/kube-tools/kubernetes-mcp/pkg/mcp/tools"
 	"github.com/mark3labs/mcp-go/server"
 )
 

@@ -1,9 +1,9 @@
 package kustomize
 
 import (
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/exec"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/generator"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/helm"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/exec"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/generator"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/helm"
 )
 
 // Option is a functional option for configuring a Kustomizer.

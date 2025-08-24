@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	v1 "github.com/RRethy/k8s-tools/kustomizelite/api/v1"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/helm"
+	v1 "github.com/RRethy/kube-tools/kustomizelite/api/v1"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/helm"
 )
 
 func TestKustomizeWithHelm(t *testing.T) {

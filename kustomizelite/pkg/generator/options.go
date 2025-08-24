@@ -1,6 +1,6 @@
 package generator
 
-import "github.com/RRethy/k8s-tools/kustomizelite/pkg/exec"
+import "github.com/RRethy/kube-tools/kustomizelite/pkg/exec"
 
 // Option is a functional option for configuring a Generator.
 type Option func(*generator)

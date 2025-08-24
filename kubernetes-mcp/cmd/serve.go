@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/cli/serve"
+	"github.com/RRethy/kube-tools/kubernetes-mcp/pkg/cli/serve"
 )
 
 var serveCmd = &cobra.Command{

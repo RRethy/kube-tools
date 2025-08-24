@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/kubectl"
+	"github.com/RRethy/kube-tools/kubernetes-mcp/pkg/kubectl"
 	"github.com/mark3labs/mcp-go/mcp"
 )
 

@@ -10,9 +10,9 @@ import (
 	"gopkg.in/yaml.v3"
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 
-	v1 "github.com/RRethy/k8s-tools/kustomizelite/api/v1"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/exec"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/kustomize"
+	v1 "github.com/RRethy/kube-tools/kustomizelite/api/v1"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/exec"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/kustomize"
 )
 
 func Build(ctx context.Context, path string, helmValuesFiles []string) error {

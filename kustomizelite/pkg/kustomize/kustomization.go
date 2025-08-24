@@ -11,12 +11,12 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	v1 "github.com/RRethy/k8s-tools/kustomizelite/api/v1"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/exec"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/generator"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/helm"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/maputils"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/patch"
+	v1 "github.com/RRethy/kube-tools/kustomizelite/api/v1"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/exec"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/generator"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/helm"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/maputils"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/patch"
 )
 
 type kustomization struct {

@@ -5,7 +5,7 @@ A CLI tool for working with Kustomize configurations in Shopify's infrastructure
 ## Installation
 
 ```bash
-go install github.com/RRethy/k8s-tools/kustomizelite@latest
+go install github.com/RRethy/kube-tools/kustomizelite@latest
 ```
 
 Or build from source:

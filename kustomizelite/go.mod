@@ -1,4 +1,4 @@
-module github.com/RRethy/k8s-tools/kustomizelite
+module github.com/RRethy/kube-tools/kustomizelite
 
 go 1.24.4
 

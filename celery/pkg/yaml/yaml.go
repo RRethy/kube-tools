@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	apiv1 "github.com/RRethy/k8s-tools/celery/api/v1"
+	apiv1 "github.com/RRethy/kube-tools/celery/api/v1"
 	goyaml "gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )

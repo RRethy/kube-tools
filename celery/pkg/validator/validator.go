@@ -7,8 +7,8 @@ import (
 	"strings"
 	"sync"
 
-	apiv1 "github.com/RRethy/k8s-tools/celery/api/v1"
-	"github.com/RRethy/k8s-tools/celery/pkg/yaml"
+	apiv1 "github.com/RRethy/kube-tools/celery/api/v1"
+	"github.com/RRethy/kube-tools/celery/pkg/yaml"
 	"github.com/google/cel-go/cel"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"

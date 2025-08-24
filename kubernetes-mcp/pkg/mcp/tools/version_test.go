@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/RRethy/k8s-tools/kubernetes-mcp/pkg/kubectl"
+	"github.com/RRethy/kube-tools/kubernetes-mcp/pkg/kubectl"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

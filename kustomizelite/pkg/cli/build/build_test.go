@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 
-	v1 "github.com/RRethy/k8s-tools/kustomizelite/api/v1"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/helm"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/kustomize"
+	v1 "github.com/RRethy/kube-tools/kustomizelite/api/v1"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/helm"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/kustomize"
 )
 
 func TestBuildCLI(t *testing.T) {

@@ -10,8 +10,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	v1 "github.com/RRethy/k8s-tools/kustomizelite/api/v1"
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/exec"
+	v1 "github.com/RRethy/kube-tools/kustomizelite/api/v1"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/exec"
 )
 
 // GetBinaryFromEnv returns the helm binary path from HELM_BINARY_PATH env var, or "helm" if not set.

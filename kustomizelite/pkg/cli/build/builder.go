@@ -13,7 +13,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/kustomize"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/kustomize"
 )
 
 type Builder struct {

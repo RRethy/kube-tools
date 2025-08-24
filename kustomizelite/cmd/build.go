@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/RRethy/k8s-tools/kustomizelite/pkg/cli/build"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/cli/build"
 )
 
 var (

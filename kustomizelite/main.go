@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/RRethy/k8s-tools/kustomizelite/cmd"
+	"github.com/RRethy/kube-tools/kustomizelite/cmd"
 )
 
 func main() {
