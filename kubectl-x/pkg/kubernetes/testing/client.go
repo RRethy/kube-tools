@@ -5,6 +5,8 @@ import (
 	"context"
 	"errors"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"github.com/RRethy/kubectl-x/pkg/kubernetes"
 )
 
@@ -31,4 +33,10 @@ func (fake *FakeClient) List(ctx context.Context, resourceType string) ([]any, e
 func (fake *FakeClient) ListInNamespace(ctx context.Context, resourceType, namespace string) ([]any, error) {
 	// For testing purposes, namespace filtering is simplified
 	return fake.List(ctx, resourceType)
+}
+
+// GetResource returns a specific resource by kind, name, and namespace for testing
+func (fake *FakeClient) GetResource(ctx context.Context, kind, name, namespace string) (metav1.Object, error) {
+	// For testing, return a simple error - tests should provide specific implementations as needed
+	return nil, errors.New("GetResource not implemented in FakeClient")
 }

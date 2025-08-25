@@ -47,11 +47,7 @@ func (o *Ownerser) Owners(ctx context.Context, target string) error {
 
 	visited := make(map[string]bool)
 	tree := o.buildResourceWithParents(ctx, resource, resourceKind, visited)
-	if err != nil {
-		return fmt.Errorf("building ownership tree: %w", err)
-	}
-
-	fmt.Fprint(o.IOStreams.Out, o.buildOwnershipLines(tree, 0))
+	fmt.Fprint(o.IOStreams.Out, o.buildOwnershipLines(tree))
 	fmt.Fprintln(o.IOStreams.Out)
 	return nil
 }
@@ -92,21 +88,10 @@ func (o *Ownerser) buildResourceWithParents(ctx context.Context, resource metav1
 }
 
 func (o *Ownerser) getResource(ctx context.Context, kind, name, namespace string) (metav1.Object, error) {
-	resources, err := kubernetes.ListObjectInNamespace(ctx, o.K8sClient, strings.ToLower(kind), namespace)
-	if err != nil {
-		return nil, fmt.Errorf("listing %s: %w", kind, err)
-	}
-
-	for _, res := range resources {
-		if res.GetName() == name {
-			return res, nil
-		}
-	}
-
-	return nil, fmt.Errorf("resource %s/%s not found in namespace %s", kind, name, namespace)
+	return o.K8sClient.GetResource(ctx, kind, name, namespace)
 }
 
-func (o *Ownerser) buildOwnershipLines(res *resourceWithParents, depth int) string {
+func (o *Ownerser) buildOwnershipLines(res *resourceWithParents) string {
 	if res == nil {
 		return ""
 	}
