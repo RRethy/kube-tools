@@ -20,8 +20,8 @@ without modifying the original kubeconfig file.`,
   
   # Use in a shell script to set $KUBECONFIG for current session
   export KUBECONFIG=$(kubectl x kubeconfig copy)`,
-	Run: func(cmd *cobra.Command, args []string) {
-		checkErr(copy.Copy(context.Background(), configFlags))
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return copy.Copy(context.Background(), configFlags)
 	},
 }
 

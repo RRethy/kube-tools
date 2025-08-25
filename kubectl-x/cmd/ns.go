@@ -26,13 +26,13 @@ Use "-" as the namespace to switch to the previous namespace.`,
   
   # Switch to previous namespace
   kubectl x ns -`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		var namespace string
 		if len(args) > 0 {
 			namespace = args[0]
 		}
 
-		checkErr(ns.Ns(context.Background(), configFlags, resourceBuilderFlags, namespace, exactMatch))
+		return ns.Ns(context.Background(), configFlags, resourceBuilderFlags, namespace, exactMatch)
 	},
 }
 

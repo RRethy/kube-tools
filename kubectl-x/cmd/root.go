@@ -40,8 +40,8 @@ and provides a streamlined interface for common Kubernetes operations.`,
   
   # Show current context and namespace
   kubectl x cur`,
-		Run: func(cmd *cobra.Command, args []string) {
-			checkErr(cmd.Help())
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cmd.Help()
 		},
 	}
 )
@@ -69,11 +69,4 @@ func GetRootCmd() *cobra.Command {
 }
 
 func initConfig() {
-}
-
-func checkErr(err error) {
-	if err != nil {
-		klog.Errorf("kubectl-x error: %v", err)
-		os.Exit(1)
-	}
 }

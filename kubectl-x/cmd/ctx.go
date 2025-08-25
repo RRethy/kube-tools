@@ -26,7 +26,7 @@ Use "-" as the context to switch to the previous context/namespace combination.`
   
   # Switch to previous context/namespace
   kubectl x ctx -`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		var contextName string
 		var namespace string
 		if len(args) > 0 {
@@ -36,7 +36,7 @@ Use "-" as the context to switch to the previous context/namespace combination.`
 			}
 		}
 
-		checkErr(ctx.Ctx(context.Background(), configFlags, resourceBuilderFlags, contextName, namespace, exactMatch))
+		return ctx.Ctx(context.Background(), configFlags, resourceBuilderFlags, contextName, namespace, exactMatch)
 	},
 }
 

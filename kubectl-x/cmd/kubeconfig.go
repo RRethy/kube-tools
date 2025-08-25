@@ -11,8 +11,8 @@ var kubeconfigCmd = &cobra.Command{
 	Long:    `Perform various operations on kubeconfig files.`,
 	Example: `  # Copy kubeconfig to $XDG_DATA_HOME
   kubectl x kubeconfig copy`,
-	Run: func(cmd *cobra.Command, args []string) {
-		checkErr(cmd.Help())
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return cmd.Help()
 	},
 }
 
