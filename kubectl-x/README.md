@@ -13,7 +13,6 @@ Fast Kubernetes context and namespace switching with fuzzy search.
 - Shell into pods with resource resolution
 - Execute commands across multiple contexts in parallel
 - Interactive preview of logs and describe output
-- Resource ownership graph visualization
 - Kubeconfig copy for isolated environments
 - Native kubectl plugin integration
 
@@ -248,37 +247,6 @@ kubectl x peek describe service
 - Works with resource name filtering
 - Resolves higher-level resources (deployments, services) to their pods
 
-### Resource Ownership Graph
-
-The `owners` command displays the ownership chain of a Kubernetes resource:
-
-```bash
-# Show ownership graph of a pod
-kubectl x owners pod my-pod
-
-# Show ownership graph of a replicaset
-kubectl x owners replicaset nginx-abc123
-
-# Use resource/name format
-kubectl x owners pod/my-pod
-
-# Show ownership in a specific namespace
-kubectl x owners pod my-pod -n production
-```
-
-**Example Output:**
-```
-Deployment/nginx (production)
-  └─> ReplicaSet/nginx-5d4f8b9 (production)
-    └─> Pod/nginx-5d4f8b9-xyz (production)
-```
-
-**Owners Command Features:**
-- Traverses ownerReferences to build complete ownership chain
-- Shows hierarchy from resource to root owner
-- Supports all Kubernetes resource types
-- Handles circular references gracefully
-- Color-coded output for better readability
 
 ## Features
 
