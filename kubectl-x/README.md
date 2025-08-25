@@ -11,6 +11,8 @@ Fast Kubernetes context and namespace switching with fuzzy search.
 - Command history tracking
 - Display current context and namespace
 - Shell into pods with resource resolution
+- Execute commands across multiple contexts in parallel
+- Interactive preview of logs and describe output
 - Kubeconfig copy for isolated environments
 - Native kubectl plugin integration
 
@@ -185,6 +187,65 @@ kubectl x shell my-pod --debug --command=/bin/bash --image=busybox
 - Can target specific containers to share process namespace
 - Supports custom debug images with debugging tools
 - Does not affect the running application
+
+### Execute Commands Across Multiple Contexts
+
+The `each` command allows you to run the same kubectl operation on multiple contexts simultaneously:
+
+```bash
+# Execute command on contexts matching a pattern
+kubectl x each "prod-.*" -- get pods
+
+# Execute on multiple specific contexts
+kubectl x each "(staging|prod)" -- get deployments
+
+# Interactive context selection with fzf
+kubectl x each -i -- get nodes
+
+# Output in JSON format
+kubectl x each "dev-.*" -o json -- get services
+
+# Output in YAML format  
+kubectl x each ".*-east" -o yaml -- get ingresses
+
+# With namespace override
+kubectl x each "prod-.*" -n kube-system -- get pods
+```
+
+**Each Command Features:**
+- Uses regex patterns to match context names
+- Executes commands in parallel across all matching contexts
+- Preserves the current namespace for each context unless overridden
+- Supports JSON, YAML, or raw output formats
+- Interactive mode (`-i`) allows selecting contexts with fzf
+
+### Interactive Resource Preview
+
+The `peek` command provides interactive preview of logs or describe output using fzf:
+
+```bash
+# Interactively preview logs for pods
+kubectl x peek logs pod
+
+# Preview logs for a specific pod
+kubectl x peek logs pod nginx
+
+# Preview logs for pods from a deployment
+kubectl x peek logs deployment my-app
+
+# Interactively preview describe output
+kubectl x peek describe pod
+
+# Preview describe for services
+kubectl x peek describe service
+```
+
+**Peek Command Features:**
+- Interactive selection of resources using fzf
+- Live preview of logs or describe output
+- Supports all standard Kubernetes resource types
+- Works with resource name filtering
+- Resolves higher-level resources (deployments, services) to their pods
 
 ## Features
 

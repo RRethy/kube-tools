@@ -16,6 +16,10 @@ kubectl x shell my-pod          # Shell into a pod
 kubectl x shell deploy/nginx    # Shell into a pod from deployment
 kubectl x shell my-pod --debug  # Run debug container as sidecar
 kubectl x kubeconfig copy       # Copy kubeconfig to $XDG_DATA_HOME
+kubectl x each "prod-.*" -- get pods  # Execute across multiple contexts
+kubectl x each -i -- get nodes   # Interactive context selection for batch
+kubectl x peek logs pod         # Interactive log preview
+kubectl x peek describe service # Interactive describe preview
 
 # Verbose logging examples
 kubectl x ctx -v=0              # Only errors and warnings (default)
@@ -42,11 +46,18 @@ go test ./...                # Run all module tests
 go test ./pkg/cli/ctx/
 go test ./pkg/cli/ns/
 go test ./pkg/cli/cur/
+go test ./pkg/cli/each/
+go test ./pkg/cli/peek/
+go test ./pkg/cli/shell/
 go test ./pkg/cli/kubeconfig/copy/
+go test ./pkg/context/
 go test ./pkg/fzf/
 go test ./pkg/history/
 go test ./pkg/kubeconfig/
 go test ./pkg/kubernetes/
+go test ./pkg/namespace/
+go test ./pkg/resolver/
+go test ./pkg/xdg/
 
 # Run tests with coverage
 go test -cover ./...
@@ -73,6 +84,8 @@ go mod download
 - `ns.go` - Namespace switching command definition  
 - `cur.go` - Current status display command definition
 - `shell.go` - Shell command definition for pod execution
+- `each.go` - Execute commands across multiple contexts
+- `peek.go` - Interactive preview of logs or describe output
 - `kubeconfig.go` - Parent command for kubeconfig operations
 - `kubeconfig_copy.go` - Copy kubeconfig to local directory
 
@@ -101,6 +114,20 @@ go mod download
 - `sheller.go` - Shell execution business logic
 - `sheller_test.go` - Comprehensive test suite for shell operations
 - **Key interfaces**: `Sheller` for pod shell execution
+
+#### `pkg/cli/each/`
+- `each.go` - Each command implementation
+- `eacher.go` - Multi-context execution business logic
+- `eacher_test.go` - Test suite for parallel execution
+- **Key interfaces**: `Eacher` for multi-context operations
+- **Features**: Parallel execution, regex pattern matching, multiple output formats
+
+#### `pkg/cli/peek/`
+- `peek.go` - Peek command implementation
+- `peeker.go` - Interactive preview business logic
+- `peek_test.go` - Test suite for preview operations
+- **Key interfaces**: `Peeker` for resource preview
+- **Features**: Interactive fzf selection, logs and describe support
 
 #### `pkg/cli/kubeconfig/copy/`
 - `copy.go` - Entry point for copy command
@@ -137,6 +164,29 @@ go mod download
 #### `pkg/shortname/`
 - `shortname.go` - Kubernetes resource shortname expansion (deploy->deployment, etc.)
 - Used by shell command for resource type resolution
+
+#### `pkg/context/`
+- `context.go` - Context management utilities
+- `context_test.go` - Context operation tests
+- **Features**: Context manipulation and retrieval
+
+#### `pkg/namespace/`
+- `namespace.go` - Namespace management utilities
+- `namespace_test.go` - Namespace operation tests
+- **Features**: Namespace manipulation and retrieval
+
+#### `pkg/resolver/`
+- `resolver.go` - Resource resolution logic (resolve deployments to pods, etc.)
+- `resolver_test.go` - Comprehensive test suite
+- `testing/resolver.go` - Mock resolver implementation
+- **Key interfaces**: `Resolver` for resource resolution
+- **Features**: Resolves higher-level resources to pods
+
+#### `pkg/xdg/`
+- `xdg.go` - XDG Base Directory implementation
+- `xdg_test.go` - XDG specification tests
+- `testing/xdg.go` - Mock XDG implementation
+- **Features**: Standard directory paths for data, config, cache
 
 ## Development Patterns
 
