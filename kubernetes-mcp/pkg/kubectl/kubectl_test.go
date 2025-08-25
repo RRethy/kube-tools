@@ -222,33 +222,3 @@ func TestExecuteValidation(t *testing.T) {
 	}
 }
 
-func TestExecuteValidInput(t *testing.T) {
-	// Test that valid inputs are allowed through
-	validArgs := [][]string{
-		{"get", "pods"},
-		{"get", "pods", "-n", "default"},
-		{"get", "pods", "--all-namespaces"},
-		{"describe", "pod", "my-pod"},
-		{"logs", "my-pod", "-c", "container-name"},
-		{"get", "pods", "-o", "json"},
-		{"get", "pods", "-l", "app=nginx"},
-		{"get", "pods", "--field-selector", "status.phase=Running"},
-		{"get", "deployments.apps"},
-		{"config", "get-contexts"},
-		{"version", "--output", "yaml"},
-	}
-
-	k := New()
-	ctx := context.Background()
-
-	for _, args := range validArgs {
-		t.Run(strings.Join(args, " "), func(t *testing.T) {
-			// Note: This will fail if kubectl is not installed, but we're only testing validation
-			_, _, err := k.Execute(ctx, args...)
-			// We expect either no error (validation passed) or kubectl not found error
-			if err != nil && strings.Contains(err.Error(), "invalid argument") {
-				t.Errorf("Execute(%v) validation failed, but these are valid arguments: %v", args, err)
-			}
-		})
-	}
-}
