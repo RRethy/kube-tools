@@ -1,4 +1,0 @@
-#!/bin/sh
-# Generator that fails with an error
-echo "Error: Failed to generate resources" >&2
-exit 1
