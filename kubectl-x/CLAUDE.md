@@ -20,6 +20,7 @@ kubectl x each "prod-.*" -- get pods  # Execute across multiple contexts
 kubectl x each -i -- get nodes   # Interactive context selection for batch
 kubectl x peek logs pod         # Interactive log preview
 kubectl x peek describe service # Interactive describe preview
+kubectl x owners pod my-pod     # Show ownership graph of a resource
 
 # Verbose logging examples
 kubectl x ctx -v=0              # Only errors and warnings (default)
@@ -48,6 +49,7 @@ go test ./pkg/cli/ns/
 go test ./pkg/cli/cur/
 go test ./pkg/cli/each/
 go test ./pkg/cli/peek/
+go test ./pkg/cli/owners/
 go test ./pkg/cli/shell/
 go test ./pkg/cli/kubeconfig/copy/
 go test ./pkg/context/
@@ -86,6 +88,7 @@ go mod download
 - `shell.go` - Shell command definition for pod execution
 - `each.go` - Execute commands across multiple contexts
 - `peek.go` - Interactive preview of logs or describe output
+- `owners.go` - Display ownership graph of resources
 - `kubeconfig.go` - Parent command for kubeconfig operations
 - `kubeconfig_copy.go` - Copy kubeconfig to local directory
 
@@ -128,6 +131,12 @@ go mod download
 - `peek_test.go` - Test suite for preview operations
 - **Key interfaces**: `Peeker` for resource preview
 - **Features**: Interactive fzf selection, logs and describe support
+
+#### `pkg/cli/owners/`
+- `owners.go` - Owners command implementation
+- `ownerser.go` - Ownership graph traversal logic
+- `ownerser_test.go` - Test suite for ownership operations
+- **Features**: Traverses ownerReferences, builds hierarchy, handles circular references
 
 #### `pkg/cli/kubeconfig/copy/`
 - `copy.go` - Entry point for copy command

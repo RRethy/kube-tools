@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/RRethy/kube-tools/kustomizelite/pkg/strategicmerge"
 	"github.com/RRethy/krepe/jsonpatch"
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/strategicmerge"
 	"gopkg.in/yaml.v3"
 )
 
