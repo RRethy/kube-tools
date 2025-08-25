@@ -81,16 +81,33 @@ kubectl x cur
 # Write merged kubeconfig to $XDG_DATA_HOME for isolated usage
 kubectl x kubeconfig copy
 
-# Use in shell scripts to isolate kubeconfig
-function klocal {
-    export KUBECONFIG=$(kubectl x kubeconfig copy)
-}
-
 # Merges all contexts from multiple KUBECONFIG files into a single file
 # Preserves the current context setting
 # Each copy has a unique filename with timestamp
 # Files are stored in $XDG_DATA_HOME/kubectl-x/ (default: ~/.local/share/kubectl-x/)
 ```
+
+#### Shell-Local Kubeconfig
+
+The `localkubeconfig.sh` script provides a `klocal` function that creates an isolated kubeconfig for your current shell session:
+
+```bash
+# Source the script to enable the klocal function
+source kubectl-x/localkubeconfig.sh
+
+# Create a shell-local kubeconfig (won't affect other terminals)
+klocal
+
+# Now all kubectl commands in this shell use the isolated kubeconfig
+kubectl get pods  # Uses the local kubeconfig
+kubectl x ctx     # Context changes only affect this shell
+```
+
+This is useful for:
+- Working with multiple clusters simultaneously in different terminals
+- Testing configuration changes without affecting your main kubeconfig
+- Temporary context/namespace switching that auto-reverts when you close the shell
+- Running scripts that need isolated Kubernetes configurations
 
 ### Debugging and Logging
 
