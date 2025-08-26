@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/cli/build"
 	"github.com/spf13/cobra"
 )
 
@@ -12,8 +11,11 @@ var buildCmd = &cobra.Command{
 	Long:  `Build generates Kubernetes resources from a kustomization directory`,
 	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("Running build command")
-		return nil
+		directory := "."
+		if len(args) > 0 {
+			directory = args[0]
+		}
+		return build.Build(cmd.Context(), directory)
 	},
 }
 
