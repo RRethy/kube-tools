@@ -7,12 +7,13 @@ import (
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
+	kyaml "sigs.k8s.io/kustomize/kyaml/yaml"
 
 	v1 "github.com/RRethy/kube-tools/kustomizelite/api/v1"
 )
 
 type Hydrator interface {
-	Hydrate(ctx context.Context, path string) error
+	Hydrate(ctx context.Context, path string) ([]*kyaml.RNode, error)
 }
 
 type hydrator struct{}
@@ -21,15 +22,15 @@ func NewHydrator() Hydrator {
 	return &hydrator{}
 }
 
-func (h *hydrator) Hydrate(ctx context.Context, path string) error {
+func (h *hydrator) Hydrate(ctx context.Context, path string) ([]*kyaml.RNode, error) {
 	kustomization, err := h.resolveKustomizationFile(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	fmt.Printf("Kustomization: %+v\n", kustomization)
 
-	return nil
+	return []*kyaml.RNode{}, nil
 }
 
 func (h *hydrator) resolveKustomizationFile(path string) (*v1.Kustomization, error) {

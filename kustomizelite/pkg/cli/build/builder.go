@@ -14,5 +14,6 @@ type Builder struct {
 }
 
 func (b *Builder) Build(ctx context.Context, path string) error {
-	return b.Hydrator.Hydrate(ctx, path)
+	_, err := b.Hydrator.Hydrate(ctx, path)
+	return err
 }
