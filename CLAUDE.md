@@ -13,6 +13,7 @@ make build                 - Build all binaries
 make build-kubectl-x       - Build the kubectl-x binary
 make build-kubernetes-mcp  - Build the kubernetes-mcp binary
 make build-celery          - Build the celery binary
+make build-kustomizelite   - Build the kustomizelite binary
 make test                  - Run all tests
 make lint                  - Run golangci-lint
 make lint-fix              - Run golangci-lint with auto-fix
@@ -28,26 +29,28 @@ make help                  - Show all available targets
 go work sync
 
 # Install from source
-go install github.com/RRethy/kubectl-x@latest                  # kubectl-x CLI
-go install github.com/RRethy/kube-tools/kubernetes-mcp@latest   # kubernetes-mcp CLI
-go install github.com/RRethy/kube-tools/celery@latest           # celery CLI
+go install github.com/RRethy/kubectl-x@latest                    # kubectl-x CLI
+go install github.com/RRethy/kube-tools/kubernetes-mcp@latest     # kubernetes-mcp CLI
+go install github.com/RRethy/kube-tools/celery@latest             # celery CLI
+go install github.com/RRethy/kube-tools/kustomizelite@latest      # kustomizelite CLI
 ```
 
 ## Architecture
 
 ### Go Workspace Structure
-This is a Go workspace with three modules:
+This is a Go workspace with four modules:
 - `kubectl-x/` - Kubernetes context and namespace switching CLI
 - `kubernetes-mcp/` - Readonly MCP (Model Context Protocol) server for Kubernetes
 - `celery/` - CEL-based Kubernetes resource validator
+- `kustomizelite/` - Lightweight Kustomize-like tool for Kubernetes resource management
 
 The root contains `go.work` for workspace configuration.
 
 ## Workspace Development Notes
 
 ### Go Workspace Configuration
-- Uses Go 1.24.4
-- Multi-module workspace with `kubectl-x/`, `kubernetes-mcp/`, and `celery/` modules
+- Uses Go 1.24.5
+- Multi-module workspace with `kubectl-x/`, `kubernetes-mcp/`, `celery/`, and `kustomizelite/` modules
 - Use `go work sync` to synchronize dependencies across workspace
 - All modules include golangci-lint as tool dependency
 
@@ -68,13 +71,19 @@ The root contains `go.work` for workspace configuration.
 │   ├── cmd/            # CLI commands (root, serve)
 │   ├── pkg/mcp/        # MCP server implementation
 │   └── main.go
-└── celery/             # CEL validator for Kubernetes resources
+├── celery/             # CEL validator for Kubernetes resources
+│   ├── CLAUDE.md       # Module-specific documentation
+│   ├── README.md       # User documentation
+│   ├── cmd/            # CLI commands
+│   ├── pkg/            # Core packages (validator, yaml, cli)
+│   ├── api/            # API types (ValidationRules)
+│   ├── fixtures/       # Test fixtures and examples
+│   └── main.go
+└── kustomizelite/      # Lightweight Kustomize-like tool
     ├── CLAUDE.md       # Module-specific documentation
     ├── README.md       # User documentation
-    ├── cmd/            # CLI commands
-    ├── pkg/            # Core packages (validator, yaml, cli)
-    ├── api/            # API types (ValidationRules)
-    ├── fixtures/       # Test fixtures and examples
+    ├── cmd/            # CLI commands (root, build)
+    ├── pkg/cli/build/  # Build command implementation
     └── main.go
 ```
 

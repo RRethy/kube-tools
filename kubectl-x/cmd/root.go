@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"flag"
-	"os"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -47,7 +46,6 @@ and provides a streamlined interface for common Kubernetes operations.`,
 )
 
 func init() {
-	cobra.OnInitialize(initConfig)
 	configFlags.AddFlags(rootCmd.PersistentFlags())
 
 	klogFlags := flag.NewFlagSet("klog", flag.ExitOnError)
@@ -55,18 +53,7 @@ func init() {
 	rootCmd.PersistentFlags().AddGoFlag(klogFlags.Lookup("v"))
 }
 
-// Execute runs the root command and handles any execution errors
-func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
-}
-
 // GetRootCmd returns the root cobra command for kubectl-x
 func GetRootCmd() *cobra.Command {
 	return rootCmd
-}
-
-func initConfig() {
 }
