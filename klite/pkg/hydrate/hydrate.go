@@ -9,7 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 	kyaml "sigs.k8s.io/kustomize/kyaml/yaml"
 
-	v1 "github.com/RRethy/kube-tools/kustomizelite/api/v1"
+	v1 "github.com/RRethy/kube-tools/klite/api/v1"
 )
 
 type Hydrator interface {

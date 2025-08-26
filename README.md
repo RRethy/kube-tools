@@ -13,7 +13,7 @@ MCP (Model Context Protocol) server providing read-only Kubernetes cluster acces
 ### [celery](./celery/)
 Kubernetes manifest validator using CEL (Common Expression Language) for custom validation rules.
 
-### [kustomizelite](./kustomizelite/)
+### [klite](./klite/)
 Lightweight Kustomize-like tool for Kubernetes resource management and customization.
 
 ## Installation
@@ -26,7 +26,7 @@ go install github.com/RRethy/kube-tools/...@latest
 go install github.com/RRethy/kube-tools/kubectl-x@latest
 go install github.com/RRethy/kube-tools/kubernetes-mcp@latest
 go install github.com/RRethy/kube-tools/celery@latest
-go install github.com/RRethy/kube-tools/kustomizelite@latest
+go install github.com/RRethy/kube-tools/klite@latest
 ```
 
 ## Development

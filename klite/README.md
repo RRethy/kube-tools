@@ -1,10 +1,10 @@
-# kustomizelite
+# klite
 
 A lightweight Kustomize-like tool for Kubernetes resource management.
 
 ## Overview
 
-kustomizelite provides simplified Kustomize-like functionality for managing Kubernetes resources. It's designed to be a lightweight alternative that covers common use cases for resource customization and composition.
+klite provides simplified Kustomize-like functionality for managing Kubernetes resources. It's designed to be a lightweight alternative that covers common use cases for resource customization and composition.
 
 ## Installation
 
@@ -16,11 +16,11 @@ git clone https://github.com/RRethy/kube-tools.git
 cd kube-tools
 
 # Build and install
-make build-kustomizelite
+make build-klite
 sudo make install
 
 # Or install directly with go
-go install github.com/RRethy/kube-tools/kustomizelite@latest
+go install github.com/RRethy/kube-tools/klite@latest
 ```
 
 ### Download Binary
@@ -35,13 +35,13 @@ Build Kubernetes resources from a kustomization directory:
 
 ```bash
 # Build resources from current directory
-kustomizelite build
+klite build
 
 # Build resources from specific directory
-kustomizelite build path/to/kustomization
+klite build path/to/kustomization
 
 # Pipe to kubectl to apply
-kustomizelite build . | kubectl apply -f -
+klite build . | kubectl apply -f -
 ```
 
 ## Features
@@ -66,13 +66,13 @@ kustomizelite build . | kubectl apply -f -
 
 ```bash
 # Build resources from a kustomization directory
-kustomizelite build ./overlays/production
+klite build ./overlays/production
 
 # Apply directly to cluster
-kustomizelite build ./base | kubectl apply -f -
+klite build ./base | kubectl apply -f -
 
 # Preview changes
-kustomizelite build ./overlays/staging | kubectl diff -f -
+klite build ./overlays/staging | kubectl diff -f -
 ```
 
 ## Project Structure
@@ -96,13 +96,13 @@ kustomization/
 
 ```bash
 # Run tests
-cd kustomizelite && go test ./...
+cd klite && go test ./...
 
 # Run with verbose output
 go run main.go build . -v
 
 # Build binary
-go build -o kustomizelite .
+go build -o klite .
 ```
 
 ## Contributing

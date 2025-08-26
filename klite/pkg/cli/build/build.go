@@ -6,7 +6,7 @@ import (
 
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 
-	"github.com/RRethy/kube-tools/kustomizelite/pkg/hydrate"
+	"github.com/RRethy/kube-tools/klite/pkg/hydrate"
 )
 
 func Build(ctx context.Context, path string) error {

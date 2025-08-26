@@ -8,9 +8,9 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "kustomizelite",
+	Use:   "klite",
 	Short: "A lightweight Kustomize-like tool",
-	Long:  `kustomizelite is a CLI tool that provides simplified Kustomize-like functionality`,
+	Long:  `klite is a CLI tool that provides simplified Kustomize-like functionality`,
 }
 
 func GetRootCmd() *cobra.Command {

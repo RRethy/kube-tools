@@ -1,10 +1,10 @@
-# CLAUDE.md - kustomizelite Module
+# CLAUDE.md - klite Module
 
-This file provides module-specific guidance to Claude Code (claude.ai/code) when working with the kustomizelite module.
+This file provides module-specific guidance to Claude Code (claude.ai/code) when working with the klite module.
 
 ## Module Overview
 
-kustomizelite is a lightweight Kustomize-like tool that provides simplified Kubernetes resource management functionality. It follows the same architectural patterns as kubectl-x for consistency across the workspace.
+klite is a lightweight Kustomize-like tool that provides simplified Kubernetes resource management functionality. It follows the same architectural patterns as kubectl-x for consistency across the workspace.
 
 ## Architecture
 
@@ -12,7 +12,7 @@ kustomizelite is a lightweight Kustomize-like tool that provides simplified Kube
 The module follows the standard CLI pattern used across the workspace:
 
 ```
-kustomizelite/
+klite/
 ├── cmd/
 │   ├── root.go        # Root command definition
 │   └── build.go       # Build subcommand
@@ -34,13 +34,13 @@ Each command follows this pattern:
 
 ### Build Command
 - **Purpose**: Build Kubernetes resources from a kustomization directory
-- **Usage**: `kustomizelite build [directory]`
+- **Usage**: `klite build [directory]`
 - **Implementation**: Currently scaffolded with basic structure
 
 ## Development Guidelines
 
 ### Adding New Commands
-When adding new commands to kustomizelite:
+When adding new commands to klite:
 1. Create `cmd/[command].go` with Cobra command definition
 2. Create `pkg/cli/[command]/` directory
 3. Implement the pattern with `[command].go` and `[command]er.go`
@@ -67,11 +67,11 @@ Potential features to implement:
 ## Build and Test
 ```bash
 # Build the module
-make build-kustomizelite
+make build-klite
 
 # Run tests
-cd kustomizelite && go test ./...
+cd klite && go test ./...
 
 # Run linting
-cd kustomizelite && go run github.com/golangci/golangci-lint/cmd/golangci-lint run
+cd klite && go run github.com/golangci/golangci-lint/cmd/golangci-lint run
 ```
