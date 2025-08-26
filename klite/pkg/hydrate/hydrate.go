@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 
@@ -115,18 +114,14 @@ func (h *hydrator) loadResource(resourcePath string) ([]*kyaml.RNode, error) {
 		return nil, err
 	}
 
-	var nodes []*kyaml.RNode
-	decoder := kyaml.NewDecoder(bytes.NewReader(data))
-	for {
-		var node kyaml.RNode
-		if err := decoder.Decode(&node); err != nil {
-			if err == io.EOF {
-				break
-			}
-			return nil, err
-		}
-		nodes = append(nodes, &node)
+	if len(bytes.TrimSpace(data)) == 0 {
+		return []*kyaml.RNode{}, nil
 	}
 
-	return nodes, nil
+	node, err := kyaml.Parse(string(data))
+	if err != nil {
+		return nil, err
+	}
+
+	return []*kyaml.RNode{node}, nil
 }
