@@ -57,7 +57,9 @@ func (h *hydrator) resolveKustomizationFile(path string) (*v1.Kustomization, str
 	}
 
 	var kustomization v1.Kustomization
-	if err := yaml.Unmarshal(data, &kustomization); err != nil {
+	decoder := yaml.NewDecoder(bytes.NewReader(data))
+	decoder.KnownFields(true)
+	if err := decoder.Decode(&kustomization); err != nil {
 		return nil, "", err
 	}
 

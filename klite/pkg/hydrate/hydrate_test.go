@@ -63,6 +63,36 @@ func TestHydrate(t *testing.T) {
 			wantErr: true,
 			errMsg:  "is not kustomization.yaml",
 		},
+		{
+			name:    "invalid yaml syntax",
+			path:    "../../fixtures/invalid-yaml",
+			wantErr: true,
+			errMsg:  "yaml:",
+		},
+		{
+			name:    "missing resource file",
+			path:    "../../fixtures/missing-resource",
+			wantErr: true,
+			errMsg:  "no such file or directory",
+		},
+		{
+			name:      "empty yaml file with valid resources",
+			path:      "../../fixtures/empty-yaml",
+			wantErr:   false,
+			wantNodes: 1,
+		},
+		{
+			name:    "kustomization with unknown fields",
+			path:    "../../fixtures/invalid-kustomization",
+			wantErr: true,
+			errMsg:  "field invalidField not found",
+		},
+		{
+			name:    "directory resource without kustomization",
+			path:    "../../fixtures/directory-no-kustomization",
+			wantErr: true,
+			errMsg:  "not found",
+		},
 	}
 
 	for _, tt := range tests {
