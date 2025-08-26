@@ -5,9 +5,15 @@ import (
 	"os"
 
 	"k8s.io/cli-runtime/pkg/genericiooptions"
+
+	"github.com/RRethy/kube-tools/kustomizelite/pkg/hydrate"
 )
 
-func Build(ctx context.Context, directory string) error {
+func Build(ctx context.Context, path string) error {
 	ioStreams := genericiooptions.IOStreams{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr}
-	return (&Builder{IoStreams: ioStreams}).Build(ctx, directory)
+	hydrator := hydrate.NewHydrator()
+	return (&Builder{
+		IoStreams: ioStreams,
+		Hydrator:  hydrator,
+	}).Build(ctx, path)
 }

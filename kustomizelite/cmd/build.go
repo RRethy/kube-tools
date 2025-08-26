@@ -9,13 +9,12 @@ var buildCmd = &cobra.Command{
 	Use:   "build [directory]",
 	Short: "Build Kubernetes resources from a directory",
 	Long:  `Build generates Kubernetes resources from a kustomization directory`,
-	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		directory := "."
+		path := "."
 		if len(args) > 0 {
-			directory = args[0]
+			path = args[0]
 		}
-		return build.Build(cmd.Context(), directory)
+		return build.Build(cmd.Context(), path)
 	},
 }
 
