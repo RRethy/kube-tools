@@ -40,6 +40,12 @@ func TestHydrate(t *testing.T) {
 			wantNodes: 2,
 		},
 		{
+			name:      "mixed resources with file and directories",
+			path:      "../../fixtures/mixed-resources",
+			wantErr:   false,
+			wantNodes: 5,
+		},
+		{
 			name:    "non-existent directory",
 			path:    "../../fixtures/non-existent",
 			wantErr: true,
