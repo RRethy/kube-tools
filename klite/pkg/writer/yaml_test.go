@@ -1,4 +1,4 @@
-package printer
+package writer
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 	kyaml "sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
-func TestYAMLPrinter_Print(t *testing.T) {
+func TestYAML_Write(t *testing.T) {
 	tests := []struct {
 		name       string
 		yaml       []string
@@ -81,10 +81,10 @@ metadata:
 				nodes = append(nodes, node)
 			}
 
-			// Print to buffer
+			// Write to buffer
 			var buf bytes.Buffer
-			printer := NewYAMLPrinter(&buf)
-			err := printer.Print(nodes)
+			writer := NewYAML(&buf)
+			err := writer.Write(nodes)
 			require.NoError(t, err)
 
 			// Check output

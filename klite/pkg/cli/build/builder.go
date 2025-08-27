@@ -6,13 +6,13 @@ import (
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 
 	"github.com/RRethy/kube-tools/klite/pkg/hydrate"
-	"github.com/RRethy/kube-tools/klite/pkg/printer"
+	"github.com/RRethy/kube-tools/klite/pkg/writer"
 )
 
 type Builder struct {
 	IoStreams genericiooptions.IOStreams
 	Hydrator  hydrate.Hydrator
-	Printer   printer.Printer
+	Writer writer.Writer
 }
 
 func (b *Builder) Build(ctx context.Context, path string) error {
@@ -21,5 +21,5 @@ func (b *Builder) Build(ctx context.Context, path string) error {
 		return err
 	}
 
-	return b.Printer.Print(nodes)
+	return b.Writer.Write(nodes)
 }
