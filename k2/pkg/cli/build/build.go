@@ -9,11 +9,12 @@ import (
 	"github.com/RRethy/kube-tools/k2/pkg/hydrate"
 )
 
-func Build(ctx context.Context, path string) error {
+func Build(ctx context.Context, paths []string, outDir string) error {
 	ioStreams := genericiooptions.IOStreams{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr}
 	hydrator := hydrate.NewHydrator()
-	return (&Builder{
+	builder := &Builder{
 		IoStreams: ioStreams,
 		Hydrator:  hydrator,
-	}).Build(ctx, path)
+	}
+	return builder.Build(ctx, paths, outDir)
 }
