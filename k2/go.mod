@@ -1,4 +1,4 @@
-module github.com/RRethy/kube-tools/klite
+module github.com/RRethy/kube-tools/k2
 
 go 1.24.5
 

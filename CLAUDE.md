@@ -13,7 +13,7 @@ make build                 - Build all binaries
 make build-kubectl-x       - Build the kubectl-x binary
 make build-kubernetes-mcp  - Build the kubernetes-mcp binary
 make build-celery          - Build the celery binary
-make build-klite   - Build the klite binary
+make build-k2      - Build the k2 binary
 make test                  - Run all tests
 make lint                  - Run golangci-lint
 make lint-fix              - Run golangci-lint with auto-fix
@@ -32,7 +32,7 @@ go work sync
 go install github.com/RRethy/kubectl-x@latest                    # kubectl-x CLI
 go install github.com/RRethy/kube-tools/kubernetes-mcp@latest     # kubernetes-mcp CLI
 go install github.com/RRethy/kube-tools/celery@latest             # celery CLI
-go install github.com/RRethy/kube-tools/klite@latest      # klite CLI
+go install github.com/RRethy/kube-tools/k2@latest         # k2 CLI
 ```
 
 ## Architecture
@@ -42,7 +42,7 @@ This is a Go workspace with four modules:
 - `kubectl-x/` - Kubernetes context and namespace switching CLI
 - `kubernetes-mcp/` - Readonly MCP (Model Context Protocol) server for Kubernetes
 - `celery/` - CEL-based Kubernetes resource validator
-- `klite/` - Lightweight Kustomize-like tool for Kubernetes resource management
+- `k2/` - Lightweight Kustomize-like tool for Kubernetes resource management
 
 The root contains `go.work` for workspace configuration.
 
@@ -50,7 +50,7 @@ The root contains `go.work` for workspace configuration.
 
 ### Go Workspace Configuration
 - Uses Go 1.24.5
-- Multi-module workspace with `kubectl-x/`, `kubernetes-mcp/`, `celery/`, and `klite/` modules
+- Multi-module workspace with `kubectl-x/`, `kubernetes-mcp/`, `celery/`, and `k2/` modules
 - Use `go work sync` to synchronize dependencies across workspace
 - All modules include golangci-lint as tool dependency
 
@@ -79,7 +79,7 @@ The root contains `go.work` for workspace configuration.
 │   ├── api/            # API types (ValidationRules)
 │   ├── fixtures/       # Test fixtures and examples
 │   └── main.go
-└── klite/      # Lightweight Kustomize-like tool
+└── k2/         # Lightweight Kustomize-like tool
     ├── CLAUDE.md       # Module-specific documentation
     ├── README.md       # User documentation
     ├── cmd/            # CLI commands (root, build)

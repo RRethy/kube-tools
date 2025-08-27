@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/fang"
 	"k8s.io/klog/v2"
 
-	"github.com/RRethy/kube-tools/klite/cmd"
+	"github.com/RRethy/kube-tools/k2/cmd"
 )
 
 func main() {

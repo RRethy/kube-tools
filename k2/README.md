@@ -1,10 +1,10 @@
-# klite
+# k2
 
 A lightweight Kustomize-like tool for Kubernetes resource management.
 
 ## Overview
 
-klite provides simplified Kustomize-like functionality for managing Kubernetes resources. It's designed to be a lightweight alternative that covers common use cases for resource customization and composition.
+k2 provides simplified Kustomize-like functionality for managing Kubernetes resources. It's designed to be a lightweight alternative that covers common use cases for resource customization and composition.
 
 ## Installation
 
@@ -16,11 +16,11 @@ git clone https://github.com/RRethy/kube-tools.git
 cd kube-tools
 
 # Build and install
-make build-klite
+make build-k2
 sudo make install
 
 # Or install directly with go
-go install github.com/RRethy/kube-tools/klite@latest
+go install github.com/RRethy/kube-tools/k2@latest
 ```
 
 ### Download Binary
@@ -35,13 +35,13 @@ Build Kubernetes resources from a kustomization directory:
 
 ```bash
 # Build resources from current directory
-klite build
+k2 build
 
 # Build resources from specific directory
-klite build path/to/kustomization
+k2 build path/to/kustomization
 
 # Pipe to kubectl to apply
-klite build . | kubectl apply -f -
+k2 build . | kubectl apply -f -
 ```
 
 ## Features
@@ -66,13 +66,13 @@ klite build . | kubectl apply -f -
 
 ```bash
 # Build resources from a kustomization directory
-klite build ./overlays/production
+k2 build ./overlays/production
 
 # Apply directly to cluster
-klite build ./base | kubectl apply -f -
+k2 build ./base | kubectl apply -f -
 
 # Preview changes
-klite build ./overlays/staging | kubectl diff -f -
+k2 build ./overlays/staging | kubectl diff -f -
 ```
 
 ## Project Structure
@@ -96,13 +96,13 @@ kustomization/
 
 ```bash
 # Run tests
-cd klite && go test ./...
+cd k2 && go test ./...
 
 # Run with verbose output
 go run main.go build . -v
 
 # Build binary
-go build -o klite .
+go build -o k2 .
 ```
 
 ## Contributing

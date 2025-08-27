@@ -1,4 +1,4 @@
-.PHONY: all test lint lint-fix build build-kubectl-x build-kubernetes-mcp build-celery build-klite fmt vet tidy install uninstall clean help
+.PHONY: all test lint lint-fix build build-kubectl-x build-kubernetes-mcp build-celery build-k2 fmt vet tidy install uninstall clean help
 
 # Installation directory
 INSTALL_DIR := /usr/local/bin
@@ -17,7 +17,7 @@ help:
 	@echo "  build-kubectl-x      - Build the kubectl-x binary"
 	@echo "  build-kubernetes-mcp - Build the kubernetes-mcp binary"
 	@echo "  build-celery         - Build the celery binary"
-	@echo "  build-klite          - Build the klite binary"
+	@echo "  build-k2             - Build the k2 binary"
 	@echo "  fmt                  - Format Go code"
 	@echo "  vet                  - Run go vet"
 	@echo "  tidy                 - Run go mod tidy"
@@ -30,24 +30,24 @@ test:
 	cd kubectl-x && go test ./...
 	cd kubernetes-mcp && go test ./...
 	cd celery && go test ./...
-	cd klite && go test ./...
+	cd k2 && go test ./...
 
 # Run golangci-lint
 lint:
 	cd kubectl-x && go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 10m
 	cd kubernetes-mcp && go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 10m
 	cd celery && go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 10m
-	cd klite && go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 10m
+	cd k2 && go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 10m
 
 # Run golangci-lint with auto-fix
 lint-fix:
 	cd kubectl-x && go run github.com/golangci/golangci-lint/cmd/golangci-lint run --fix --timeout 10m
 	cd kubernetes-mcp && go run github.com/golangci/golangci-lint/cmd/golangci-lint run --fix --timeout 10m
 	cd celery && go run github.com/golangci/golangci-lint/cmd/golangci-lint run --fix --timeout 10m
-	cd klite && go run github.com/golangci/golangci-lint/cmd/golangci-lint run --fix --timeout 10m
+	cd k2 && go run github.com/golangci/golangci-lint/cmd/golangci-lint run --fix --timeout 10m
 
 # Build all binaries
-build: tidy fmt build-kubectl-x build-kubernetes-mcp build-celery build-klite
+build: tidy fmt build-kubectl-x build-kubernetes-mcp build-celery build-k2
 
 # Build the kubectl-x binary
 build-kubectl-x:
@@ -61,30 +61,30 @@ build-kubernetes-mcp:
 build-celery:
 	cd celery && go build -o ../bin/celery .
 
-# Build the klite binary
-build-klite:
-	cd klite && go build -o ../bin/klite .
+# Build the k2 binary
+build-k2:
+	cd k2 && go build -o ../bin/k2 .
 
 # Format Go code
 fmt:
 	cd kubectl-x && go fmt ./...
 	cd kubernetes-mcp && go fmt ./...
 	cd celery && go fmt ./...
-	cd klite && go fmt ./...
+	cd k2 && go fmt ./...
 
 # Run go vet
 vet:
 	cd kubectl-x && go vet ./...
 	cd kubernetes-mcp && go vet ./...
 	cd celery && go vet ./...
-	cd klite && go vet ./...
+	cd k2 && go vet ./...
 
 # Run go mod tidy
 tidy:
 	cd kubectl-x && go mod tidy
 	cd kubernetes-mcp && go mod tidy
 	cd celery && go mod tidy
-	cd klite && go mod tidy
+	cd k2 && go mod tidy
 	go work sync
 
 # Install all binaries to /usr/local/bin
@@ -94,12 +94,12 @@ install: build
 	@install -m 755 bin/kubectl-x $(INSTALL_DIR)/kubectl-x
 	@install -m 755 bin/kubernetes-mcp $(INSTALL_DIR)/kubernetes-mcp
 	@install -m 755 bin/celery $(INSTALL_DIR)/celery
-	@install -m 755 bin/klite $(INSTALL_DIR)/klite
+	@install -m 755 bin/k2 $(INSTALL_DIR)/k2
 	@echo "Installation complete!"
 	@echo "  kubectl-x installed to $(INSTALL_DIR)/kubectl-x"
 	@echo "  kubernetes-mcp installed to $(INSTALL_DIR)/kubernetes-mcp"
 	@echo "  celery installed to $(INSTALL_DIR)/celery"
-	@echo "  klite installed to $(INSTALL_DIR)/klite"
+	@echo "  k2 installed to $(INSTALL_DIR)/k2"
 
 # Uninstall binaries from /usr/local/bin
 uninstall:
@@ -107,7 +107,7 @@ uninstall:
 	@rm -f $(INSTALL_DIR)/kubectl-x
 	@rm -f $(INSTALL_DIR)/kubernetes-mcp
 	@rm -f $(INSTALL_DIR)/celery
-	@rm -f $(INSTALL_DIR)/klite
+	@rm -f $(INSTALL_DIR)/k2
 	@echo "Uninstall complete!"
 
 # Clean built binaries

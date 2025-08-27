@@ -6,7 +6,7 @@ import (
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 	"sigs.k8s.io/kustomize/kyaml/kio"
 
-	"github.com/RRethy/kube-tools/klite/pkg/hydrate"
+	"github.com/RRethy/kube-tools/k2/pkg/hydrate"
 )
 
 type Builder struct {

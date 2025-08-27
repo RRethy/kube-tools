@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/RRethy/kube-tools/klite/pkg/cli/build"
+	"github.com/RRethy/kube-tools/k2/pkg/cli/build"
 	"github.com/spf13/cobra"
 )
 
