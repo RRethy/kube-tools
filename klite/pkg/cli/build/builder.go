@@ -4,15 +4,14 @@ import (
 	"context"
 
 	"k8s.io/cli-runtime/pkg/genericiooptions"
+	"sigs.k8s.io/kustomize/kyaml/kio"
 
 	"github.com/RRethy/kube-tools/klite/pkg/hydrate"
-	"github.com/RRethy/kube-tools/klite/pkg/writer"
 )
 
 type Builder struct {
 	IoStreams genericiooptions.IOStreams
 	Hydrator  hydrate.Hydrator
-	Writer writer.Writer
 }
 
 func (b *Builder) Build(ctx context.Context, path string) error {
@@ -21,5 +20,9 @@ func (b *Builder) Build(ctx context.Context, path string) error {
 		return err
 	}
 
-	return b.Writer.Write(nodes)
+	writer := &kio.ByteWriter{
+		Writer: b.IoStreams.Out,
+	}
+
+	return writer.Write(nodes)
 }
