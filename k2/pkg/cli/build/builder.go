@@ -2,10 +2,12 @@ package build
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"k8s.io/cli-runtime/pkg/genericiooptions"
 	"sigs.k8s.io/kustomize/kyaml/kio"
@@ -29,13 +31,9 @@ func (b *Builder) Build(ctx context.Context, paths []string, outDir string) erro
 		return fmt.Errorf("--out-dir is required when building multiple paths")
 	}
 
-	var nodess [][]*kyaml.RNode
-	for _, p := range paths {
-		nodes, err := b.Hydrator.Hydrate(ctx, p)
-		if err != nil {
-			return err
-		}
-		nodess = append(nodess, nodes)
+	nodess, err := b.hydratePaths(ctx, paths)
+	if err != nil {
+		return fmt.Errorf("hydrating paths: %w", err)
 	}
 
 	if outDir == "" {
@@ -46,21 +44,74 @@ func (b *Builder) Build(ctx context.Context, paths []string, outDir string) erro
 		return writer.Write(nodess[0])
 	}
 
-	if err := os.MkdirAll(outDir, 0o755); err != nil {
+	if err = os.MkdirAll(outDir, 0o755); err != nil {
 		return fmt.Errorf("creating output directory: %w", err)
 	}
 
-	absPaths := make([]string, len(paths))
-	for i, p := range paths {
-		abs, err := filepath.Abs(p)
-		if err != nil {
-			return fmt.Errorf("getting absolute path for %s: %w", p, err)
-		}
-		absPaths[i] = abs
+	absPaths, err := b.toAbsPaths(paths)
+	if err != nil {
+		return err
 	}
 
 	commonPrefix := k2strings.FindCommonPrefix(absPaths)
 
+	return b.writeNodess(nodess, absPaths, commonPrefix, outDir)
+}
+
+func (b *Builder) hydratePaths(ctx context.Context, paths []string) ([][]*kyaml.RNode, error) {
+	type result struct {
+		index int
+		nodes []*kyaml.RNode
+		err   error
+	}
+
+	results := make(chan result, len(paths))
+	var wg sync.WaitGroup
+	for i, p := range paths {
+		wg.Add(1)
+		go func(index int, path string) {
+			defer wg.Done()
+			nodes, err := b.Hydrator.Hydrate(ctx, path)
+			if err != nil {
+				results <- result{index: index, err: fmt.Errorf("hydrating %s: %w", path, err)}
+				return
+			}
+			results <- result{index: index, nodes: nodes}
+		}(i, p)
+	}
+
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	nodess := make([][]*kyaml.RNode, len(paths))
+	var errs []error
+
+	for res := range results {
+		if res.err != nil {
+			errs = append(errs, res.err)
+		} else {
+			nodess[res.index] = res.nodes
+		}
+	}
+
+	return nodess, errors.Join(errs...)
+}
+
+func (b *Builder) toAbsPaths(paths []string) ([]string, error) {
+	absPaths := make([]string, len(paths))
+	for i, p := range paths {
+		abs, err := filepath.Abs(p)
+		if err != nil {
+			return nil, fmt.Errorf("getting absolute path for %s: %w", p, err)
+		}
+		absPaths[i] = abs
+	}
+	return absPaths, nil
+}
+
+func (b *Builder) writeNodess(nodess [][]*kyaml.RNode, absPaths []string, commonPrefix, outDir string) error {
 	for i, p := range absPaths {
 		suffix := strings.TrimPrefix(p, commonPrefix)
 		suffix = strings.TrimPrefix(suffix, string(filepath.Separator))
