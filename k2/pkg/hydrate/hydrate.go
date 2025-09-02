@@ -35,15 +35,12 @@ func (h *hydrator) Hydrate(ctx context.Context, path string) (*HydratedResult, e
 		return nil, err
 	}
 
-	nodes := []*kyaml.RNode{}
-	for _, resource := range kustomization.Resources {
-		resourcePath := filepath.Join(baseDir, resource)
-		resourceNodes, err := h.loadResource(resourcePath)
-		if err != nil {
-			return nil, fmt.Errorf("loading resource %s: %w", resource, err)
-		}
-		nodes = append(nodes, resourceNodes...)
+	nodes, err := h.loadResources(kustomization.Resources, baseDir)
+	if err != nil {
+		return nil, err
 	}
+
+	// TODO: h.loadComponents
 
 	result := &HydratedResult{
 		Nodes: nodes,
@@ -52,6 +49,19 @@ func (h *hydrator) Hydrate(ctx context.Context, path string) (*HydratedResult, e
 		result.Metadata = *kustomization.Metadata
 	}
 	return result, nil
+}
+
+func (h *hydrator) loadResources(resources []string, baseDir string) ([]*kyaml.RNode, error) {
+	nodes := []*kyaml.RNode{}
+	for _, resource := range resources {
+		resourcePath := filepath.Join(baseDir, resource)
+		resourceNodes, err := h.loadResource(resourcePath)
+		if err != nil {
+			return nil, fmt.Errorf("loading resource %s: %w", resource, err)
+		}
+		nodes = append(nodes, resourceNodes...)
+	}
+	return nodes, nil
 }
 
 func (h *hydrator) resolveKustomizationFile(path string) (*v1.Kustomization, string, error) {
