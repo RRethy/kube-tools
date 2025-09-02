@@ -67,7 +67,7 @@ func (b *Builder) hydratePaths(ctx context.Context, paths []string) ([][]*kyaml.
 		wg.Add(1)
 		go func(index int, path string) {
 			defer wg.Done()
-			hydrated, err := b.Hydrator.Hydrate(ctx, path)
+			hydrated, err := b.Hydrator.Hydrate(ctx, path, nil)
 			if err != nil {
 				results <- result{index: index, err: fmt.Errorf("hydrating %s: %w", path, err)}
 				return

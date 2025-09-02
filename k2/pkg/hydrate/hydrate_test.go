@@ -100,7 +100,7 @@ func TestHydrate(t *testing.T) {
 			h := NewHydrator()
 			ctx := context.Background()
 
-			result, err := h.Hydrate(ctx, tt.path)
+			result, err := h.Hydrate(ctx, tt.path, nil)
 
 			if tt.wantErr {
 				require.Error(t, err, "Hydrate() should return an error")

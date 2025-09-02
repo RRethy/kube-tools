@@ -20,7 +20,7 @@ type HydratedResult struct {
 }
 
 type Hydrator interface {
-	Hydrate(ctx context.Context, path string) (*HydratedResult, error)
+	Hydrate(ctx context.Context, path string, currentResources []*kyaml.RNode) (*HydratedResult, error)
 }
 
 type hydrator struct{}
@@ -29,7 +29,7 @@ func NewHydrator() Hydrator {
 	return &hydrator{}
 }
 
-func (h *hydrator) Hydrate(ctx context.Context, path string) (*HydratedResult, error) {
+func (h *hydrator) Hydrate(ctx context.Context, path string, currentResources []*kyaml.RNode) (*HydratedResult, error) {
 	kustomization, baseDir, err := h.resolveKustomizationFile(path)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,11 @@ func (h *hydrator) Hydrate(ctx context.Context, path string) (*HydratedResult, e
 		return nil, err
 	}
 
-	// TODO: h.loadComponents
+	componentNodes, err := h.loadComponents(kustomization.Components, baseDir, append(currentResources, nodes...))
+	if err != nil {
+		return nil, err
+	}
+	nodes = append(nodes, componentNodes...)
 
 	result := &HydratedResult{
 		Nodes: nodes,
@@ -55,11 +59,24 @@ func (h *hydrator) loadResources(resources []string, baseDir string) ([]*kyaml.R
 	nodes := []*kyaml.RNode{}
 	for _, resource := range resources {
 		resourcePath := filepath.Join(baseDir, resource)
-		resourceNodes, err := h.loadResource(resourcePath)
+		resourceNodes, err := h.loadResource(resourcePath, nil)
 		if err != nil {
 			return nil, fmt.Errorf("loading resource %s: %w", resource, err)
 		}
 		nodes = append(nodes, resourceNodes...)
+	}
+	return nodes, nil
+}
+
+func (h *hydrator) loadComponents(components []string, baseDir string, currentResources []*kyaml.RNode) ([]*kyaml.RNode, error) {
+	nodes := []*kyaml.RNode{}
+	for _, component := range components {
+		componentPath := filepath.Join(baseDir, component)
+		result, err := h.Hydrate(context.Background(), componentPath, currentResources)
+		if err != nil {
+			return nil, fmt.Errorf("loading component %s: %w", component, err)
+		}
+		nodes = append(nodes, result.Nodes...)
 	}
 	return nodes, nil
 }
@@ -121,14 +138,15 @@ func (h *hydrator) resolveKustomizationPath(path string) (string, error) {
 	return kustomizationPath, nil
 }
 
-func (h *hydrator) loadResource(resourcePath string) ([]*kyaml.RNode, error) {
+func (h *hydrator) loadResource(resourcePath string, currentResources []*kyaml.RNode) ([]*kyaml.RNode, error) {
 	info, err := os.Stat(resourcePath)
 	if err != nil {
 		return nil, err
 	}
 
 	if info.IsDir() {
-		result, err := h.Hydrate(context.Background(), resourcePath)
+		var result *HydratedResult
+		result, err = h.Hydrate(context.Background(), resourcePath, currentResources)
 		if err != nil {
 			return nil, err
 		}

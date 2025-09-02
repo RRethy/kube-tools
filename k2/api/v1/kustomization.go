@@ -7,4 +7,5 @@ type Kustomization struct {
 	Kind       string             `yaml:"kind" json:"kind"`
 	Metadata   *metav1.ObjectMeta `yaml:"metadata,omitempty" json:"metadata,omitempty"`
 	Resources  []string           `yaml:"resources,omitempty" json:"resources,omitempty"`
+	Components []string           `yaml:"components,omitempty" json:"components,omitempty"`
 }
