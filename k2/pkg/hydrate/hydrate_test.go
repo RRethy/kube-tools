@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	kyaml "sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
 func TestNewHydrator(t *testing.T) {
@@ -15,11 +16,13 @@ func TestNewHydrator(t *testing.T) {
 
 func TestHydrate(t *testing.T) {
 	tests := []struct {
-		name      string
-		path      string
-		wantErr   bool
-		errMsg    string
-		wantNodes int
+		name             string
+		path             string
+		currentResources []*kyaml.RNode
+		wantErr          bool
+		errMsg           string
+		wantNodes        int
+		validateFunc     func(t *testing.T, result *HydratedResult)
 	}{
 		{
 			name:      "basic empty kustomization with directory path",
@@ -76,7 +79,7 @@ func TestHydrate(t *testing.T) {
 			errMsg:  "no such file or directory",
 		},
 		{
-			name:      "empty yaml file with valid resources",
+			name:      "valid kustomization with valid resource and empty resource file",
 			path:      "../../fixtures/empty-yaml",
 			wantErr:   false,
 			wantNodes: 1,
@@ -93,6 +96,47 @@ func TestHydrate(t *testing.T) {
 			wantErr: true,
 			errMsg:  "not found",
 		},
+		{
+			name:      "kustomization with components",
+			path:      "../../fixtures/with-components",
+			wantErr:   false,
+			wantNodes: 2,
+			validateFunc: func(t *testing.T, result *HydratedResult) {
+				resources := make(map[string]string)
+				for _, node := range result.Nodes {
+					meta, err := node.GetMeta()
+					require.NoError(t, err)
+					resources[meta.Kind] = meta.Name
+				}
+				assert.Equal(t, "app", resources["Deployment"])
+				assert.Equal(t, "logging-config", resources["ConfigMap"])
+			},
+		},
+		{
+			name:      "kustomization with multiple components and resources",
+			path:      "../../fixtures/components-and-resources",
+			wantErr:   false,
+			wantNodes: 5,
+			validateFunc: func(t *testing.T, result *HydratedResult) {
+				resources := make(map[string]string)
+				for _, node := range result.Nodes {
+					meta, err := node.GetMeta()
+					require.NoError(t, err)
+					resources[meta.Kind] = meta.Name
+				}
+				assert.Equal(t, "web-app", resources["Deployment"])
+				assert.Equal(t, "web-service", resources["Service"])
+				assert.Equal(t, "web-monitor", resources["ServiceMonitor"])
+				assert.Equal(t, "monitoring-config", resources["ConfigMap"])
+				assert.Equal(t, "debug-tools", resources["Pod"])
+			},
+		},
+		{
+			name:    "component with missing resource",
+			path:    "../../fixtures/component-with-error",
+			wantErr: true,
+			errMsg:  "no such file or directory",
+		},
 	}
 
 	for _, tt := range tests {
@@ -100,7 +144,7 @@ func TestHydrate(t *testing.T) {
 			h := NewHydrator()
 			ctx := context.Background()
 
-			result, err := h.Hydrate(ctx, tt.path, nil)
+			result, err := h.Hydrate(ctx, tt.path, tt.currentResources)
 
 			if tt.wantErr {
 				require.Error(t, err, "Hydrate() should return an error")
@@ -112,6 +156,10 @@ func TestHydrate(t *testing.T) {
 				assert.NotNil(t, result, "Hydrate() should not return nil result")
 				assert.NotNil(t, result.Nodes, "Hydrate() should not return nil nodes")
 				assert.Len(t, result.Nodes, tt.wantNodes, "Hydrate() should return expected number of nodes")
+
+				if tt.validateFunc != nil {
+					tt.validateFunc(t, result)
+				}
 			}
 		})
 	}

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitoring-config
+data:
+  prometheus.yaml: |
+    global:
+      scrape_interval: 15s
+  alerts.yaml: |
+    groups:
+    - name: example
+      rules:
+      - alert: HighMemory
+        expr: memory > 90

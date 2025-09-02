@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debug-tools
+  labels:
+    purpose: debugging
+spec:
+  containers:
+  - name: debug
+    image: busybox
+    command: ["sleep", "3600"]
