@@ -8,13 +8,19 @@ import (
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kyaml "sigs.k8s.io/kustomize/kyaml/yaml"
 
 	v1 "github.com/RRethy/kube-tools/k2/api/v1"
 )
 
+type HydratedResult struct {
+	Nodes    []*kyaml.RNode
+	Metadata metav1.ObjectMeta
+}
+
 type Hydrator interface {
-	Hydrate(ctx context.Context, path string) ([]*kyaml.RNode, error)
+	Hydrate(ctx context.Context, path string) (*HydratedResult, error)
 }
 
 type hydrator struct{}
@@ -23,7 +29,7 @@ func NewHydrator() Hydrator {
 	return &hydrator{}
 }
 
-func (h *hydrator) Hydrate(ctx context.Context, path string) ([]*kyaml.RNode, error) {
+func (h *hydrator) Hydrate(ctx context.Context, path string) (*HydratedResult, error) {
 	kustomization, baseDir, err := h.resolveKustomizationFile(path)
 	if err != nil {
 		return nil, err
@@ -39,7 +45,13 @@ func (h *hydrator) Hydrate(ctx context.Context, path string) ([]*kyaml.RNode, er
 		nodes = append(nodes, resourceNodes...)
 	}
 
-	return nodes, nil
+	result := &HydratedResult{
+		Nodes: nodes,
+	}
+	if kustomization.Metadata != nil {
+		result.Metadata = *kustomization.Metadata
+	}
+	return result, nil
 }
 
 func (h *hydrator) resolveKustomizationFile(path string) (*v1.Kustomization, string, error) {
@@ -106,7 +118,11 @@ func (h *hydrator) loadResource(resourcePath string) ([]*kyaml.RNode, error) {
 	}
 
 	if info.IsDir() {
-		return h.Hydrate(context.Background(), resourcePath)
+		result, err := h.Hydrate(context.Background(), resourcePath)
+		if err != nil {
+			return nil, err
+		}
+		return result.Nodes, nil
 	}
 
 	data, err := os.ReadFile(resourcePath)

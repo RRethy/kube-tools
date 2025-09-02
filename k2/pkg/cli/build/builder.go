@@ -37,11 +37,7 @@ func (b *Builder) Build(ctx context.Context, paths []string, outDir string) erro
 	}
 
 	if outDir == "" {
-		writer := &kio.ByteWriter{
-			Writer: b.IoStreams.Out,
-		}
-
-		return writer.Write(nodess[0])
+		return b.writeToStdout(nodess[0])
 	}
 
 	if err = os.MkdirAll(outDir, 0o755); err != nil {
@@ -71,12 +67,12 @@ func (b *Builder) hydratePaths(ctx context.Context, paths []string) ([][]*kyaml.
 		wg.Add(1)
 		go func(index int, path string) {
 			defer wg.Done()
-			nodes, err := b.Hydrator.Hydrate(ctx, path)
+			hydrated, err := b.Hydrator.Hydrate(ctx, path)
 			if err != nil {
 				results <- result{index: index, err: fmt.Errorf("hydrating %s: %w", path, err)}
 				return
 			}
-			results <- result{index: index, nodes: nodes}
+			results <- result{index: index, nodes: hydrated.Nodes}
 		}(i, p)
 	}
 
@@ -99,6 +95,14 @@ func (b *Builder) hydratePaths(ctx context.Context, paths []string) ([][]*kyaml.
 	return nodess, errors.Join(errs...)
 }
 
+func (b *Builder) writeToStdout(nodes []*kyaml.RNode) error {
+	writer := &kio.ByteWriter{
+		Writer: b.IoStreams.Out,
+	}
+
+	return writer.Write(nodes)
+}
+
 func (b *Builder) toAbsPaths(paths []string) ([]string, error) {
 	absPaths := make([]string, len(paths))
 	for i, p := range paths {
@@ -116,7 +120,7 @@ func (b *Builder) writeNodess(nodess [][]*kyaml.RNode, absPaths []string, common
 		suffix := strings.TrimPrefix(p, commonPrefix)
 		suffix = strings.TrimPrefix(suffix, string(filepath.Separator))
 		if suffix == "" {
-			suffix = "_"
+			suffix = "manifest.yaml"
 		}
 
 		outputName := strings.ReplaceAll(suffix, string(filepath.Separator), "_")

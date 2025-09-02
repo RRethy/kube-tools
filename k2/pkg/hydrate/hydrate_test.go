@@ -100,7 +100,7 @@ func TestHydrate(t *testing.T) {
 			h := NewHydrator()
 			ctx := context.Background()
 
-			nodes, err := h.Hydrate(ctx, tt.path)
+			result, err := h.Hydrate(ctx, tt.path)
 
 			if tt.wantErr {
 				require.Error(t, err, "Hydrate() should return an error")
@@ -109,8 +109,9 @@ func TestHydrate(t *testing.T) {
 				}
 			} else {
 				require.NoError(t, err, "Hydrate() should not return an error")
-				assert.NotNil(t, nodes, "Hydrate() should not return nil nodes")
-				assert.Len(t, nodes, tt.wantNodes, "Hydrate() should return expected number of nodes")
+				assert.NotNil(t, result, "Hydrate() should not return nil result")
+				assert.NotNil(t, result.Nodes, "Hydrate() should not return nil nodes")
+				assert.Len(t, result.Nodes, tt.wantNodes, "Hydrate() should return expected number of nodes")
 			}
 		})
 	}
