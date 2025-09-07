@@ -22,7 +22,7 @@ func TestHydrate(t *testing.T) {
 		wantErr          bool
 		errMsg           string
 		wantNodes        int
-		validateFunc     func(t *testing.T, result *HydratedResult)
+		wantResources    []string
 	}{
 		{
 			name:      "basic empty kustomization with directory path",
@@ -41,12 +41,23 @@ func TestHydrate(t *testing.T) {
 			path:      "../../fixtures/two-resources",
 			wantErr:   false,
 			wantNodes: 2,
+			wantResources: []string{
+				"Deployment/nginx-deployment",
+				"Service/nginx-service",
+			},
 		},
 		{
 			name:      "mixed resources with file and directories",
 			path:      "../../fixtures/mixed-resources",
 			wantErr:   false,
 			wantNodes: 5,
+			wantResources: []string{
+				"ConfigMap/app-config",
+				"Deployment/web-app",
+				"Service/web-service",
+				"Namespace/dev",
+				"Ingress/web-ingress",
+			},
 		},
 		{
 			name:    "non-existent directory",
@@ -83,6 +94,9 @@ func TestHydrate(t *testing.T) {
 			path:      "../../fixtures/empty-yaml",
 			wantErr:   false,
 			wantNodes: 1,
+			wantResources: []string{
+				"Deployment/valid-deployment",
+			},
 		},
 		{
 			name:    "kustomization with unknown fields",
@@ -101,15 +115,9 @@ func TestHydrate(t *testing.T) {
 			path:      "../../fixtures/with-components",
 			wantErr:   false,
 			wantNodes: 2,
-			validateFunc: func(t *testing.T, result *HydratedResult) {
-				resources := make(map[string]string)
-				for _, node := range result.Nodes {
-					meta, err := node.GetMeta()
-					require.NoError(t, err)
-					resources[meta.Kind] = meta.Name
-				}
-				assert.Equal(t, "app", resources["Deployment"])
-				assert.Equal(t, "logging-config", resources["ConfigMap"])
+			wantResources: []string{
+				"Deployment/app",
+				"ConfigMap/logging-config",
 			},
 		},
 		{
@@ -117,18 +125,12 @@ func TestHydrate(t *testing.T) {
 			path:      "../../fixtures/components-and-resources",
 			wantErr:   false,
 			wantNodes: 5,
-			validateFunc: func(t *testing.T, result *HydratedResult) {
-				resources := make(map[string]string)
-				for _, node := range result.Nodes {
-					meta, err := node.GetMeta()
-					require.NoError(t, err)
-					resources[meta.Kind] = meta.Name
-				}
-				assert.Equal(t, "web-app", resources["Deployment"])
-				assert.Equal(t, "web-service", resources["Service"])
-				assert.Equal(t, "web-monitor", resources["ServiceMonitor"])
-				assert.Equal(t, "monitoring-config", resources["ConfigMap"])
-				assert.Equal(t, "debug-tools", resources["Pod"])
+			wantResources: []string{
+				"Deployment/web-app",
+				"Service/web-service",
+				"ServiceMonitor/web-monitor",
+				"ConfigMap/monitoring-config",
+				"Pod/debug-tools",
 			},
 		},
 		{
@@ -157,9 +159,14 @@ func TestHydrate(t *testing.T) {
 				assert.NotNil(t, result.Nodes, "Hydrate() should not return nil nodes")
 				assert.Len(t, result.Nodes, tt.wantNodes, "Hydrate() should return expected number of nodes")
 
-				if tt.validateFunc != nil {
-					tt.validateFunc(t, result)
+				var found []string
+				for _, node := range result.Nodes {
+					meta, err := node.GetMeta()
+					require.NoError(t, err)
+					found = append(found, meta.Kind+"/"+meta.Name)
 				}
+
+				assert.Equal(t, tt.wantResources, found, "Resource kinds and names should match expected")
 			}
 		})
 	}
