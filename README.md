@@ -14,7 +14,7 @@ MCP (Model Context Protocol) server providing read-only Kubernetes cluster acces
 Kubernetes manifest validator using CEL (Common Expression Language) for custom validation rules.
 
 ### [k2](./k2/)
-Lightweight Kustomize-like tool for Kubernetes resource management and customization.
+(WIP) Lightweight Kustomize-like tool for Kubernetes resource management and customization.
 
 ## Installation
 

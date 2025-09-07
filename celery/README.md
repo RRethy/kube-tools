@@ -2,26 +2,10 @@
 
 A Kubernetes Resource Model (KRM) YAML validator using Common Expression Language (CEL) validation rules.
 
-## Features
-
-- Validate Kubernetes resources against CEL expressions
-- Support for both file input and stdin
-- Inline CEL expressions or KRM-based ValidationRules files
-- Selective validation using resource selectors (kind, apiVersion, labels)
-- Verbose output mode for detailed validation results
-- Glob pattern support for rule files (e.g., `--rule-file "rules/*.yaml"`)
-- Cross-resource validation using `allObjects` variable
-- Deterministic output with sorted results
-- Failure percentage reporting
-
 ## Installation
 
 ```bash
-# From the workspace root
-make build-celery
-
-# Or from the celery directory
-go build -o bin/celery .
+go install github.com/RRethy/kube-tools/celery@latest
 ```
 
 ## Usage
@@ -195,15 +179,12 @@ The following variables are available in CEL expressions:
 ## Development
 
 ```bash
-# Run tests
-go test ./...
-
-# Format code
-go fmt ./...
-
-# Run linter
-golangci-lint run
-
-# Build binary
-go build -o bin/celery .
+# Build binary into ./bin/celery
+make build-celery
 ```
+
+## TODO
+
+- [ ] Package as an image for use with Kustomiza as a validator
+- [ ] Setup GH release automation
+- [ ] Setup GitHub Action for validation in CI
