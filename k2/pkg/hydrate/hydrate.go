@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 
@@ -45,6 +46,11 @@ func (h *hydrator) Hydrate(ctx context.Context, path string, currentResources []
 		return nil, err
 	}
 	nodes = append(nodes, componentNodes...)
+
+	err = h.applyCommonAnnotations(nodes, kustomization)
+	if err != nil {
+		return nil, err
+	}
 
 	result := &HydratedResult{
 		Nodes: nodes,
@@ -168,4 +174,20 @@ func (h *hydrator) loadResource(resourcePath string, currentResources []*kyaml.R
 	}
 
 	return []*kyaml.RNode{node}, nil
+}
+
+func (h *hydrator) applyCommonAnnotations(nodes []*kyaml.RNode, kustomization *v1.Kustomization) error {
+	if len(kustomization.CommonAnnotations) == 0 {
+		return nil
+	}
+
+	for _, node := range nodes {
+		currentAnnotations := node.GetAnnotations()
+		maps.Copy(currentAnnotations, kustomization.CommonAnnotations)
+		if err := node.SetAnnotations(currentAnnotations); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
