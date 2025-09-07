@@ -1,5 +1,7 @@
 # k2
 
+**WIP**
+
 A lightweight Kustomize-like tool for Kubernetes resource management.
 
 ## Overview
